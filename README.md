@@ -1,8 +1,11 @@
 # SlideSLAM
 SlideSLAM: Sparse, Lightweight, Decentralized Metric-Semantic SLAM for Multi-Robot Navigation
 
-Code will be released soon. Project website: https://xurobotics.github.io/slideslam/.
+The code will be released soon. 
 
+Project website: https://xurobotics.github.io/slideslam/
+
+Paper link: https://arxiv.org/abs/2406.17249
 
 # BibTex
 ```
