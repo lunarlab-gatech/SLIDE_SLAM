@@ -1,0 +1,1 @@
+../../script/process_cloud_node_outdoor.py

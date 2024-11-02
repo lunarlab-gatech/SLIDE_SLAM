@@ -1,0 +1,1 @@
+../../script/infer_node.py

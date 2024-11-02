@@ -1,0 +1,59 @@
+# All classes must have atleast the following fields:
+# id: unique integer id for the class
+# model: model type for the class. Currently supported models are "cuboid" and "cylinder". For ground class, leave the value empty.
+
+# For cuboid model, the following fields are required:
+# track_assignment_threshold: threshold for assigning and merging two cuboid tracks, during Hungarian Assignment, as one, based on their centroid distance.
+# track_age_threshold: minimum age of a track (obtained from Hungarian tracking) before it can be used for cuboid fitting. This value is multipled by the expected segmentation frequency to get the actual age threshold.
+# length_cutoff: minimum and maximum length of the cuboid
+# width_cutoff: minimum and maximum width of the cuboid
+# height_cutoff: minimum and maximum height of the cuboid
+# clustering_params: DBSCAN clustering parameters for the class. The first parameter is epsilon and the second parameter is min_samples.
+
+# TODO(ankit): Add instructions for cylinder model
+
+# All ground planes must be named as "ground" in the class_info.yaml file.
+# This "ground" string is used to determine if a ground plane can be extracted from segmented point cloud.
+ground:
+  id: 0
+  model:
+building:
+  id: 3
+  model: cuboid
+  track_assignment_threshold: 8.0
+  track_age_threshold: 16
+  length_cutoff: [3.0, 15.0]
+  width_cutoff: [3.0, 15.0]
+  height_cutoff: [0.5, 10.0]
+  clustering_params: [4.0, 80] #85
+box:
+  id: 4
+  model: cuboid
+  track_assignment_threshold: 1.0
+  track_age_threshold: 2
+  length_cutoff: [0.05, 0.1]
+  width_cutoff: [0.05, 0.1]
+  height_cutoff: [0.05, 0.1]
+  clustering_params: [0.5, 5]
+car:
+  id: 5
+  model: cuboid
+  track_assignment_threshold: 5.0
+  track_age_threshold: 4
+  length_cutoff: [3.0, 7.5]
+  width_cutoff: [1.5, 7.5]
+  height_cutoff: [0.5, 4.0]
+  clustering_params: [0.5, 20] #20
+big_bench:
+  id: 7
+  model: cuboid
+  track_assignment_threshold: 3.0 #4.0
+  track_age_threshold: 6
+  length_cutoff: [1.0, 10.0]
+  width_cutoff: [0.5, 10.0]
+  height_cutoff: [0.5, 5.0]
+  clustering_params: [2.0, 35] #40
+tree:
+  id: 8
+  model: cylinder
+  track_assignment_threshold: 1.0

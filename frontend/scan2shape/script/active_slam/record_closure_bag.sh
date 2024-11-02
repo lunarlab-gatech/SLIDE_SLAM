@@ -1,0 +1,1 @@
+rosbag record /factor_graph_atl/optimized_trajectory /factor_graph_atl/quadrotor/high_freq_odom /tf /tf_static /camera/color/image_raw /pc_instance_segmentation_accumulated /factor_graph_atl/optimized_point_landmarks /dragonfly67/quadrotor_ukf/control_odom

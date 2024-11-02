@@ -1,0 +1,34 @@
+# All classes must have atleast the following fields:
+# id: unique integer id for the class
+# model: model type for the class. Currently supported models are "cuboid" and "cylinder". For ground class, leave the value empty.
+
+# For cuboid model, the following fields are required:
+# track_assignment_threshold: threshold for assigning and merging two cuboid tracks, during Hungarian Assignment, as one, based on their centroid distance.
+# length_cutoff: minimum and maximum length of the cuboid
+# width_cutoff: minimum and maximum width of the cuboid
+# height_cutoff: minimum and maximum height of the cuboid
+
+# TODO(ankit): Add instructions for cylinder model
+
+# All ground planes must be named as "ground" in the class_info.yaml file.
+# This "ground" string is used to determine if a ground plane can be extracted from segmented point cloud.
+ground:
+  id: 1
+  model: 
+car:
+  id: 5
+  model: cuboid
+  track_assignment_threshold: 1.0
+  track_age_threshold: 4
+  clustering_params: [0.5, 25]
+  length_cutoff: [2.0, 5.5]
+  width_cutoff: [1.0, 2.5]
+  height_cutoff: [0.5, 2.0]
+tree:
+  id: 8
+  model: cylinder
+  track_assignment_threshold: 1.0
+lightpole:
+  id: 9
+  model: cylinder
+  track_assignment_threshold: 1.0
