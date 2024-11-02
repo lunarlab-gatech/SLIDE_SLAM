@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>multi_robot_utils_launch</name>
+  <version>0.0.0</version>
+  <description>The multi_robot_utils_launch package</description>
+
+  <author email="liuxu@seas.upenn.edu">Xu Liu</author>
+  <author email="jiuzl@seas.upenn.edu">Jiuzhou Lei</author>
+  <author email="praankit@seas.upenn.edu">Ankit Prabhu</author>
+  <author email="yztao@seas.upenn.edu">Yuezhan Tao</author>
+
+  <maintainer email="liuxu@seas.upenn.edu">Xu Liu</maintainer>
+  <maintainer email="jiuzl@seas.upenn.edu">Jiuzhou Lei</maintainer>
+  <maintainer email="praankit@seas.upenn.edu">Ankit Prabhu</maintainer>
+  <maintainer email="yztao@seas.upenn.edu">Yuezhan Tao</maintainer>
+
+  <license>Penn Software License</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <export>
+  </export>
+</package>
