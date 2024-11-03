@@ -4,35 +4,26 @@ This repository contains the source code for the project SlideSLAM: Sparse, Ligh
 - More details can be found on the [project website](https://xurobotics.github.io/slideslam/).
 - Our paper is available on arXiv [here](https://arxiv.org/abs/2406.17249). 
 
-# Table of contents:
+# Table of contents
 - [SlideSLAM](#slideslam)
-- [Table of contents:](#table-of-contents)
-- [Citation](#citation)
-- [Use docker](#use-docker)
-- [Build from source](#build-from-source)
+- [Table of contents](#table-of-contents)
+- [Use docker (recommended)](#use-docker-recommended)
+- [Build from source (only if you do not want to use docker)](#build-from-source-only-if-you-do-not-want-to-use-docker)
 - [Run our demos (with processed data)](#run-our-demos-with-processed-data)
   - [Download example data](#download-example-data)
   - [What these demos will do](#what-these-demos-will-do)
   - [Run multi-robot demo (based on LiDAR data)](#run-multi-robot-demo-based-on-lidar-data)
 - [Run on raw sensor data (RGBD or LiDAR bags)](#run-on-raw-sensor-data-rgbd-or-lidar-bags)
   - [Download example data](#download-example-data-1)
-  - [Run our RGBD Data Experiments](#run-our-rgbd-data-experiments)
-  - [Run our LiDAR Data Experiments](#run-our-lidar-data-experiments)
+  - [Run our RGBD data experiments](#run-our-rgbd-data-experiments)
+  - [Run our LiDAR Data experiments](#run-our-lidar-data-experiments)
 - [Acknowledgement](#acknowledgement)
-
-# Citation
-If you find our system or any of its modules useful for your academic work, we would appreciate it if you could cite our work as follows:
-```
-@article{liu2024slideslam,
-  title={Slideslam: Sparse, lightweight, decentralized metric-semantic slam for multi-robot navigation},
-  author={Liu, Xu and Lei, Jiuzhou and Prabhu, Ankit and Tao, Yuezhan and Spasojevic, Igor and Chaudhari, Pratik and Atanasov, Nikolay and Kumar, Vijay},
-  journal={arXiv preprint arXiv:2406.17249},
-  year={2024}
-}
-```
+- [Citation](#citation)
 
 
-# Use docker 
+
+
+# Use docker (recommended)
 
 - **Install docker**: https://docs.docker.com/desktop/install/linux/ubuntu/#install-docker-desktop
 
@@ -75,7 +66,7 @@ cd /opt/slideslam_docker_ws
 catkin build -DCMAKE_BUILD_TYPE=Release
 ```
 
-# Build from source 
+# Build from source (only if you do not want to use docker)
 
 - **Install ROS** (code currently only tested on Ubuntu 20.04 + ROS Noetic)
 
@@ -158,17 +149,8 @@ git clone git@github.com:KumarRobotics/ouster_decoder.git && cd ouster_decoder &
 ```
 pip install ultralytics==8.0.59
 ```
-- **(Optional) Only if you need to run on RGBD data with OPEN VOCABULARY YOLO-WORLD Model, install the following**
-```
-1) First install Python 3.10 Version, Then...
-2) sudo apt install python3.10-venv python3.10-distutils
-3) python3.10 -m ensurepip --upgrade
-4) sudo apt install python3.10-distutils
-5) python3.10 -m pip install ultralytics
-```
 
-This is required for running the YOLO-WORLD Model for Open Vocabulary Object Detection.
-- **Install Pip Dependencies**:
+- **Install pip dependencies**:
 ```
 pip install numpy==1.22.3
 pip install scikit-learn
@@ -215,7 +197,8 @@ This section will guide you through running our demos with processed data. We pr
 **Note:** Such tests can to a large degree replicate what would happen onboard the robot since when you run real world multi-robot experiment, each robot will only be responsible for processing its own data, and the processed data shared by the other robots in the form provided by here. 
 
 ## Download example data
-Download the bags from this link [TODO].
+
+Please download the processed data bags from [this link](https://drive.google.com/drive/folders/125N7srccxXPmn2HAQFjwXNNzYOO7DoqV). This containes compact processed bags for forest and urban outdoor environments. Please use the right data with the right scripts as specified below.
 
 
 ## What these demos will do
@@ -258,10 +241,11 @@ This section will guide you through running our code stack with raw sensor data,
 
 ## Download example data
 
-## Run our RGBD Data Experiments
+Please download the LiDAR demo bag from [this link](https://drive.google.com/drive/folders/1heAnoe6qESp2uQjjwwdR0Q3sUijkcUER). It is present inside the `outdoor` folder.
 
+Please download our trained RangeNet++ model from [this link](https://drive.google.com/drive/folders/1ignTNFZe3KLh9Fy6fakPwwJLEEnV-0E0). It is currently named `penn_smallest.zip`. Follow the instructions in the `Run our LiDAR data experiments`  section below on how to use this model.
 
-
+## Run our RGBD data experiments
 
 **Option 1:** Use our tmux script (recommended)
 
@@ -290,67 +274,20 @@ Finally, if you want to use Yolo-v8, execute this script
 
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
-**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or detailed instructions below:
+**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-rgbd-raw-bags-detailed-instructions):
 
-**Each of these commands in each mentioned bullet point should be run in a separate terminal window. For each of these commands, make sure to source your workspace first.**
-
-- **First, start a roscore**
-```
-roscore
-```
-
-- **Then set up sim time flag to true**
-```
-rosparam set /use_sim_time true
-```
-
-- **Run Instance Segmentation**
-
-This is the front-end instance segmentation network which will run a YOLOv8 model to detect objects in the RGB images.
-
-```
-roslaunch object_modeller rgb_segmentation_f250.launch
-``` 
-- **Run Sync Semantics Node**
-
-It will launch the message sychronization node to sychronize the modelled objects and odom topics
-```
-roslaunch object_modeller sync_semantic_measurements.launch robot_name:=robot0 odom_topic:=/dragonfly67/quadrotor_ukf/control_odom
-```
-
-- **Run Process Cloud Node**
-
-This node is responsible for fitting object models to the segmented point clouds
-```
-roslaunch scan2shape_launch process_cloud_node_rgbd_indoor_with_ns.launch
-```
-- **Run Factor Graph SLAM Backend**
-
-```
-roslaunch sloam single_robot_sloam_test.launch
-```
-
-- **Play The Bag File**
-
-Replace the YOUR_BAG_FILE with the name of the bag file you want to use.
-
-```
-rosbag play YOUR_BAG_FILE --clock -r 0.5 --topics /dragonfly67/quadrotor_ukf/control_odom /camera/aligned_depth_to_color/image_raw /camera/color/image_raw /camera/depth/image_rect_raw /camera/aligned_depth_to_color/image_raw:=/robot0/camera/aligned_depth_to_color/image_raw /camera/color/image_raw:=/robot0/camera/color/image_raw /camera/depth/image_rect_raw:=/robot0/camera/depth/image_rect_raw
-```
-
-## Run our LiDAR Data Experiments
-
+## Run our LiDAR Data experiments
 
 - **Download the LiDAR semantic segmentation RangeNet++ model**
 ```
-(1) Download the model from this link [TODO].
+(1) Download the model from the above link.
 (2) Unzip the file and place the model in a location of your choice.
 (3) Open the extracted model folder and make sure that there are no files inside having a .zip extension. If there are, then rename ALL OF THEM to remove the .zip extension. For example backbone.zip should be renamed to backbone
 ```
 
 **Option 1:** Use our tmux script (recommended)
 
-
+Make sure you edit the ```infer_node_params.yaml``` file present inside the ```scan2shape_launch/config``` folder and set the value of ```model_dir``` param to point to the path to the RangeNet++ model you downloaded in the previous step. Make sure to compelte the path with the ```/``` at the end.
 
 Source and go to the ' folder inside `multi_robot_utils_launch` package:
 ```
@@ -374,63 +311,18 @@ Finally, execute this script
 
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
-**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or detailed instructions below:
-
-**Each of these commands in each mentioned bullet point should be run in a separate terminal window. For each of these commands, make sure to source your workspace first.**
-
-- **First, start a roscore**
-```
-roscore
-```
-
-- **Then set up sim time flag to true**
-```
-rosparam set /use_sim_time true
-```
-
-- **Run Faster-LIO with LiDAR Drivers**
-
-This will run the Faster-LIO algorithm with the LiDAR drivers to process the LiDAR and IMU packets and provide odometry along with a undisorted point cloud.
-
-```
-roslaunch scan2shape_launch run_flio_with_driver.launch
-```
-
-- **Run Semantic Segmentation**
-
-This is the front-end semantic segmentation network which will run a RangeNet++ model to segment objects in the LiDAR point clouds.
-
-Make sure you edit the ```infer_node_params.yaml``` file present inside the ```scan2shape_launch/config``` folder and set the value of ```model_dir``` param to point to the path to the RangeNet++ model you downloaded in the previous step. Make sure to compelte the path with the ```/``` at the end.
-
-```
-roslaunch scan2shape_launch infer_node.launch
-``` 
-- **Run Sync Semantics Node**
-
-It will launch the message sychronization node to sychronize the modelled objects and odom topics
-```
-roslaunch object_modeller sync_semantic_measurements.launch robot_name:=robot0 odom_topic:=/Odometry
-```
-
-- **Run Process Cloud Node**
-
-This node is responsible for fitting object models to the segmented point clouds
-```
-roslaunch scan2shape_launch process_cloud_node_outdoor_with_ns.launch
-```
-- **Run Factor Graph SLAM Backend**
-
-```
-roslaunch sloam single_robot_sloam_test_LiDAR.launch
-```
-
-- **Play The Bag File**
-
-Replace the YOUR_BAG_FILE with the name of the bag file you want to use.
-
-```
-rosbag play YOUR_BAG_FILE --clock --topics /os_node/lidar_packets /os_node/imu_packets /os_node/metadata
-```
+**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-lidar-raw-bags-detailed-instructions):
 
 # Acknowledgement
 We use GTSAM as the backend. We thank [Guilherme Nardari](linkedin.com/in/guilherme-nardari-23ba91a8) for his contributions to this repository. 
+
+# Citation
+If you find our system or any of its modules useful for your academic work, we would appreciate it if you could cite our work as follows:
+```
+@article{liu2024slideslam,
+  title={Slideslam: Sparse, lightweight, decentralized metric-semantic slam for multi-robot navigation},
+  author={Liu, Xu and Lei, Jiuzhou and Prabhu, Ankit and Tao, Yuezhan and Spasojevic, Igor and Chaudhari, Pratik and Atanasov, Nikolay and Kumar, Vijay},
+  journal={arXiv preprint arXiv:2406.17249},
+  year={2024}
+}
+```
