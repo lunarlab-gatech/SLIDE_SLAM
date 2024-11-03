@@ -186,8 +186,6 @@ sudo rm -rf /usr/local/lib/cmake/*GTSAM*
 sudo rm -rf /usr/local/include/gtsam
 ```
 - If you have installed GTSAM using apt-get, remove them first, use this command `sudo apt remove --purge libgtsam*
-- Follow SLOAM Docker file to install the rest of packages if you have not installed them yet:
-https://github.com/XuRobotics/generic-sloam/blob/factor_graph/docker/SLOAMDockerfile
 
 # Run our demos (with processed data)
 Note: if the access to any of the links is lost, please contact the authors, and we will provide the data from our lab's NAS.
