@@ -32,17 +32,27 @@ This repository contains the source code for the project SlideSLAM: Sparse, Ligh
 docker pull xurobotics/slide-slam:latest
 ```
 
-- **Create the workspace (very important to keep your changes stored outside docker)**
+- **Create the workspace (important)**
 ```
 mkdir -p ~/slideslam_docker_ws/src
 cd ~/slideslam_docker_ws/src
 ```
+_Creating the workspace outside the docker helps you keep your files and changes within the workspace even if you delete the un-committed docker container._
 
 - **Clone the repo**: 
 ```
 git clone https://github.com/XuRobotics/SLIDE_SLAM.git
 cd ~/slideslam_docker_ws/src/SLIDE_SLAM
 chmod +x run_slide_slam_docker.sh
+```
+
+
+- **Pull external libraries**:
+```
+cd ~/slideslam_ws/src/SLIDE_SLAM/backend/sloam
+vcs import < ../../external.yaml
+vcs pull
+cd ../..
 ```
 
 - **(Optional) Only if you need to run on LiDAR data, install Faster-LIO and LiDAR drivers**: 
@@ -55,7 +65,7 @@ git clone git@github.com:KumarRobotics/ouster_decoder.git && cd ouster_decoder &
 *Find the ```CMakeLists.txt``` in ```ouster_decoder``` and comment out the last three lines (the ```ouster_viz```) to avoid fmt issue*
 
 - **Run the docker image**: 
-Go to `./run_slide_slam_docker.sh`, make sure all directories are correct, and then run:
+**Important:** Go to `./run_slide_slam_docker.sh`, make sure all directories are correct, and then run:
 ```
 ./run_slide_slam_docker.sh
 ```
@@ -65,6 +75,10 @@ Go to `./run_slide_slam_docker.sh`, make sure all directories are correct, and t
 cd /opt/slideslam_docker_ws
 catkin build -DCMAKE_BUILD_TYPE=Release
 ```
+
+- **Troubleshooting**:
+- If you do not see your code or bags inside docker, double check `run_slide_slam_docker.sh` file to make sure you have your workspace and BAG folders mapped properly. 
+
 
 # Build from source (only if you do not want to use docker)
 
@@ -272,7 +286,7 @@ Finally, if you want to use Yolo-v8, execute this script
 
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
-**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-rgbd-raw-bags-detailed-instructions):
+**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-rgbd-raw-bags-detailed-instructions).
 
 ## Run our LiDAR Data experiments
 
@@ -309,7 +323,7 @@ Finally, execute this script
 
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
-**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-lidar-raw-bags-detailed-instructions):
+**Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-lidar-raw-bags-detailed-instructions).
 
 # Acknowledgement
 We use GTSAM as the backend. We thank [Guilherme Nardari](linkedin.com/in/guilherme-nardari-23ba91a8) for his contributions to this repository. 
