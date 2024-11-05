@@ -1,0 +1,17 @@
+*/build/*
+*.pyc
+*/__pycache__/*
+/scan2shape/script/explo_plots/*
+/scan2shape/script/explo_model*
+/scan2shape/script/explo_plots2/*
+/scan2shape/script/stats_data/*
+ouster_example
+/scan2shape/script/plots/*
+scan2shape/script/max_scale.pkl
+/*/*/build/
+*log*.txt
+*.bag
+*.pt
+*.npy
+.vscode
+*.png

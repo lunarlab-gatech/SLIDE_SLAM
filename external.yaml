@@ -1,5 +1,0 @@
-repositories:
-  clipper_semantic_object:
-    type: git
-    url: https://github.com/RollingOat/clipper_semantic_object
-    version: main 

@@ -17,6 +17,7 @@ This repository contains the source code for the project SlideSLAM: Sparse, Ligh
   - [Download example data](#download-example-data-1)
   - [Run our RGBD data experiments](#run-our-rgbd-data-experiments)
   - [Run our LiDAR Data experiments](#run-our-lidar-data-experiments)
+- [Troubleshoot](#troubleshoot)
 - [Acknowledgement](#acknowledgement)
 - [Citation](#citation)
 
@@ -44,15 +45,6 @@ _Creating the workspace outside the docker helps you keep your files and changes
 git clone https://github.com/XuRobotics/SLIDE_SLAM.git
 cd ~/slideslam_docker_ws/src/SLIDE_SLAM
 chmod +x run_slide_slam_docker.sh
-```
-
-
-**Pull external libraries**:
-```
-cd ~/slideslam_ws/src/SLIDE_SLAM/backend/sloam
-vcs import < ../../external.yaml
-vcs pull
-cd ../..
 ```
 
 **(Optional) Only if you need to run on LiDAR data, install Faster-LIO and LiDAR drivers**: 
@@ -115,11 +107,11 @@ before you run the docker image again.
 
 # Build from source (only if you do not want to use docker)
 
-- **Install ROS** (code currently only tested on Ubuntu 20.04 + ROS Noetic)
+**Install ROS** (code currently only tested on Ubuntu 20.04 + ROS Noetic)
 
 Please refer to this [link](https://wiki.ros.org/noetic/Installation/Ubuntu) for installing ROS Noetic
 
-- **Create your workspace under your preferred directory** (e.g., we name this directory as `~/slideslam_ws`):
+**Create your workspace under your preferred directory** (e.g., we name this directory as `~/slideslam_ws`):
 ```
 cd ~
 mkdir slideslam_ws
@@ -127,20 +119,12 @@ cd slideslam_ws
 mkdir src
 ```
 
-- **Then, pull the slideslam github repo**:
+**Then, pull the slideslam github repo**:
 ```
 git clone https://github.com/XuRobotics/SLIDE_SLAM.git
 ```
 
-- **Pull external libraries**:
-```
-cd ~/slideslam_ws/src/SLIDE_SLAM/backend/sloam
-vcs import < ../../external.yaml
-vcs pull
-cd ../..
-```
-
-- **Install qhull 8.0.2**: 
+**Install qhull 8.0.2**: 
   
 *Download from [this link](http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz), extract (unzip) the file, then:*
 ```
@@ -150,7 +134,7 @@ make install
 ```
 
 
-- **Install gtsam 4.0.3**:
+**Install gtsam 4.0.3**:
 
 ```
 sudo add-apt-repository ppa:borglab/gtsam-release-4.0 
@@ -159,7 +143,7 @@ sudo apt install libgtsam-dev libgtsam-unstable-dev
 sudo apt-get install libdw-dev
 ```
 
-- **Install Sophus**: 
+**Install Sophus**: 
 ```
 git clone https://github.com/strasdat/Sophus.git && \
     cd Sophus && git checkout 49a7e1286910019f74fb4f0bb3e213c909f8e1b7 && \
@@ -168,7 +152,7 @@ git clone https://github.com/strasdat/Sophus.git && \
 sudo make install
 ```
 
-- **Install fmt 8.0.0**:
+**Install fmt 8.0.0**:
 ```
 git clone https://github.com/fmtlib/fmt.git && \
     cd fmt && git checkout 8.0.0 && \
@@ -176,12 +160,13 @@ git clone https://github.com/fmtlib/fmt.git && \
     cmake .. && make  
 sudo make install
 ```
-- **Install ros_numpy**:
+
+**Install ros_numpy**:
 ```
 sudo apt install ros-noetic-ros-numpy
 ```
 
-- **(Optional) Only if you need to run on LiDAR data, install Faster-LIO and LiDAR drivers**: 
+**(Optional) Only if you need to run on LiDAR data, install Faster-LIO and LiDAR drivers**: 
 ```
 sudo apt update
 sudo apt-get install -y libgoogle-glog-dev
@@ -192,12 +177,12 @@ git clone git@github.com:KumarRobotics/ouster_decoder.git && cd ouster_decoder &
 ```
 *Find the ```CMakeLists.txt``` in ```ouster_decoder``` and comment out the last three lines (the ```ouster_viz```) to avoid fmt issue*
 
-- **(Optional) Only if you need to run on RGBD data with YOLOv8, install the following**:
+**(Optional) Only if you need to run on RGBD data with YOLOv8, install the following**:
 ```
 pip install ultralytics==8.0.59
 ```
 
-- **Install pip dependencies**:
+**Install pip dependencies**:
 ```
 pip install numpy==1.22.3
 pip install scikit-learn
@@ -323,7 +308,7 @@ If you want to terminate this program, go to the last terminal window and press 
 
 ## Run our LiDAR Data experiments
 
-- **Download the LiDAR semantic segmentation RangeNet++ model**
+**Download the LiDAR semantic segmentation RangeNet++ model**
 ```
 (1) Download the model from the above link.
 (2) Unzip the file and place the model in a location of your choice.
@@ -357,6 +342,12 @@ Finally, execute this script
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
 **Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-lidar-raw-bags-detailed-instructions).
+
+
+
+# Troubleshoot
+**Rate of segmentation:**
+- When running on your own data, we recommend to throttle the segmentation topic (segmented point cloud or images) rate to 2-4 Hz to avoid computation delay in the front end, especially if you’re experiencing performance issues at higher rates. Please also update the `expected_segmentation_frequency` parameter in the corresponding `process_cloud_node_*_params.yaml` file as well as the `desired_frequency` in the `infer_node_params.yaml` to the actual rate of the topic. 
 
 # Acknowledgement
 We use GTSAM as the backend. We thank [Guilherme Nardari](linkedin.com/in/guilherme-nardari-23ba91a8) for his contributions to this repository. 

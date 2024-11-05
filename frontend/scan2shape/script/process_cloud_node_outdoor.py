@@ -24,8 +24,17 @@ class ProcessCloudNode:
     def __init__(self, node_name):
 
         ################################## IMPORTANT PARAMS ##################################
-        class_info_yaml_path = rospkg.RosPack().get_path('scan2shape_launch') + \
-            "/config/process_cloud_node_outdoor_class_info.yaml"
+        robot_name = rospy.get_param("/robot_name", default="robot0")
+        param_name_prefix = f"/{robot_name}/{node_name}/"
+        self.run_kitti = rospy.get_param(param_name_prefix + "run_kitti", default=False)
+
+        if self.run_kitti:
+            class_info_yaml_path = rospkg.RosPack().get_path('scan2shape_launch') + \
+            "/config/process_cloud_node_outdoor_kitti_class_info.yaml"
+        else:    
+            class_info_yaml_path = rospkg.RosPack().get_path('scan2shape_launch') + \
+                "/config/process_cloud_node_outdoor_class_info.yaml"
+            
         with open(class_info_yaml_path, 'r') as file:
             self.cls_data_all = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -56,13 +65,12 @@ class ProcessCloudNode:
         # Point cloud fields for creating PointCloud2 messages
         self.pc_fields_ = make_fields()
 
-        robot_name = rospy.get_param("/robot_name", default="robot0")
-        param_name_prefix = f"/{robot_name}/{node_name}/"
-
         # PARAMETERS
         # Consult the params file for more information on each parameter
         self.ransac_n_points = rospy.get_param(
             param_name_prefix+"ransac_n_points", default=50)
+        if self.run_kitti:
+            rospy.logwarn("Running KITTI dataset benchmark code!")
         self.ground_median_increment = rospy.get_param(
             param_name_prefix+"ground_median_increment", default=0.3)
         self.valid_range_threshold = rospy.get_param(
@@ -318,13 +326,27 @@ class ProcessCloudNode:
 
                 points_body_xyzi_cylinder_masked[non_cylinder_idx, :] = np.NaN
 
-                pc_msg_cylinder = publish_cylinder_cloud(self.pc_fields_, points_body_xyzi_cylinder_masked.reshape(
-                    (self.pc_height, self.pc_width, 4)), current_raw_timestamp, self.range_image_frame, pc_width=self.pc_width, pc_height=self.pc_height, pc_point_step=self.pc_point_step)
-                self.cylinder_cloud_pub.publish(pc_msg_cylinder)
+                # check if points_body_xyzi_cylinder_masked is a flattened array (num_points x 4) or an organized point cloud (height x width x 4)
+                if len(points_body_xyzi_cylinder_masked.shape) == 3:
+                    pc_msg_cylinder = publish_cylinder_cloud(self.pc_fields_, points_body_xyzi_cylinder_masked.reshape(
+                        (self.pc_height, self.pc_width, 4)), current_raw_timestamp, self.range_image_frame, pc_width=self.pc_width, pc_height=self.pc_height, pc_point_step=self.pc_point_step)
+                    self.cylinder_cloud_pub.publish(pc_msg_cylinder)
 
-                pc_msg_ground = publish_ground_cloud(self.pc_fields_, points_body_xyzi_ground_masked.reshape(
-                    (self.pc_height, self.pc_width, 4)), current_raw_timestamp, self.range_image_frame, pc_width=self.pc_width, pc_height=self.pc_height, pc_point_step=self.pc_point_step)
-                self.ground_cloud_pub.publish(pc_msg_ground)
+                    pc_msg_ground = publish_ground_cloud(self.pc_fields_, points_body_xyzi_ground_masked.reshape(
+                        (self.pc_height, self.pc_width, 4)), current_raw_timestamp, self.range_image_frame, pc_width=self.pc_width, pc_height=self.pc_height, pc_point_step=self.pc_point_step)
+                    self.ground_cloud_pub.publish(pc_msg_ground)
+                elif len(points_body_xyzi_cylinder_masked.shape) == 2:
+                    pc_msg_cylinder = publish_cylinder_cloud(self.pc_fields_, points_body_xyzi_cylinder_masked, current_raw_timestamp,
+                                                             self.range_image_frame, pc_width=points_body_xyzi_cylinder_masked.shape[0], pc_height=1, pc_point_step=self.pc_point_step)
+                    self.cylinder_cloud_pub.publish(pc_msg_cylinder)
+
+                    pc_msg_ground = publish_ground_cloud(self.pc_fields_, points_body_xyzi_ground_masked, current_raw_timestamp,
+                                                          self.range_image_frame, pc_width=points_body_xyzi_ground_masked.shape[0], pc_height=1, pc_point_step=self.pc_point_step)
+                    self.ground_cloud_pub.publish(pc_msg_ground)
+                else: 
+                    # raise an exception 
+                    raise Exception("points_body_xyzi_cylinder_masked is neither a flattened array nor an organized point cloud. Check the code for errors.")
+                
             else:
                 # setting ground plane coeff to simulate flat ground everywhere.
                 self.ground_plane_coeff = np.array([0, 0, 1, 0])

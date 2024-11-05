@@ -152,13 +152,18 @@ class CylinderPlaneModeller:
         if self.synced_tree_and_ground_clouds is not None:
             start_time = rospy.Time.now().to_sec()
             self.cluster(self.synced_tree_and_ground_clouds)
-            rate = 1.0 / (rospy.Time.now().to_sec() - start_time)
+            time_to_process = rospy.Time.now().to_sec() - start_time
+            # avoid division by zero
+            if time_to_process > 0:
+                rate = 1.0 / time_to_process
+            else:
+                rate = 0.0
 
             if rate < self.average_tree_cloud_rate:
                 rospy.logwarn("Time to process tree cloud is longer than the incoming tree point cloud rate. Tree and ground cloud will be reset. Tune the clustering parameters or slow down the incoming point cloud. Processing rate: %.2f, Average incoming rate: %.2f", rate, self.average_tree_cloud_rate)
-            # reset the latest_tree_cloud
-            # reset it to avoid processing the same cloud again
-            self.synced_tree_and_ground_clouds = None
+                # reset the latest_tree_cloud
+                # reset it to avoid processing the same cloud again
+                self.synced_tree_and_ground_clouds = None
 
     def cluster(self, cur_synced_tree_and_ground_clouds):
         latest_tree_cloud = cur_synced_tree_and_ground_clouds[0]

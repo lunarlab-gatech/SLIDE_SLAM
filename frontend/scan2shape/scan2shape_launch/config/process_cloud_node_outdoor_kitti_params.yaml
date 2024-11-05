@@ -2,9 +2,9 @@
 
 #------------------Important Parameters START------------------
 # threshold for segmented lidar points range in meters
-valid_range_threshold: 40.0
+valid_range_threshold: 100.0
 # expected segmentation frequency in Hz
-expected_segmentation_frequency: 2.0
+expected_segmentation_frequency: 2.0 #2.0
 # Minimum time in seconds to track a cuboid for before cuboid fitting
 time_to_initialize_cuboid: 3.0
 # TODO(ankit): Change the use_1st_layer_clustering param names to something more intuitive
@@ -22,7 +22,7 @@ estimate_facing_dir_car: False
 # Flag to determine whether to cluster and fix cuboid orientation by taking a consensus of the orientations of the cuboids in the cluster
 cluster_and_fix_cuboid_orientation: True
 # Flag for running KITTI dataset benchmarking code
-run_kitti: False
+run_kitti: True # default False
 # input point cloud parameters
 pc_width: 1024
 pc_heigh: 64

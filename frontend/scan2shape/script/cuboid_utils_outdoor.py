@@ -235,7 +235,7 @@ def cluster_cuboid_orientation(cuboids):
     number_of_yaws_allowed = 2
     if len(all_yaws) > number_of_yaws_allowed:
         # TODO(ankit): change the kernel of Kmeans to be cosine similarity, because, for example, 0 and pi are close
-        kmeans = KMeans(n_clusters=number_of_yaws_allowed, random_state=0).fit(
+        kmeans = KMeans(n_clusters=number_of_yaws_allowed, random_state=0, n_init=10).fit(
             np.array(all_yaws).reshape(-1, 1))
         # get the cluster centers, set all yaw to be the closest cluster center
         cluster_centers = kmeans.cluster_centers_
@@ -300,7 +300,7 @@ def cluster_cuboid_orientation(cuboids):
 
         return cuboids
     else:
-        rospy.loginfo("not enough cuboids to fix cuboid yaw orientation")
+        rospy.loginfo("Not enough cuboids to fix cuboid yaw orientation")
         return cuboids
 
 

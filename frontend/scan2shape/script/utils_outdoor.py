@@ -267,6 +267,61 @@ def send_tfs(process_cloud_node_object, msg):
         # If using LLOL's ouster driver, frame is rotated by 180 degrees
         process_cloud_node_object.reference_frame
     )
+    
+    if process_cloud_node_object.run_kitti:
+        # publish odom as tf between faster_lio_world_frame and range_image_frame
+        # extract the rotation and translation from the odom message
+        t = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z])
+        q = np.array([msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w])
+        # here pose is pose_camera according to semantic KITTI
+        # pose_lidar = Tr_inv * Pose_camera *Tr
+        # Tr is transformation matrix from camera to lidar
+        # Tr: Tr: 4.276802385584e-04 -9.999672484946e-01 -8.084491683471e-03 -1.198459927713e-02 -7.210626507497e-03 8.081198471645e-03 -9.999413164504e-01 -5.403984729748e-02 9.999738645903e-01 4.859485810390e-04 -7.206933692422e-03 -2.921968648686e-01
+        # Tr = np.array([[4.276802385584e-04, -9.999672484946e-01, -8.084491683471e-03, -1.198459927713e-02],
+        #                     [-7.210626507497e-03, 8.081198471645e-03, -9.999413164504e-01, -5.403984729748e-02],
+        #                         [9.999738645903e-01, 4.859485810390e-04, -7.206933692422e-03, -2.921968648686e-01],
+        #                             [0, 0, 0, 1]])
+        # # get the transformation matrix
+        # H_cam_world = np.eye(4)
+        # H_cam_world[:3, :3] = R.from_quat(q).as_matrix()
+        # H_cam_world[:3, 3] = t
+
+        # # invert the Tr
+        # Tr_inv = np.linalg.inv(Tr)
+        # # apply the transformation matrix
+        # H_lidar_world = Tr_inv @ H_cam_world @ Tr
+        # # extract the rotation and translation from the inverted transformation matrix
+        # t = H_lidar_world[:3, 3]
+        # q = R.from_matrix(H_lidar_world[:3, :3]).as_quat()
+        # rospy.logwarn_throttle(5, "RUNNING KITTI BENCHMARK!")
+
+        # # # get the transformation matrix
+        # # H = np.eye(4)
+        # # H[:3, :3] = R.from_quat(q).as_matrix()
+        # # H[:3, 3] = t
+        # # # invert the transformation matrix
+        # # H_inv = np.linalg.inv(H)
+        # # # extract the rotation and translation from the inverted transformation matrix
+        # # t = H_inv[:3, 3]
+        # # q = R.from_matrix(H_inv[:3, :3]).as_quat()
+
+
+        H = np.eye(4)
+        H[:3, :3] = R.from_quat(q).as_matrix()
+        H[:3, 3] = t
+        # invert the transformation matrix
+        # H_inv = np.linalg.inv(H)
+        # H_inv = H
+        # extract the rotation and translation from the inverted transformation matrix
+        t = H[:3, 3]
+        q = R.from_matrix(H[:3, :3]).as_quat()
+        process_cloud_node_object.odom_broadcaster.sendTransform(
+            t,
+            q,
+            msg.header.stamp,
+            process_cloud_node_object.range_image_frame,
+            process_cloud_node_object.faster_lio_world_frame
+        )
 
     # publish the odometry message
     odom_msg = msg
