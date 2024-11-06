@@ -271,7 +271,11 @@ This section will guide you through running our code stack with raw sensor data,
 
 ## Download example data
 
-Please download the LiDAR demo bag from [this link](https://drive.google.com/drive/folders/1heAnoe6qESp2uQjjwwdR0Q3sUijkcUER). It is present inside the `outdoor` folder.
+Please download the LiDAR demo bags from [this link](https://drive.google.com/drive/folders/1heAnoe6qESp2uQjjwwdR0Q3sUijkcUER). It is present inside the `outdoor` folder.
+
+Please download the RGBD demo bags from [this link](https://drive.google.com/drive/folders/1heAnoe6qESp2uQjjwwdR0Q3sUijkcUER). It is present inside the `indoor` folder.
+
+Please download the KITTI benchmark processed bags from [this link](https://drive.google.com/drive/folders/1heAnoe6qESp2uQjjwwdR0Q3sUijkcUER). It is present inside the `kitti_bags` folder.
 
 Please download our trained RangeNet++ model from [this link](https://drive.google.com/drive/folders/1ignTNFZe3KLh9Fy6fakPwwJLEEnV-0E0). It is currently named `penn_smallest.zip`. Follow the instructions in the `Run our LiDAR data experiments`  section below on how to use this model.
 
@@ -343,7 +347,29 @@ If you want to terminate this program, go to the last terminal window and press 
 
 **Option 2:** If you prefer not to use this tmux script, please refer to the `roslaunch` commands inside this tmux script and execute those commands by yourself, or using the detailed instructions found [here](https://github.com/XuRobotics/SLIDE_SLAM/wiki#run-lidar-raw-bags-detailed-instructions).
 
+## Run KITTI Benchmark experiments
 
+**Option 1:** Use our tmux script
+
+Source and go to the ' folder inside `multi_robot_utils_launch` package:
+```
+source ~/slideslam_ws/devel/setup.bash
+roscd multi_robot_utils_launch/script
+```
+
+Modify `tmux_single_outdoor_kitti.sh` to set the `BAG_DIR` to where you downloaded the bags
+
+Then make it executable if needed
+```
+chmod +x tmux_single_outdoor_kitti.sh
+```
+
+Finally, execute this script
+```
+./tmux_single_outdoor_kitti.sh
+```
+
+If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
 
 # Troubleshoot
 **Rate of segmentation:**
