@@ -1,6 +1,7 @@
 ## Note
 The repo is forked from CLIPPER and modified to extract triangulation descriptors from point landmarks and robustly estimate point correspondences betweentwo set of points. 
 
+Original CLIPPER Git Repo: https://github.com/mit-acl/clipper
 
 #### Dependencies for clipper and triangulation
 Eigen3, MKL, Boost, Opencv, qhull, pmc, scs
