@@ -117,6 +117,7 @@ cd ~
 mkdir slideslam_ws
 cd slideslam_ws 
 mkdir src
+cd src
 ```
 
 **Then, pull the slideslam github repo**:
