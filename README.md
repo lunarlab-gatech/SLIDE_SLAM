@@ -133,7 +133,7 @@ cd build
 cmake ..
 make install
 ```
-
+*If ```make install``` gives a permission error then try ```sudo make install```*
 
 **Install gtsam 4.0.3**:
 
