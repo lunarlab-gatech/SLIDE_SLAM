@@ -172,7 +172,7 @@ sudo apt install ros-noetic-ros-numpy
 sudo apt update
 sudo apt-get install -y libgoogle-glog-dev
 cd ~/slideslam_ws/src
-git clone http://github.com/ouster-lidar/ouster_exanple.git && cd ouster_example && git checkout 43107a1 && cd ..
+git clone http://github.com/ouster-lidar/ouster_example.git && cd ouster_example && git checkout 43107a1 && cd ..
 git clone https://github.com/XuRobotics/faster-lio.git
 git clone https://github.com/KumarRobotics/ouster_decoder.git && cd ouster_decoder && git checkout d66b52d  && cd ..
 ```
