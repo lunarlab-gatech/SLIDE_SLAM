@@ -190,7 +190,7 @@ pip install scikit-learn
 pip install scipy
 pip install open3d
 pip install matplotlib
-pip install pypcd
+pip install git+https://github.com/dimatura/pypcd.git
 ```
 
 - Install `tmux` for running our demo experiments
