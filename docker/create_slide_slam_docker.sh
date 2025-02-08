@@ -1,6 +1,6 @@
-SlideSlamWs="/home/sam/slideslam_docker_ws" # point to your workspace directory
-SlideSlamCodeDir="/home/sam/slideslam_docker_ws/src/SLIDE_SLAM" # point to your code directory where you cloned the repository
-BAGS_DIR='/home/sam/bags' # point to your bags / data directory
+SlideSlamWs="/home/dbutterfield3/slideslam_docker_ws" # point to your workspace directory
+SlideSlamCodeDir="/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM" # point to your code directory where you cloned the repository
+BAGS_DIR='/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM' # point to your bags / data directory
 
 xhost +local:root # for the lazy and reckless
 docker run -it \
