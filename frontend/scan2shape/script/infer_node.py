@@ -147,18 +147,16 @@ class Inference:
         #     points_xyz.shape[0], -1)[:, 1].astype(np.float32)
         # ----------------------------------------------------------
 
-        #undistorted_pc = None
-        # try:
-        undistorted_pc = ros_numpy.numpify(msg)
-        # except ValueError as e:
-        #     rospy.loginfo_throttle(10, f"Height: {msg.height}")
-        #     rospy.loginfo_throttle(10, f"width: {msg.width}")
-        #     rospy.loginfo_throttle(10, f"Point Step: {msg.point_step}")
-        #     rospy.loginfo_throttle(10, f"Row Step: {msg.row_step}")
-        #     rospy.loginfo_throttle(10, f"Buffer Size: {len(msg.data)}")
-        #     rospy.logerr_throttle(10, f"Error with numpify: {e}")
-        #     return 
+        def fix_pointcloud2_order(msg: PointCloud2) -> PointCloud2:
+            """Reorders the fields of a PointCloud2 message by offset."""
+            msg.fields = sorted(msg.fields, key=lambda f: f.offset)
+            return msg
 
+        # faster-lio doesn't return fields in order of offset, so reorder 
+        # for ros_numpy.numpify()
+        msg = fix_pointcloud2_order(msg)
+
+        undistorted_pc = ros_numpy.numpify(msg)
         self.pc_width = undistorted_pc['x'].flatten().shape[0]
         self.pc_height = 1
         points_xyz = np.zeros((undistorted_pc['x'].flatten().shape[0], 3))
@@ -234,7 +232,7 @@ class Inference:
             if self.gpu_:
                 torch.cuda.synchronize()
 
-            # Output probability instead of hard classification
+            # RangeNet++ outputs probability instead of hard classification, so convert to labels
             proj_argmax = proj_output[0].argmax(dim=0)
 
             # threshold out of range points
@@ -268,6 +266,7 @@ class Inference:
             pred_np_range_image = pred_np_range_image.reshape((-1))
             proj_xyz_range_image = proj_xyz.cpu().numpy()
             proj_xyz_range_image = proj_xyz_range_image.reshape((-1, 3))
+
             # threshold out of points
             pred_np_range_image[np.linalg.norm(
                 proj_xyz_range_image, axis=1) > self.range_threshold] = 0
@@ -284,9 +283,9 @@ class Inference:
             pc_msg.header.frame_id = "body"
             rospy.logwarn_throttle(
                 30, "Segmented point cloud is currently hardcoded to be published in \"body\" frame. Please change it to the correct frame if needed.")
-            pc_msg.width = self.pc_width
+            pc_msg.width = 65536 #self.pc_width
             pc_msg.height = self.pc_height
-            pc_msg.point_step = self.pc_point_step
+            pc_msg.point_step = 16 #self.pc_point_step
             pc_msg.row_step = pc_msg.width * pc_msg.point_step
             pc_msg.fields = self.pc_fields_
             pc_msg.data = full_data_range_image.tobytes()
