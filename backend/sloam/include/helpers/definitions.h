@@ -96,3 +96,26 @@ struct FeatureModelParams {
 
   Scalar defaultCylinderRadius;
 };
+
+/*
+ * Relative Inter-Robot Measurements
+ */
+
+/**
+ * @brief This struct holds relative inter-robot
+ * measurements. 
+ * 
+ * @param stamp - the timestamp.
+ * @param odomPose - the synced odometry.
+ * @param relativePose - the relative measurement
+ *    between the current robot and robot assigned to
+ *    "robotIndex".
+ * @param robotIndex - the index assigned to the robot
+ *    whose relative pose was measured.
+ */
+struct RelativeMeas {
+  ros::Time stamp;
+  SE3 odomPose;
+  SE3 relativePose;
+  int robotIndex; 
+};

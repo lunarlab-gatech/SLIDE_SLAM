@@ -77,7 +77,7 @@ bool SemanticFactorGraphWrapper::addSLOAMObservation(
     // set priors for the first pose
     setPriors(curr_pose, robotID);
     ROS_WARN_STREAM(
-        "EROOR: Factor graph optimization is done when adding the first "
+        "ERROR: Factor graph optimization is done when adding the first "
         "pose prior, this may cause problems!!!");
   } else {
     // if cov is not specified, deafult covariance will be used, see

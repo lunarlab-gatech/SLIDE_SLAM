@@ -10,6 +10,7 @@
     <arg name="odom_topic" default="/robot0/odom"/>
     <arg name="turn_off_intra_loop_closure" default="false"/>
     <arg name="turn_off_inter_loop_closure" default="false"/>
+    <arg name="turn_off_rel_inter_robot_factor" default="true"/>
     <arg name="priorTFKnown" default="false"/>
     <arg name="priorTF_x" default="0"/>
     <arg name="priorTF_y" default="0"/>
@@ -19,6 +20,7 @@
             <param name="hostRobotID" value="$(arg hostRobot_ID)" />
             <param name="turn_off_intra_loop_closure" value="$(arg turn_off_intra_loop_closure)"/>
             <param name="turn_off_inter_loop_closure" value="$(arg turn_off_inter_loop_closure)"/>
+            <param name="turn_off_rel_inter_robot_factor" value="$(arg turn_off_rel_inter_robot_factor)"/>
             <!-- the TF here is from robot to world, which is the inverse of robot's position in the world frame -->
             <param name="priorTFKnown" value="$(arg priorTFKnown)"/>
             <param name="priorTF_x" value="$(arg priorTF_x)"/>
@@ -30,6 +32,7 @@
             <remap from="/sloam/cylinders_map"                         to="robot_$(arg hostRobot_ID)/sloam/cylinders_map"/>
             <remap from="/sloam/submap_cylinder_models"         to="robot_$(arg hostRobot_ID)/sloam/submap_cylinder_models"/>
             <remap from="/sloam/optimized_point_landmarks"         to="robot_$(arg hostRobot_ID)/sloam/optimized_point_landmarks"/>
+            <!-- for subscribe -->
             <remap from="/sloam/odom"         to="$(arg odom_topic)"/>
             <!-- semantic measurements will be under topic robot_ns_prefix+hostRobotID/semantic_meas_sync_odom -->
     </node>

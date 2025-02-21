@@ -27,6 +27,7 @@ add_message_files(DIRECTORY msg FILES
     cylinderMap.msg
     MultiArrayPoseObjectEdges.msg
     poseObjectEdges.msg 
+    RelativeInterRobotMeasurement.msg
     ROSCube.msg
     PoseMst.msg
     PoseMstBundle.msg

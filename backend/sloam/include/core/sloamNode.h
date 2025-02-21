@@ -66,12 +66,14 @@ class SLOAMNode : public sloam {
                     const std::vector<Cube> &cubesBody,
                     const std::vector<Ellipsoid> &ellipsoidBody,
                     ros::Time stamp, SE3 &outPose, const int &robotID);
+  void addRelativeMeasurement(RelativeMeas relativeMeas);
   bool isInLoopClosureRegion_ = false;
   SemanticFactorGraphWrapper factorGraph_;
   databaseManager dbManager;
   std::mutex dbMutex;
   int hostRobotID;
   CylinderMapManager semanticMap_;
+
   // results analysis related variables
   std::vector<double> fg_optimization_time;
   int total_number_of_landmarks = 0;
@@ -83,6 +85,7 @@ class SLOAMNode : public sloam {
   std::vector<double> inter_loop_closure_time;
   int num_attempts_inter_loop_closure = 0;
   int num_successful_inter_loop_closure = 0;
+  int num_successful_rel_inter_robot_factor = 0;
   bool save_runtime_analysis = false;
   std::string runtime_analysis_file;
 
@@ -96,6 +99,7 @@ class SLOAMNode : public sloam {
 
   double inter_robot_place_recognition_frequency_;
   double intra_robot_place_recognition_frequency_;
+  double rel_inter_robot_factor_frequency_;
 
   std::vector<ros::Time> KeyPoseTimeStamps;
   ros::Publisher groundPub_;
@@ -113,6 +117,8 @@ class SLOAMNode : public sloam {
                        ros::Time stamp, const int &robotID);
   void intraLoopClosureThread_();
   void interLoopClosureThread_();
+  void relInterRobotFactorThread_();
+  void GetIndexClosestPoseMstPair(std::deque<PoseMstPair> &poseMstPacket, ros::Time stamp, int &indexClosest, double &timeDiffClosest);
 
   std::vector<Eigen::Vector3d> extractPosition(
       const std::vector<Cylinder> &candidateCylinderObs,
@@ -174,6 +180,12 @@ class SLOAMNode : public sloam {
   std::mutex cubeSemanticMapMtx_;
   std::mutex ellipsoidSemanticMapMtx_;
   std::mutex factorGraphMtx_;
+
+  // Relative Measurement Factor Generation
+  ros::Time last_rel_inter_robot_factor_stamp_;
+  std::thread relInterRobotFactorthread_;
+  std::vector<RelativeMeas> feasible_relative_meas_for_factors; // All measurements that could still be used to generate a factor
+  std::mutex feasRelMeasVectorMtx_;
 
   // For cuboid semantic landmarks
   CubeMapManager cube_semantic_map_;

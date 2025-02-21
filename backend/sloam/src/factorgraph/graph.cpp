@@ -46,6 +46,12 @@ SemanticFactorGraph::SemanticFactorGraph() {
   noise_model_pose = noiseModel::Diagonal::Sigmas(noise_model_pose_vec);
   noise_model_closure =
       noiseModel::Diagonal::Sigmas(noise_model_pose_vec * 0.01);
+  
+  // XYZ 5mm standard deviation, Rotation 0.0175 rad standard deviation (~1 degree)
+  // TODO: These are currently just estimates, update!
+  Vector6 noise_model_rel_meas_vec;
+  noise_model_rel_meas_vec << 0.005, 0.005, 0.005, 0.0175, 0.0175, 0.0175;
+  noise_model_rel_meas = noiseModel::Diagonal::Sigmas(noise_model_rel_meas_vec);
       
   start_time_ = ros::Time::now();
 }
@@ -88,43 +94,6 @@ void SemanticFactorGraph::addKeyPoseAndBetween(
     const size_t &closure_matched_pose_idx) {
   // bool use_msckf_cov = false;
   // Pose3 poseRelative = poseFrom.between(poseEstimate);
-
-  // No longer used, getting cov from VIO
-  // --------------------------------
-  ////if (cov) {
-  ////  Matrix6 M =
-  ////      Eigen::Map<Eigen::Matrix<double, 6, 6,
-  ///Eigen::RowMajor>>(cov->data()); /  boost::shared_ptr<noiseModel::Gaussian>
-  ///noise_model_odom = /      noiseModel::Gaussian::Covariance(M); /
-  ///fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID, prevIdx), /
-  ///getSymbol(robotID, curIdx), poseRelative, / noise_model_odom));
-  ////} else {
-  ////  fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID, prevIdx),
-  ////                                  getSymbol(robotID, curIdx),
-  ///poseRelative, /                                  noise_model_pose));
-  ////}
-  ////// here the insert also set the initial estimate for the optimization
-  //// fvalues.insert(getSymbol(robotID, curIdx), poseTo);
-  // double mins_elapsed;
-  // if (start_timestamp == 0.0) {
-  //   mins_elapsed = 0.0;
-  // } else {
-  //   mins_elapsed = (ros::Time::now().toSec() - start_timestamp) / 60.0;
-  // }
-  // if (noise_model_pose_inflation > 0) {
-  //   printf(
-  //       "+++++++ inflating covariance with time, if you are playing a bag, "
-  //       "make sure that /use_sim_time is set as true and play bag with "
-  //       "--clock flag \n");
-
-  //   printf("odom_factor_noise_std_inflation_per_min is set as: \n");
-  //   std::cout << noise_model_pose_inflation << std::endl;
-  //   printf(
-  //       "number of mins since the first "
-  //       "odometry factor: \n");
-  //   std::cout << mins_elapsed << std::endl;
-  // }
-  // --------------------------------
 
   Vector6 cur_noise_vec;
 
@@ -332,6 +301,23 @@ void SemanticFactorGraph::addLoopClosureFactor(const Pose3 poseRelative,
   fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID1, prevIdx),
                                   getSymbol(robotID2, curIdx), poseRelative,
                                   noise_model_closure));
+}
+
+/**
+ * @brief Adds a Relative Inter-Robot Measurement Factor to the factor graph.
+ * 
+ * @param poseRelative - Transformation from Robot #fromRobotID to Robot #toRobotID
+ * @param fromIdx - 
+ */
+void SemanticFactorGraph::addRelativeMeasurementFactor(const Pose3 poseRelative, 
+                                 const size_t fromIdx, const size_t fromRobotID, 
+                                 const size_t toIdx, const size_t toRobotID) {
+
+  // TODO: Scale the noise model based on the relative distance
+  fgraph.add(BetweenFactor<Pose3>(getSymbol(fromRobotID, fromIdx),
+                                  getSymbol(toRobotID, toIdx), poseRelative,
+                                  noise_model_rel_meas));
+
 }
 
 void SemanticFactorGraph::solve() {

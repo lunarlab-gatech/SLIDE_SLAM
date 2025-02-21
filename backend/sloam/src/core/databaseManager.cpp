@@ -35,7 +35,7 @@ databaseManager::databaseManager(const ros::NodeHandle &nh) {
     nh_.param<int>("number_of_robots", numRobots, 0);
 
     Eigen::Vector3d priorTF_xyz(priorTF_x, priorTF_y, priorTF_z);
-    priorTF2World_ = SE3(SO3(), priorTF_xyz);
+    priorTF2World_ = SE3(Sophus::SO3d(), priorTF_xyz);
     SE3 tfWorld2Robot = priorTF2World_.inverse();
     // ROS_INFO_STREAM("WE ARE USING THE REFERENCE FRAME FROM ROBOT 0 AS THE WORLD FRAME!");
     for (int i = 0; i < numRobots; i++)
@@ -95,71 +95,6 @@ void databaseManager::updateRobotMap(const std::vector<Cylinder> &cylMap,
   robotMapDict_[robotID] = newMap;
 }
 
-void databaseManager::publishPoseMsts(int robotID) {
-  if (robotDataDict_.find(robotID) == robotDataDict_.end()) {
-    printf("the robot data doesn't exist in the database! No available data to "
-           "publish!\n");
-  } else {
-    std::deque<PoseMstPair> poseMsts = robotDataDict_[robotID].poseMstPacket;
-    sloam_msgs::PoseMstBundle bundleMsg;
-    bundleMsg.robotID = robotID;
-    for (int i = 0; i < poseMsts.size(); i++) {
-      sloam_msgs::PoseMst singleMsg;
-      geometry_msgs::Pose poseMsg = ToRosPoseMsg(poseMsts[i].keyPose);
-      geometry_msgs::Pose relativeOdom =
-          ToRosPoseMsg(poseMsts[i].relativeRawOdomMotion);
-      singleMsg.pose = poseMsg;
-      singleMsg.relativeRawOdom = relativeOdom;
-      for (int mstIdx = 0; mstIdx < poseMsts[i].cubeMsts.size(); mstIdx++) {
-        sloam_msgs::ROSCube rosCubeMsg;
-        Cube curCube = poseMsts[i].cubeMsts[mstIdx];
-        for (int j = 0; j < 3; j++) {
-          rosCubeMsg.dim[j] = curCube.model.scale[j];
-        }
-        rosCubeMsg.pose = gtsamPoseToRosPose(curCube.model.pose);
-        rosCubeMsg.semantic_label = curCube.model.semantic_label;
-        singleMsg.cubes.push_back(rosCubeMsg);
-      }
-      for (int mstIdx = 0; mstIdx < poseMsts[i].cylinderMsts.size(); mstIdx++) {
-        sloam_msgs::ROSCylinder rosCylinderMsg;
-        Cylinder curCylinder = poseMsts[i].cylinderMsts[mstIdx];
-        for (int j = 0; j < 3; j++) {
-          rosCylinderMsg.ray[j] = curCylinder.model.ray[j];
-          rosCylinderMsg.root[j] = curCylinder.model.root[j];
-        }
-        rosCylinderMsg.radius = curCylinder.model.radius;
-        rosCylinderMsg.semantic_label = curCylinder.model.semantic_label;
-        singleMsg.cylinders.push_back(rosCylinderMsg);
-      }
-      for (int mstIdx = 0; mstIdx < poseMsts[i].ellipsoidMsts.size();
-           mstIdx++) {
-        sloam_msgs::ROSEllipsoid rosEllipsoidMsg;
-        Ellipsoid curEllipsoid = poseMsts[i].ellipsoidMsts[mstIdx];
-        for (int j = 0; j < 3; j++) {
-          rosEllipsoidMsg.scale[j] = curEllipsoid.model.scale[j];
-        }
-        rosEllipsoidMsg.pose = gtsamPoseToRosPose(curEllipsoid.model.pose);
-        rosEllipsoidMsg.semantic_label = curEllipsoid.model.semantic_label;
-        singleMsg.ellipsoids.push_back(rosEllipsoidMsg);
-      }
-      bundleMsg.poseMstPair.push_back(singleMsg);
-    }
-    for (int i = 0; i < robotMapDict_[robotID].size(); i++) {
-      Eigen::Vector7d curPoint = robotMapDict_[robotID][i];
-      sloam_msgs::vector7d labelXYZ;
-      labelXYZ.labelXYZ[0] = curPoint[0];
-      labelXYZ.labelXYZ[1] = curPoint[1];
-      labelXYZ.labelXYZ[2] = curPoint[2];
-      labelXYZ.labelXYZ[3] = curPoint[3];
-      labelXYZ.labelXYZ[4] = curPoint[4];
-      labelXYZ.labelXYZ[5] = curPoint[5];
-      labelXYZ.labelXYZ[6] = curPoint[6];
-      bundleMsg.map_of_labelXYZ.push_back(labelXYZ);
-    }
-    poseMstPub_.publish(bundleMsg);
-  }
-}
-
 void databaseManager::poseMstCb_(const sloam_msgs::PoseMstBundle &msgs) {
   int robotID = msgs.robotID;
   if (robotDataDict_.find(robotID) == robotDataDict_.end()) {
@@ -168,18 +103,17 @@ void databaseManager::poseMstCb_(const sloam_msgs::PoseMstBundle &msgs) {
   size_t bundleSize = msgs.poseMstPair.size();
   size_t poolSize = robotDataDict_[robotID].poseMstPacket.size();
   if (bundleSize > poolSize && robotID != this->hostRobotID_) {
-    ROS_DEBUG_STREAM("New robot data received from robot:"
-                     << robotID << "by robot:" << this->hostRobotID_);
-    ROS_DEBUG_STREAM("New robot data received ");
+    ROS_DEBUG_STREAM("New robot data received from robot:" << robotID << "by robot:" << this->hostRobotID_);
     int startIdx = poolSize;
     for (int i = startIdx; i < bundleSize; i++) {
       struct PoseMstPair poseMst;
       sloam_msgs::PoseMst singleMsg = msgs.poseMstPair[i];
       SE3 pose = toSE3Pose(singleMsg.pose);
       SE3 relativeOdom = toSE3Pose(singleMsg.relativeRawOdom);
-      // constrcut a PoseMstPair struct
+      // construct a PoseMstPair struct
       poseMst.keyPose = pose;
       poseMst.relativeRawOdomMotion = relativeOdom;
+      poseMst.stamp = singleMsg.stamp;
       // convert msg to object
       for (int j = 0; j < singleMsg.cylinders.size(); j++) {
         sloam_msgs::ROSCylinder curObjMsg = singleMsg.cylinders[j];
@@ -263,6 +197,7 @@ void databaseManager::measureReceivedCommMsgSize(const sloam_msgs::PoseMstBundle
   for (int i = 0; i < msgs.poseMstPair.size(); i++) {
     cur_received_msg_size_bytes += 56;
     cur_received_msg_size_bytes += 56;
+    cur_received_msg_size_bytes += 8; // For the time stamp (theorized, not prove)
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].ellipsoids.size();
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].cubes.size();
     cur_received_msg_size_bytes += 37*msgs.poseMstPair[i].cylinders.size();
@@ -272,21 +207,35 @@ void databaseManager::measureReceivedCommMsgSize(const sloam_msgs::PoseMstBundle
   receivedMsgSizeMB.push_back(cur_received_msg_size_bytes/1000000);
 }
 
+/**
+ * @brief This function, triggered by a timer every 0.2 seconds, sends
+ * messages to the other robots if commWaitTime_ has passed since
+ * the last communication was sent (at time lastCommTime_). Thus,
+ * effectively sends info to other robots every commWaitTime_ 
+ * seconds.
+ * 
+ * @param ros::TimerEvent &e
+ */
 void databaseManager::runCommunication_(const ros::TimerEvent &e) {
-  ros::Duration time_diff = ros::Time::now() - startTime_;
+  ros::Duration time_diff = ros::Time::now() - lastCommTime_;
   if (time_diff.toSec() > commWaitTime_) {
-    startTime_ = ros::Time::now();
+    lastCommTime_ = ros::Time::now();
     ROS_INFO_THROTTLE(3.0, "TRIGGERING COMMUNICATION!");
     double cur_publish_msg_size_bytes = 0;
+
+    // Send all current data on each robot
     for (auto iter = getRobotDataDict().begin();
          iter != getRobotDataDict().end(); iter++) {
       int curRobotID = iter->first;
       sloam_msgs::PoseMstBundle bundleMsg;
       bundleMsg.robotID = curRobotID;
+
+      // Send each pose measurement pair
       for (int i = 0; i < iter->second.poseMstPacket.size(); i++) {
         struct PoseMstPair pmp = iter->second.poseMstPacket[i];
         sloam_msgs::PoseMst pmMsg;
         pmMsg.pose = ToRosPoseMsg(pmp.keyPose);
+        pmMsg.stamp = pmp.stamp;
         pmMsg.relativeRawOdom = ToRosPoseMsg(pmp.relativeRawOdomMotion);
         pmMsg.cylinders = obj2RosObjMsg(pmp.cylinderMsts);
         pmMsg.cubes = obj2RosObjMsg(pmp.cubeMsts);
@@ -297,7 +246,9 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
         cur_publish_msg_size_bytes += 37*pmp.cylinderMsts.size();
         cur_publish_msg_size_bytes += 56;
         cur_publish_msg_size_bytes += 56;
+        cur_publish_msg_size_bytes += 8; // From time stamp (not proven)
       }
+
       for (int i = 0; i < robotMapDict_[curRobotID].size(); i++) {
         Eigen::Vector7d curPoint = robotMapDict_[curRobotID][i];
         sloam_msgs::vector7d labelXYZ;
@@ -311,6 +262,8 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
         bundleMsg.map_of_labelXYZ.push_back(labelXYZ);
         cur_publish_msg_size_bytes += 56;
       }
+
+      // Send each known transformation from other robots to this robot
       for (auto iter=loopClosureTf.begin(); iter!=loopClosureTf.end(); iter++){
         sloam_msgs::interRobotTF interRobotTFMsg;
         interRobotTFMsg.hostRobotID = hostRobotID_;
@@ -324,3 +277,68 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
     publishMsgSizeMB.push_back(cur_publish_msg_size_bytes/1000000);
   }
 }
+
+// void databaseManager::publishPoseMsts(int robotID) {
+//   if (robotDataDict_.find(robotID) == robotDataDict_.end()) {
+//     printf("the robot data doesn't exist in the database! No available data to "
+//            "publish!\n");
+//   } else {
+//     std::deque<PoseMstPair> poseMsts = robotDataDict_[robotID].poseMstPacket;
+//     sloam_msgs::PoseMstBundle bundleMsg;
+//     bundleMsg.robotID = robotID;
+//     for (int i = 0; i < poseMsts.size(); i++) {
+//       sloam_msgs::PoseMst singleMsg;
+//       geometry_msgs::Pose poseMsg = ToRosPoseMsg(poseMsts[i].keyPose);
+//       geometry_msgs::Pose relativeOdom =
+//           ToRosPoseMsg(poseMsts[i].relativeRawOdomMotion);
+//       singleMsg.pose = poseMsg;
+//       singleMsg.relativeRawOdom = relativeOdom;
+//       for (int mstIdx = 0; mstIdx < poseMsts[i].cubeMsts.size(); mstIdx++) {
+//         sloam_msgs::ROSCube rosCubeMsg;
+//         Cube curCube = poseMsts[i].cubeMsts[mstIdx];
+//         for (int j = 0; j < 3; j++) {
+//           rosCubeMsg.dim[j] = curCube.model.scale[j];
+//         }
+//         rosCubeMsg.pose = gtsamPoseToRosPose(curCube.model.pose);
+//         rosCubeMsg.semantic_label = curCube.model.semantic_label;
+//         singleMsg.cubes.push_back(rosCubeMsg);
+//       }
+//       for (int mstIdx = 0; mstIdx < poseMsts[i].cylinderMsts.size(); mstIdx++) {
+//         sloam_msgs::ROSCylinder rosCylinderMsg;
+//         Cylinder curCylinder = poseMsts[i].cylinderMsts[mstIdx];
+//         for (int j = 0; j < 3; j++) {
+//           rosCylinderMsg.ray[j] = curCylinder.model.ray[j];
+//           rosCylinderMsg.root[j] = curCylinder.model.root[j];
+//         }
+//         rosCylinderMsg.radius = curCylinder.model.radius;
+//         rosCylinderMsg.semantic_label = curCylinder.model.semantic_label;
+//         singleMsg.cylinders.push_back(rosCylinderMsg);
+//       }
+//       for (int mstIdx = 0; mstIdx < poseMsts[i].ellipsoidMsts.size();
+//            mstIdx++) {
+//         sloam_msgs::ROSEllipsoid rosEllipsoidMsg;
+//         Ellipsoid curEllipsoid = poseMsts[i].ellipsoidMsts[mstIdx];
+//         for (int j = 0; j < 3; j++) {
+//           rosEllipsoidMsg.scale[j] = curEllipsoid.model.scale[j];
+//         }
+//         rosEllipsoidMsg.pose = gtsamPoseToRosPose(curEllipsoid.model.pose);
+//         rosEllipsoidMsg.semantic_label = curEllipsoid.model.semantic_label;
+//         singleMsg.ellipsoids.push_back(rosEllipsoidMsg);
+//       }
+//       bundleMsg.poseMstPair.push_back(singleMsg);
+//     }
+//     for (int i = 0; i < robotMapDict_[robotID].size(); i++) {
+//       Eigen::Vector7d curPoint = robotMapDict_[robotID][i];
+//       sloam_msgs::vector7d labelXYZ;
+//       labelXYZ.labelXYZ[0] = curPoint[0];
+//       labelXYZ.labelXYZ[1] = curPoint[1];
+//       labelXYZ.labelXYZ[2] = curPoint[2];
+//       labelXYZ.labelXYZ[3] = curPoint[3];
+//       labelXYZ.labelXYZ[4] = curPoint[4];
+//       labelXYZ.labelXYZ[5] = curPoint[5];
+//       labelXYZ.labelXYZ[6] = curPoint[6];
+//       bundleMsg.map_of_labelXYZ.push_back(labelXYZ);
+//     }
+//     poseMstPub_.publish(bundleMsg);
+//   }
+// }

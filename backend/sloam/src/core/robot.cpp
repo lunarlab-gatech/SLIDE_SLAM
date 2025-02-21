@@ -17,50 +17,41 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
   nh_.param<float>("min_robot_altitude", minSLOAMAltitude_, 0.0);
   maxQueueSize_ = nh_.param("max_queue_size", 100);
   nh_.param<std::string>("robot_ns_prefix", robot_ns_prefix_, "robot");
-  nh_.param<std::string>("odom_topic", odom_topic_, "odom");
-
-  // initialization
   std::string node_name = ros::this_node::getName();
   std::string idName = node_name + "/hostRobotID";
-  robotId_ = nh_.param(idName, 0);
-  std::string cur_robot_odom_topic;
-  int robot_actual_ID;
-  robot_actual_ID = robotId_;
+  nh_.param<int>(idName, robotId_, 0);
+
+  // Initialize variables
   robotFirstOdom_ = true;
   robotOdomCounter_ = 0;
 
-  // initialize publisher and subscriber
-  std::string RobotHighFreqSLOAMPose_topic =
-      robot_ns_prefix_ + std::to_string(robot_actual_ID) + "/pose_high_freq";
-  pubRobotHighFreqSLOAMPose_ = nh_.advertise<geometry_msgs::PoseStamped>(
-      RobotHighFreqSLOAMPose_topic, 10);
+  // Initialize publishers
+  std::string RobotHighFreqSLOAMPose_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/pose_high_freq";
+  pubRobotHighFreqSLOAMPose_ = nh_.advertise<geometry_msgs::PoseStamped>(RobotHighFreqSLOAMPose_topic, 10);
 
-  std::string RobotHighFreqSLOAMOdom_topic = robot_ns_prefix_ +
-                                             std::to_string(robot_actual_ID) +
-                                             "/sloam_odom_high_freq";
-  pubRobotHighFreqSLOAMOdom_ =
-      nh_.advertise<nav_msgs::Odometry>(RobotHighFreqSLOAMOdom_topic, 20);
+  std::string RobotHighFreqSLOAMOdom_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/sloam_odom_high_freq";
+  pubRobotHighFreqSLOAMOdom_ = nh_.advertise<nav_msgs::Odometry>(RobotHighFreqSLOAMOdom_topic, 20);
 
-  std::string SloamToVioOdom_topic =
-      robot_ns_prefix_ + std::to_string(robot_actual_ID) + "/sloam_to_vio_odom";
-  pubSloamToVioOdom_ =
-      nh_.advertise<nav_msgs::Odometry>(SloamToVioOdom_topic, 20);
+  std::string SloamToVioOdom_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/sloam_to_vio_odom";
+  pubSloamToVioOdom_ = nh_.advertise<nav_msgs::Odometry>(SloamToVioOdom_topic, 20);
 
-  std::string RobotHighFreqSyncOdom_topic = robot_ns_prefix_ +
-                                            std::to_string(robot_actual_ID) +
-                                            "/sync_odom_high_freq";
-  pubRobotHighFreqSyncOdom_ =
-      nh_.advertise<nav_msgs::Odometry>(RobotHighFreqSyncOdom_topic, 20);
+  std::string RobotHighFreqSyncOdom_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/sync_odom_high_freq";
+  pubRobotHighFreqSyncOdom_ = nh_.advertise<nav_msgs::Odometry>(RobotHighFreqSyncOdom_topic, 20);
 
+  // Initialize Subscribers
   RobotOdomSub_ = nh_.subscribe("odom", 10, &Robot::RobotOdomCb, this);
-  std::string observationSub_topic = robot_ns_prefix_ +
-                                     std::to_string(robot_actual_ID) +
-                                     "/semantic_meas_sync_odom";
+  
+  std::string observationSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/semantic_meas_sync_odom";
+  RobotObservationSub_ = nh_.subscribe(observationSub_topic, 10, &Robot::RobotObservationCb, this);
 
-  RobotObservationSub_ =
-      nh_.subscribe(observationSub_topic, 10, &Robot::RobotObservationCb, this);
+  bool turn_off_rel_inter_robot_loop_closure = nh_.param(node_name+"/turn_off_rel_inter_robot_loop_closure", true);
+  if (!turn_off_rel_inter_robot_loop_closure) {
+    std::string relativeMeasSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/relative_inter_robot_meas";
+    RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
+  }
 
-  ROS_INFO_STREAM("Robot Initialized! Robot # " << robot_actual_ID);
+
+  ROS_INFO_STREAM("Robot Initialized! Robot # " << robotId_);
 }
 
 void Robot::RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg) {
@@ -153,7 +144,6 @@ void Robot::RobotObservationCb(
         Cube(pose, scale, cur_cuboid_marker.semantic_label));
   }
 
-  // Cylinder
   cur_observation.cubes = scan_cubes_body;
   cur_observation.cylinders =
       rosCylinder2CylinderObj(observation_msg.cylinder_factors);
@@ -161,6 +151,25 @@ void Robot::RobotObservationCb(
       rosEllipsoid2EllipObj(observation_msg.ellipsoid_factors);
   robotObservationQueue_.push(cur_observation);
   robotObservationUpdated_ = true;
+}
+
+/**
+ * @brief This method converts a 
+ * sloam_msgs::RelativeInterRobotMeasurement into
+ * a RelativeMeas struct and adds it to the queue.
+ * inputNode will pass this onto the databaseManager
+ * in sloamNode.
+ * 
+ * @param sloam_msgs::RelativeInterRobotMeasurement 
+ *    &relativeMeas_msg
+ */
+void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurement &relativeMeas_msg) {
+  RelativeMeas cur_measurement;
+  cur_measurement.stamp = relativeMeas_msg.header.stamp;
+  cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometry.pose.pose);
+  cur_measurement.relativePose = databaseManager::toSE3Pose(relativeMeas_msg.relativePose);
+  cur_measurement.robotIndex = relativeMeas_msg.robotId;
+  robotRelativeMeasQueue_.push_back(cur_measurement);
 }
 
 std::vector<Cylinder> Robot::rosCylinder2CylinderObj(
@@ -189,7 +198,7 @@ std::vector<Ellipsoid> Robot::rosEllipsoid2EllipObj(
     gtsam::Point3 position(x, y, z);
     gtsam::Pose3 pose(rot, position);
     int label = m.semantic_label;
-    // scale of the cuboid
+    // scale of the ellipsoid
     const gtsam::Point3 scale(m.scale[0], m.scale[1], m.scale[2]);
     // assemble a pose from the
     ellipsoids.emplace_back(pose, scale, label);

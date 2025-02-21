@@ -147,7 +147,18 @@ class Inference:
         #     points_xyz.shape[0], -1)[:, 1].astype(np.float32)
         # ----------------------------------------------------------
 
+        #undistorted_pc = None
+        # try:
         undistorted_pc = ros_numpy.numpify(msg)
+        # except ValueError as e:
+        #     rospy.loginfo_throttle(10, f"Height: {msg.height}")
+        #     rospy.loginfo_throttle(10, f"width: {msg.width}")
+        #     rospy.loginfo_throttle(10, f"Point Step: {msg.point_step}")
+        #     rospy.loginfo_throttle(10, f"Row Step: {msg.row_step}")
+        #     rospy.loginfo_throttle(10, f"Buffer Size: {len(msg.data)}")
+        #     rospy.logerr_throttle(10, f"Error with numpify: {e}")
+        #     return 
+
         self.pc_width = undistorted_pc['x'].flatten().shape[0]
         self.pc_height = 1
         points_xyz = np.zeros((undistorted_pc['x'].flatten().shape[0], 3))

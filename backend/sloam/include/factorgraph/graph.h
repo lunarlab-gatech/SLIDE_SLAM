@@ -92,6 +92,9 @@ class SemanticFactorGraph {
   void addLoopClosureFactor(const Pose3 poseRelative, const size_t fromIdx,
                             const size_t fromRobotID, const size_t toIdx,
                             const size_t toRobotID);
+  void addRelativeMeasurementFactor(const Pose3 poseRelative, const size_t fromIdx,
+                                    const size_t fromRobotID, const size_t toIdx,
+                                    const size_t toRobotID);
   void addPointLandmarkKey(const size_t ugvIdx, const Point3& ugv_position);
 
   // getters and setters
@@ -128,6 +131,7 @@ class SemanticFactorGraph {
   boost::shared_ptr<noiseModel::Diagonal> noise_model_gps;
   boost::shared_ptr<noiseModel::Diagonal> noise_model_cylinder;
   boost::shared_ptr<noiseModel::Diagonal> noise_model_cube;
+  boost::shared_ptr<noiseModel::Diagonal> noise_model_rel_meas;
 
   // Aux attributes
   Pose3 odomToGPS_;
