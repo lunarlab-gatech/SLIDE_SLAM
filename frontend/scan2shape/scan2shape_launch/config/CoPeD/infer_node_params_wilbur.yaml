@@ -20,5 +20,5 @@ model_dir: /opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/rangenet++/penn_smallest
 desired_frequency: 2
 num_cpu_threads: 10
 pc_range_threshold: 200
-pc_point_step: 48
+pc_point_step: 16
 out_of_range_default_position: [0, 0, 0]

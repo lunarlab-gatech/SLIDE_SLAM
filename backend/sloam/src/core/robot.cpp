@@ -44,8 +44,8 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
   std::string observationSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/semantic_meas_sync_odom";
   RobotObservationSub_ = nh_.subscribe(observationSub_topic, 10, &Robot::RobotObservationCb, this);
 
-  bool turn_off_rel_inter_robot_loop_closure = nh_.param(node_name+"/turn_off_rel_inter_robot_loop_closure", true);
-  if (!turn_off_rel_inter_robot_loop_closure) {
+  bool turn_off_rel_inter_robot_factor = nh_.param(node_name+"/turn_off_rel_inter_robot_factor", true);
+  if (!turn_off_rel_inter_robot_factor) {
     std::string relativeMeasSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/relative_inter_robot_meas";
     RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
   }

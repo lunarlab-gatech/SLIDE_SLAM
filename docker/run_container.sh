@@ -1,6 +1,6 @@
 SlideSlamWs="/home/dbutterfield3/slideslam_docker_ws" # point to your workspace directory
-SlideSlamCodeDir="/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM" # point to your code directory where you cloned the repository
-BAGS_DIR='/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM' # point to your bags / data directory
+SlideSlamCodeDir="/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
+BAGS_DIR='/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM/bags' # point to your bags / data directory
 
 xhost +local:root # for the lazy and reckless
 docker run -it \
@@ -18,6 +18,6 @@ docker run -it \
     --volume="/home/$USER/.bash_aliases:/root/.bash_aliases" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
-    xurobotics/slide-slam:latest \
+    slideslam_ros_image \
     bash
 

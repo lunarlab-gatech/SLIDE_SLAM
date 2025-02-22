@@ -24,9 +24,9 @@ cluster_and_fix_cuboid_orientation: True
 # Flag for running KITTI dataset benchmarking code
 run_kitti: False
 # input point cloud parameters
-pc_width: 512
+pc_width: 1024
 pc_height: 64
-pc_point_step: 64
+pc_point_step: 16
 #------------------Important Parameters END------------------
 
 # Minimum number of ground points required to perform RANSAC and fit a plane

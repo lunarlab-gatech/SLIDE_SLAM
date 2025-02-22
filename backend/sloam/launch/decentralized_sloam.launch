@@ -10,7 +10,7 @@
     <arg name="odom_topic" default="/robot0/odom"/>
     <arg name="turn_off_intra_loop_closure" default="false"/>
     <arg name="turn_off_inter_loop_closure" default="false"/>
-    <arg name="turn_off_rel_inter_robot_factor" default="true"/>
+    <arg name="turn_off_rel_inter_robot_factor" default="false"/>
     <arg name="priorTFKnown" default="false"/>
     <arg name="priorTF_x" default="0"/>
     <arg name="priorTF_y" default="0"/>
