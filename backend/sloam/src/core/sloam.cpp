@@ -161,7 +161,7 @@ void sloam::matchEllipsoidModels(const std::vector<T> &currObjects,
                                  std::vector<int> &matchIndices) {
 
   if (currObjects.size() == 0) {
-    ROS_WARN("No Ellipsoid detected in current scan!");
+    ROS_WARN_STREAM_THROTTLE(1.0, "No Ellipsoid detected in current scan!");
     return;
   } else if (mapObjects.size() == 0) {
     ROS_WARN("No Ellipsoid in submap!");

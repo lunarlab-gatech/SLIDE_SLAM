@@ -11,6 +11,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <cube.h>
 #include <definitions.h>
+#include <databaseManager.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <graphWrapper.h>
 #include <gtsam/geometry/Point3.h>
@@ -94,6 +95,7 @@ class InputManager {
   int hostRobotID_;
 
   bool turn_off_intra_loop_closure_;
+  bool turn_off_rel_inter_robot_factor;
 };
 
 InputManager::InputManager(ros::NodeHandle nh)
@@ -116,6 +118,8 @@ InputManager::InputManager(ros::NodeHandle nh)
   nh_.param<int>(idName, hostRobotID_, 0);
   nh_.param<bool>(node_name + "/turn_off_intra_loop_closure",
                   turn_off_intra_loop_closure_, false);
+  nh_.param(node_name+"/turn_off_rel_inter_robot_factor", 
+                  turn_off_rel_inter_robot_factor, true);
 
   auto sloam_ptr = boost::make_shared<sloam::SLOAMNode>(nh_);
   sloam_ = std::move(sloam_ptr);
@@ -130,8 +134,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   }
 
   // robot.robotOdomQueue_ is filled, execute the rest of the code
-  // ROS_INFO_STREAM_THROTTLE(
-  //     1, "Odom queue is already filled yet for robot , which is good...");
   SE3 highFreqSLOAMPose;
   ros::Time odom_stamp;
 
@@ -175,7 +177,69 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   robot.pubRobotHighFreqSLOAMOdom_.publish(odom_msg);
   robot.pubRobotHighFreqSyncOdom_.publish(syncOdom);
 
-  // ADDING FACTORS
+  // Adding Factors for Relative Inter-Robot Measurements
+  if(!turn_off_rel_inter_robot_factor) {
+    // For each received measurement
+    for (int i = 0; i < robot.robotRelativeMeasQueue_.size(); i++) {
+      // If measurement is at least robot.semantic_meas_delay_tolerance_ seconds old
+      if ((robot.robotRelativeMeasQueue_.back().stamp - robot.robotRelativeMeasQueue_[i].stamp).toSec() 
+            > robot.semantic_meas_delay_tolerance_) {
+
+        // Create the stamped pose
+        RelativeMeas relativeMeas = robot.robotRelativeMeasQueue_[i];
+        StampedSE3 validStampedPose;
+        validStampedPose.pose = relativeMeas.odomPose;
+        validStampedPose.stamp = relativeMeas.stamp;
+
+        // Create the observation (with only odometry, no objects)
+        Observation latestObservation = Observation();
+        latestObservation.stampedPose = validStampedPose;
+
+        // Use odom to estimate motion since last key frame
+        StampedSE3 raw_vio_odom_used_for_sloam = latestObservation.stampedPose;
+        SE3 relativeRawOdomMotion = robot.robotLatestOdom_.pose.inverse() * raw_vio_odom_used_for_sloam.pose;
+
+        // Get the Previous Key Pose
+        SE3 prevKeyPose;
+        if (robot.robotKeyPoses_.size() > 0) {
+          prevKeyPose = robot.robotKeyPoses_[robot.robotKeyPoses_.size() - 1];
+        } else {
+          ROS_WARN("No previous key pose. Use identity as the previous key pose.");
+          prevKeyPose = SE3();
+        }
+
+        // Send the relative measurement synched odometry to SLOAM
+        SE3 keyPose;
+        bool success = sloam_->runSLOAMNode(
+            relativeRawOdomMotion, prevKeyPose, latestObservation.cylinders,
+            latestObservation.cubes, latestObservation.ellipsoids,
+            latestObservation.stampedPose.stamp, keyPose, hostRobotID_);
+        if (success) {
+          robot.robotKeyPoses_.push_back(keyPose);
+          updateLastPose(raw_vio_odom_used_for_sloam, hostRobotID_);
+        }
+
+        // Extract Host Robot Data class
+        sloam_->dbMutex.lock();
+        robotData data = sloam_->dbManager.getHostRobotData();
+
+        // Pass the relative inter-robot measurement to the database manager
+        // and factor generation thread
+        data.relativeMeasPacket.push_back(relativeMeas);
+        sloam_->addRelativeMeasurement(relativeMeas);
+
+        // Remove this value from the queue, as it's been used
+        robot.robotRelativeMeasQueue_.erase(robot.robotRelativeMeasQueue_.begin() + i);
+        sloam_->dbMutex.unlock();
+        i--;
+
+      } 
+      // Remaining measurements are not old enough to add, so finish 
+      else { break; } 
+    }
+  }
+
+  // ADDING OTHER FACTORS
   // add odom factor only if the robot has moved enough
   bool add_odom_factor = false;
   bool valid_pose_found = false;
@@ -303,10 +367,11 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   } else {
     ROS_INFO_STREAM_THROTTLE(3.0, "Neither the odometry nor the observation is updated for robot " << hostRobotID_);
   }
+
   if (sloam_->save_runtime_analysis) {
     saveRuntimeCommUsage();
   }
-}  // end of RunInputNode()
+}
 
 void InputManager::updateLastPose(const StampedSE3 &odom, const int &robotID) {
   robot.robotOdomReceived_ = true;
@@ -435,6 +500,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "sloam");
   ros::NodeHandle n("sloam");
   InputManager in(n);
+
   while (ros::ok()) {
     ros::spin();
   }

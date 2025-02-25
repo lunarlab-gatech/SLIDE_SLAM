@@ -2,7 +2,7 @@
 <launch>
     <arg name="enable_rviz" default="true" />
     <group if="$(arg enable_rviz)">
-        <node pkg="rviz" type="rviz" name="sloam_rviz" output="screen" args="-d $(find sloam)/launch/rviz/decentralized_sloam.rviz" />
+        <node pkg="rviz" type="rviz" name="sloam_rviz" output="screen" args="-d $(find sloam)/launch/rviz/decentralized_sloam_CoPeD.rviz" />
     </group>
 
     <rosparam file="$(find sloam)/params/sloam.yaml" command="load" />

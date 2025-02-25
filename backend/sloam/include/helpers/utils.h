@@ -1,9 +1,12 @@
 #pragma once
 
 #include <definitions.h>
+#include <gtsam/geometry/Pose3.h>
 #include <geometry_msgs/QuaternionStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <chrono>
+
+using namespace gtsam;
 
 inline float pow_2(const Scalar &x) { return x * x; }
 
@@ -70,6 +73,22 @@ inline SE3 ToSE3(const geometry_msgs::Pose &transform_msg) {
   Sophus::SE3d se3_transform(rotation_matrix, translation_vector);
 
   return se3_transform;
+}
+
+/**
+ * @brief This function converts a Sophus::SE3d 
+ * value to a gtsam::Pose3.
+ * 
+ * @param Sophus::SE3 pose : The input pose
+ * @return gtsam::Pose3 : The output pose
+ */
+inline gtsam::Pose3 SE3ToGTSAMPose3(SE3 pose) {
+  Eigen::Matrix3d R = pose.rotationMatrix();
+  Eigen::Vector3d t = pose.translation(); 
+
+  gtsam::Rot3 gtsam_rot(R);
+  gtsam::Point3 gtsam_trans(t[0], t[1], t[2]);
+  return gtsam::Pose3(gtsam_rot, gtsam_trans);
 }
 
 inline geometry_msgs::Pose ToRosPoseMsg(const SE3 &T){
