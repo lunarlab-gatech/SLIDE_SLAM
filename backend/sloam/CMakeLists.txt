@@ -120,11 +120,18 @@ cc_binary(
   SRCS "src/tests/place_recognition_test.cpp"
   DEPS sloam_base sloam_core)
 
-# TESTS
-# It appears that these test cases are not up to date, and thus won't work on current code.
+
+
+if(BUILD_TESTING)
+  enable_testing()
+
+  cc_test(
+  NAME inter_robot_factor_test
+  SRCS "src/tests/inter_robot_factor_test.cpp"
+  DEPS sloam_base sloam_objects sloam_core GTest::GTest)
+
+# These test cases are not up to date, and thus won't work on current code.
 #
-# if(BUILD_TESTING)
-# enable_testing()
 # Example usage: ./sloam_ws/devel/lib/sloam/sloam_all_test --gtest_filter=CylinderTest* (optional filter)
 # cc_test(
   # NAME all_sloam_test
@@ -138,4 +145,4 @@ cc_binary(
     # NAME cube_fg_test
     # SRCS "src/tests/cube_factor_test.cpp"
     # DEPS sloam_base sloam_factorgraph GTest::GTest)
-# endif()
+endif()

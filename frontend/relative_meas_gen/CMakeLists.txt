@@ -10,12 +10,13 @@ project(relative_meas_gen)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   message_runtime
+  message_filters
   nav_msgs
   roscpp
   rospy
   sloam_msgs
   std_msgs
-  std_msgs
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
