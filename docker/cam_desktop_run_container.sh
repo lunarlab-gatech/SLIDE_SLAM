@@ -8,7 +8,7 @@ docker run -it \
     --net="host" \
     --privileged \
     --gpus="all" \
-    --workdir="/home/cam/Documents/slideslam_docker_ws/src/SLIDE_SLAM" \
+    --workdir="/opt/slideslam_docker_ws" \
     --env="DISPLAY=$DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
     --env="XAUTHORITY=$XAUTH" \
