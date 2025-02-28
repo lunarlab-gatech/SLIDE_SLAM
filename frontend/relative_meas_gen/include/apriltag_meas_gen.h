@@ -2,6 +2,7 @@
 
 #include <relative_meas_gen/slidetag.h>
 #include <ros/ros.h>
+#include <std_msgs/Int32.h>
 
 class ApriltagMeasurer {
     public:

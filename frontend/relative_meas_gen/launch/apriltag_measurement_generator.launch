@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <rosparam file="$(find relative_meas_gen)/params/relative_meas.yaml" command="load"/>
+
+    <node pkg="relative_meas_gen" type="ApriltagMeasurer" name="apriltag_node" output="screen">
+        <param name="wilbur_left" value="/wilbur/stereo_left/image_rect_color/compressed"/>
+        <param name="host_robot" value = "robotID"/>
+    </node>
+
+</launch>

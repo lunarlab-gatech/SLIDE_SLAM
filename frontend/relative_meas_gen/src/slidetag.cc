@@ -4,11 +4,14 @@ slidetag::slidetag(int id) :
     id (id)
 {}
 
-slidetag::slidetag(int id, double center[2], double corners[4][2]) :
+slidetag::slidetag(int id, double center[2], double corners[4][2], matd_t *rotation, matd_t *translation) :
     id (id)
 {
     this->center[0] = center[0];
     this->center[1] = center[1];
+
+    this->rotation = *rotation;
+    this->translation = *translation;
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 2; j++) {
@@ -50,6 +53,17 @@ std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float 
         double center[2];
         double corners[4][2];
 
+        apriltag_detection_info_t info;
+        info.det = det;
+        info.tagsize = tag_size;
+        info.fx = fx;
+        info.fy = fy;
+        info.cx = cx;
+        info.cy = cy;
+
+        apriltag_pose_t pose;
+	    estimate_tag_pose(&info, &pose);
+
         center[0] = det->c[0];
         center[1] = det->c[1];
 
@@ -59,7 +73,7 @@ std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float 
             }
         }
 
-        slidetag new_tag(id, center, corners);
+        slidetag new_tag(id, center, corners, pose.R, pose.t);
         tags[id] = new_tag;
     }
 
