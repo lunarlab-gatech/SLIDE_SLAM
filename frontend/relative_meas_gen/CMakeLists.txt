@@ -20,8 +20,12 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(apriltag)
+find_package(PkgConfig)
+pkg_search_module(apriltag REQUIRED apriltag)
+find_package(OpenCV REQUIRED)
 find_package(yaml-cpp)
+
+set(apriltag_INCLUDE_DIRS "${apriltag_INCLUDE_DIRS}/apriltag")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -108,12 +112,14 @@ find_package(yaml-cpp)
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#  catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES relative_meas_gen
+#  LIBRARIES relative_measdd_executable(apriltag_measurer src/apriltag_meas_gen.cpp)
+#target_link_libraries(apriltag_measurer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#_gen
 #  CATKIN_DEPENDS apriltag gtest message_generation message_runtime nav_msgs roscpp rospy sloam_msgs std_msgs std_msgs yaml-cpp
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
@@ -124,8 +130,14 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   ${apriltag_INCLUDE_DIRS}
+  include
 )
+
+add_executable(ApriltagMeasurer src/apriltag_meas_gen.cpp src/slidetag.cpp)
+set_target_properties(ApriltagMeasurer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
+target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

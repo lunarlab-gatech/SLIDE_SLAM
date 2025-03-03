@@ -1,8 +1,10 @@
 #pragma once
 
-#include <relative_meas_gen/slidetag.h>
+#include <slidetag.h>
 #include <ros/ros.h>
 #include <std_msgs/Int32.h>
+#include <sensor_msgs/Image.h>
+
 
 class ApriltagMeasurer {
     public:
@@ -11,8 +13,8 @@ class ApriltagMeasurer {
         ros::Subscriber robot_images;
         ros::Publisher relative_meas;
 
-        void imageCallback(/* Fill in message information */);
+        void imageCallback(const sensor_msgs::ImageConstPtr& msg);
         float /* Or RT matrix? */ getRelativeMeasurement(/* Some parameters (RT matrices?) */);
 
         ros::NodeHandle nh_;
-}
+};

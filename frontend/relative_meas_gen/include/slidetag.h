@@ -15,10 +15,13 @@ class slidetag {
         int id;
         double center[2];
         double corners[4][2];
+        matd_t rotation;
+	    matd_t translation;
+
         slidetag(int id, double center[2], double corners[4][2], matd_t *rotation, matd_t *translation);
         slidetag(int id);
         slidetag();
 };
 
-std::map<int, vdo_tag> ExtractAprilTags(cv::Mat image);
+std::map<int, slidetag> ExtractAprilTags(cv::Mat image);
 cv::Mat MatFromImage(std::string path);
