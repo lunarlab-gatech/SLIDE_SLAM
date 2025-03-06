@@ -1,13 +1,13 @@
 #include "apriltag.h"
 #include "apriltag_pose.h"
-#include "tagStandard52h13.h"
+#include "tag36h11.h"
 #include "opencv2/opencv.hpp"
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
+#include <sensor_msgs/CompressedImage.h>
 #include <vector>
-#include <map>
 #include <string>
 
 class slidetag {
@@ -23,5 +23,5 @@ class slidetag {
         slidetag();
 };
 
-std::map<int, slidetag> ExtractAprilTags(cv::Mat image);
-cv::Mat MatFromImage(std::string path);
+std::vector<slidetag> ExtractAprilTags(cv::Mat image, float intrinsics[4]);
+cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg);

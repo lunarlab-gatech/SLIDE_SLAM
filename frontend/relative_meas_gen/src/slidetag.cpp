@@ -22,7 +22,7 @@ slidetag::slidetag(int id, double center[2], double corners[4][2], matd_t *rotat
 
 slidetag::slidetag() {}
 
-std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float cx, float cy, float tag_size) {
+std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4]) {//float tag_size) {
 
     // Create usable image object from Mat
     image_u8_t img_header = { .width = img.cols,
@@ -30,19 +30,18 @@ std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float 
         .stride = img.cols,
         .buf = img.data
     };
-
     image_u8_t * image = &img_header;
     
     // Create apriltag detector object and add desired tag family
     apriltag_detector_t *td = apriltag_detector_create();
-    apriltag_family_t *tf = tagStandard52h13_create();
+    apriltag_family_t *tf = tag36h11_create();
     apriltag_detector_add_family(td, tf);
 
     // Detect apriltags
     zarray_t *detections = apriltag_detector_detect(td, image);
 
     // Create tag object vector
-    std::map<int, slidetag> tags;
+    std::vector<slidetag> tags;
 
     // Iterate through detected apriltags
     for (int i = 0; i < zarray_size(detections); i++) {
@@ -53,13 +52,15 @@ std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float 
         double center[2];
         double corners[4][2];
 
+        float tag_size = .17;
+
         apriltag_detection_info_t info;
         info.det = det;
         info.tagsize = tag_size;
-        info.fx = fx;
-        info.fy = fy;
-        info.cx = cx;
-        info.cy = cy;
+        info.fx = intrinsics[0];
+        info.cx = intrinsics[1];
+        info.fy = intrinsics[2];
+        info.cy = intrinsics[3];
 
         apriltag_pose_t pose;
 	    estimate_tag_pose(&info, &pose);
@@ -74,21 +75,22 @@ std::map<int, slidetag> ExtractAprilTags(cv::Mat img, float fx, float fy, float 
         }
 
         slidetag new_tag(id, center, corners, pose.R, pose.t);
-        tags[id] = new_tag;
+        tags.push_back(new_tag);
     }
 
     // Free detection objects
     apriltag_detections_destroy(detections);
-    tagStandard52h13_destroy(tf);
     apriltag_detector_destroy(td);
+    tag36h11_destroy(tf);
 
     return tags;
 }
 
-cv::Mat MatFromImage(std::string path) {
+cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg) {
     //Undistort Image
-    cv::Mat matrix = cv::imread(path, cv::IMREAD_COLOR).clone();
+    cv::Mat raw_data(1, msg.data.size(), CV_8UC1, (void*)msg.data.data());
+    cv::Mat image = cv::imdecode(raw_data, cv::IMREAD_COLOR);
     cv::Mat gray;
-    cv::cvtColor(matrix, gray, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
     return gray;
 }

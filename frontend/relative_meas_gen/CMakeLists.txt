@@ -24,6 +24,7 @@ find_package(PkgConfig)
 pkg_search_module(apriltag REQUIRED apriltag)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp)
+find_package(Eigen3 REQUIRED)
 
 set(apriltag_INCLUDE_DIRS "${apriltag_INCLUDE_DIRS}/apriltag")
 
@@ -132,12 +133,13 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${apriltag_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIR}
   include
 )
 
 add_executable(ApriltagMeasurer src/apriltag_meas_gen.cpp src/slidetag.cpp)
 set_target_properties(ApriltagMeasurer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
-target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES})
+target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
