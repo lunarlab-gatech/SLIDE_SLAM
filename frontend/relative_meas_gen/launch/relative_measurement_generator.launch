@@ -3,15 +3,19 @@
 
     <arg name="robotID" default="robot0"/>
     <arg name="camera" default ="camera0"/>
-    <arg name="measurement" default="/relative_inter_robot_meas"/>
-    <arg name="images" default = "/wilbur/stereo_left/image_rect_color/compressed"/>
-    <arg name="config" default = "$(find relative_meas_gen)/params/relative_meas.yaml"/>
+    <arg name="tagsize" default="0.17"/>
+    
+    <arg name="measurement"/>
+    <arg name="images"/>
+    <arg name="config"/>
     
     <node pkg="relative_meas_gen" type="ApriltagMeasurer" name="apriltag_node" output="screen">
         <param name="image_topic" value="$(arg images)"/>
         <param name="host_robot" value="$(arg robotID)"/>
         <param name="config_file" value="$(arg config)"/>
         <param name="camera_ID" value="$(arg camera)"/>
+        <param name="tagsize" value="$(arg tagsize)"/>
+        
         <param name="relative_meas" value="$(arg measurement)"/>
     </node>
 

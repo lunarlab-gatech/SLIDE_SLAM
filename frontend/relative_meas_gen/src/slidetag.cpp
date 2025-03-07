@@ -22,7 +22,7 @@ slidetag::slidetag(int id, double center[2], double corners[4][2], matd_t *rotat
 
 slidetag::slidetag() {}
 
-std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4]) {//float tag_size) {
+std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4], float tagsize) {
 
     // Create usable image object from Mat
     image_u8_t img_header = { .width = img.cols,
@@ -52,11 +52,9 @@ std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4]) {//floa
         double center[2];
         double corners[4][2];
 
-        float tag_size = .17;
-
         apriltag_detection_info_t info;
         info.det = det;
-        info.tagsize = tag_size;
+        info.tagsize = tagsize;
         info.fx = intrinsics[0];
         info.cx = intrinsics[1];
         info.fy = intrinsics[2];

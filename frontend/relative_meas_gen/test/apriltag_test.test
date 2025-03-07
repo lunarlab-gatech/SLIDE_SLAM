@@ -1,0 +1,3 @@
+<launch>
+    <test test-name="apriltag_test" pkg="relative_meas_gen" type="apriltag_test"/>
+</launch>

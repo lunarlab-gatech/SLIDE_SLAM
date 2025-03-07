@@ -1,8 +1,0 @@
-<launch>
-    <!-- Setup parameter for node name -->
-    <arg name="dummy_rel_node_name" default="dummy_rel_meas"/>
-    <param name="dummy_rel_node_name" value="$(arg dummy_rel_node_name)"/>
-
-    <!-- Launch the node -->
-    <node pkg="relative_meas_gen" type="dummyRelMeas.py" name="$(arg dummy_rel_node_name)" output="screen"/>
-</launch>

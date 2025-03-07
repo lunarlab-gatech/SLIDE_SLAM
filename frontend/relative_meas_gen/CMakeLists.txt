@@ -13,9 +13,15 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   rospy
+  roslib
+  rostest
   sloam_msgs
   std_msgs
   std_msgs
+)
+
+catkin_package(
+  CATKIN_DEPENDS roscpp
 )
 
 ## System dependencies are found with CMake's conventions
@@ -134,6 +140,7 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
   ${apriltag_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIR}
+  ${roscpp_INCLUDE_DIRS}
   include
 )
 
@@ -193,16 +200,7 @@ target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apri
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
+# install(TARGEstd::string package_path = ros::package::getPath("relative_meas_gen");TCHING PATTERN "*.h"
 #   PATTERN ".svn" EXCLUDE
 # )
 
@@ -222,6 +220,14 @@ target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apri
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
+
+if (CATKIN_ENABLE_TESTING)
+  find_package(catkin REQUIRED COMPONENTS roscpp rostest)
+
+  catkin_add_gtest(apriltag_test test/apriltag_test.cpp src/slidetag.cpp)
+  target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
+  target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

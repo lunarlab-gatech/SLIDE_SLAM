@@ -23,5 +23,5 @@ class slidetag {
         slidetag();
 };
 
-std::vector<slidetag> ExtractAprilTags(cv::Mat image, float intrinsics[4]);
+std::vector<slidetag> ExtractAprilTags(cv::Mat image, float intrinsics[4], float tagsize);
 cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg);
