@@ -21,7 +21,9 @@ class ApriltagMeasurer {
         YAML::Node config;
 
         void imageCallback(const sensor_msgs::CompressedImage msg);
-        void publishRelativeMeasurement(std::string, Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Vector3f bot_to_tag_T, Eigen::Quaternionf bot_to_tag_Q);
+        void publishRelativeMeasurement(std::string, Eigen::Matrix4f transformation);
+        Eigen::Matrix4f calculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag);
+        Eigen::Matrix4f ApriltagMeasurer::RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw)
 
         ros::NodeHandle nh_;
 };

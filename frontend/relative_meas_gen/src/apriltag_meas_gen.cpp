@@ -73,8 +73,10 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
             bot_tag_T << x, y, z;
             Eigen::Quaternionf bot_tag_Q(qw, qx, qy, qz);
 
+            Eigen::Matrix4f transformation = calculateRelativeTransformation(/*The matrices*/);
+
             // Calculate bot -> bot transformation and publish
-            publishRelativeMeasurement(bot_id, bot_cam_RT, cam_tag_RT, bot_tag_T, bot_tag_Q);
+            publishRelativeMeasurement(bot_id, transformation);
 
         }
     }
@@ -122,7 +124,15 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-void ApriltagMeasurer::publishRelativeMeasurement(std::string bot_id, Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Vector3f bot_to_tag_T, Eigen::Quaternionf bot_to_tag_Q) {
+Eigen::Matrix4f ApriltagMeasurer::RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw) {
+
+}
+
+Eigen::Matrix4f calculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag) {
+
+}
+
+void ApriltagMeasurer::publishRelativeMeasurement(std::string bot_id, Eigen::Matrix4f transformation) {
     
     geometry_msgs::Pose pose_msg;
 
