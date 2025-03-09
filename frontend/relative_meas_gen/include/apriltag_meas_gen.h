@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <geometry_msgs/Pose.h>
+#include <sloam_msgs/RelativeInterRobotMeasurement.h>
 #include <yaml-cpp/yaml.h>
 #include <Eigen/Dense>
 
@@ -21,9 +22,10 @@ class ApriltagMeasurer {
         YAML::Node config;
 
         void imageCallback(const sensor_msgs::CompressedImage msg);
-        void publishRelativeMeasurement(std::string, Eigen::Matrix4f transformation);
-        Eigen::Matrix4f calculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag);
-        Eigen::Matrix4f ApriltagMeasurer::RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw)
+        void PublishRelativeMeasurement(int8_t, Eigen::Matrix4f transformation);
+        Eigen::Matrix4f CalculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag);
+        Eigen::Matrix4f RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw);
+        std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> LoadTransformations(slidetag tag);
 
         ros::NodeHandle nh_;
 };

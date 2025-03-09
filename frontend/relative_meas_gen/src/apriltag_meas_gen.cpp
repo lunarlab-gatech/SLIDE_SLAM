@@ -11,38 +11,69 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
 
     std::vector<slidetag> tags = ExtractAprilTags(img, this->intrinsics, this->tagsize);\
 
-    // Load RT matrix from host bot -> camera from config
-    Eigen::Matrix4f bot_cam_RT;
-    YAML::Node R = config[robot_ID][camera_ID]["R"];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            bot_cam_RT(i, j) = R[i][j].as<float>();
-        }
-    }
-    bot_cam_RT(0, 3) = config[robot_ID][camera_ID]["x"].as<float>();
-    bot_cam_RT(1, 3) = config[robot_ID][camera_ID]["y"].as<float>();
-    bot_cam_RT(2, 3) = config[robot_ID][camera_ID]["z"].as<float>();
-
     // Publish transformation for each detected apriltag
     for (slidetag t : tags) {
+        int8_t bot_id;
+        Eigen::Matrix4f bot_to_cam;
+        Eigen::Matrix4f cam_to_tag;
+        Eigen::Matrix4f tag_to_bot;
+
         // Obtain RT from camera -> detected apriltag
-        Eigen::Matrix4f cam_tag_RT;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                cam_tag_RT(i, j) = t.rotation.data[i + j];
+                cam_to_tag(i, j) = t.rotation.data[i + j];
             }
-            cam_tag_RT(3, i) = t.translation.data[i];
+            cam_to_tag(3, i) = t.translation.data[i];
         }
         std::cout << "Tag ID: " << t.id << std::endl;
 
-        float x;
-        float y;
-        float z;
-        float qw;
-        float qx;
-        float qy;
-        float qz;
-        std::string bot_id;
+        std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> loaded_transformations = LoadTransformations(t);
+        std::array<Eigen::Matrix4f, 2> transformations = std::get<1>(loaded_transformations);
+        bot_id = std::get<0>(loaded_transformations);
+        
+        if (bot_id == -1) {
+            ROS_ERROR("Transformations not loaded for apriltag id: " + t.id);
+            continue;
+        }
+        bot_to_cam = transformations[0];
+        tag_to_bot = transformations[1];
+
+        Eigen::Matrix4f total_transformation = CalculateRelativeTransformation(bot_to_cam, cam_to_tag, tag_to_bot);
+        PublishRelativeMeasurement(bot_id, total_transformation);
+    }
+
+}
+
+std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> ApriltagMeasurer::LoadTransformations(slidetag t) {
+    std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> return_tuple;
+    int8_t bot_id = -1;
+    std::array<Eigen::Matrix4f, 2> transformations;
+
+    std::string dataset = config["dataset"].as<std::string>();
+    if (dataset == "CoPeD") {
+        // Load RT matrix from host bot -> camera from config
+        Eigen::Matrix4f bot_to_cam = Eigen::Matrix4f::Identity();
+        if (config[robot_ID][camera_ID]["R"].IsDefined()) {
+            YAML::Node R = config[robot_ID][camera_ID]["R"];
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    bot_to_cam(i, j) = R[i][j].as<float>();
+                }
+            }
+            bot_to_cam(0, 3) = config[robot_ID][camera_ID]["x"].as<float>();
+            bot_to_cam(1, 3) = config[robot_ID][camera_ID]["y"].as<float>();
+            bot_to_cam(2, 3) = config[robot_ID][camera_ID]["z"].as<float>();
+        } else {
+            float x = config[robot_ID][camera_ID]["x"].as<float>();
+            float y = config[robot_ID][camera_ID]["y"].as<float>();
+            float z = config[robot_ID][camera_ID]["z"].as<float>();
+            float roll = config[robot_ID][camera_ID]["roll"].as<float>();
+            float pitch = config[robot_ID][camera_ID]["pitch"].as<float>();
+            float yaw = config[robot_ID][camera_ID]["yaw"].as<float>();
+            bot_to_cam = RollPitchYaw_to_RT(x, y, z, roll, pitch, yaw);
+        }
+
+        Eigen::Matrix4f tag_to_bot;
         bool tag_on_bot = false;
 
         // Obtain translation vector and quaternion from detected apriltag -> detected robot
@@ -52,35 +83,37 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
                 YAML::Node tags = config[key]["tags"];
                 for (auto tag = tags.begin(); tag != tags.end(); ++tag) {
                     if (t.id == (*tag)["id"].as<int>()) {
-                        bot_id = key;
-                        x = (*tag)["x"].as<float>();
-                        y = (*tag)["y"].as<float>();
-                        z = (*tag)["z"].as<float>();
-                        qw = (*tag)["qw"].as<float>();
-                        qx = (*tag)["qx"].as<float>();
-                        qy = (*tag)["qy"].as<float>();
-                        qz = (*tag)["qz"].as<float>();
+                        bot_id = config[key]["id"].as<int>();
+                        float x = (*tag)["x"].as<float>();
+                        float y = (*tag)["y"].as<float>();
+                        float z = (*tag)["z"].as<float>();
+                        Eigen::Vector3f translation = Eigen::Vector3f(x, y, z);
+                        float qw = (*tag)["qw"].as<float>();
+                        float qx = (*tag)["qx"].as<float>();
+                        float qy = (*tag)["qy"].as<float>();
+                        float qz = (*tag)["qz"].as<float>();
+                        Eigen::Quaternionf q = Eigen::Quaternionf(qw, qx, qy, qz);
                         tag_on_bot = true;
+                        tag_to_bot = Eigen::Matrix4f::Identity();
+                        tag_to_bot.block<3,3>(0,0) = q.toRotationMatrix();
+                        tag_to_bot.block<3,1>(0,3) = translation;
                         break;
                     }
                 }
             }
         }
         if (!tag_on_bot) {
-            std::cout << "Detected tag does not belong to any robot" << std::endl;
-        } else {
-            Eigen::Vector3f bot_tag_T;
-            bot_tag_T << x, y, z;
-            Eigen::Quaternionf bot_tag_Q(qw, qx, qy, qz);
-
-            Eigen::Matrix4f transformation = calculateRelativeTransformation(/*The matrices*/);
-
-            // Calculate bot -> bot transformation and publish
-            publishRelativeMeasurement(bot_id, transformation);
-
+            ROS_WARN("Detected tag does not belong to any robot in dataset");
         }
-    }
 
+        transformations[0] = bot_to_cam;
+        transformations[1] = tag_to_bot;
+        return_tuple = std::make_tuple(bot_id, transformations);
+        return return_tuple;
+        
+    } else {
+        ROS_INFO("Loading from config for requested dataset not supported.");
+    }
 }
 
 ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
@@ -125,20 +158,37 @@ int main(int argc, char** argv) {
 }
 
 Eigen::Matrix4f ApriltagMeasurer::RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw) {
-
+    /*
+    TODO: Write calculations
+    */
 }
 
-Eigen::Matrix4f calculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag) {
-
+Eigen::Matrix4f ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4f bot_to_cam, Eigen::Matrix4f cam_to_tag, Eigen::Matrix4f bot_to_tag) {
+    /*
+    TODO: Write calculations
+    */
 }
 
-void ApriltagMeasurer::publishRelativeMeasurement(std::string bot_id, Eigen::Matrix4f transformation) {
+void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4f transformation) {
     
     geometry_msgs::Pose pose_msg;
+    sloam_msgs::RelativeInterRobotMeasurement msg;
+
+    geometry_msgs::Point position;
+    geometry_msgs::Quaternion orientation;
 
     /*
-    Calculate pose
+    TODO: some math to get these two fields
     */
+
+    msg.header.stamp = ros::Time::now();
+    msg.relativePose = pose_msg;
+    
+    /*
+    TODO: Get odometry data
+    */
+
+    msg.robotId = bot_id;
 
     std::cout << "Publishing pose from host to " << bot_id << std::endl;
 

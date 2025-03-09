@@ -7,6 +7,6 @@
         <arg name="tagsize" value=".17"/>
         <arg name="measurement" value="/relative_inter_robot_meas"/>
         <arg name="images" value = "/wilbur/stereo_left/image_rect_color/compressed"/>
-        <arg name="config" value = "$(find relative_meas_gen)/params/relative_meas.yaml"/>
+        <arg name="config" value = "$(find relative_meas_gen)/params/CoPeD.yaml"/>
     </include>
 </launch>
