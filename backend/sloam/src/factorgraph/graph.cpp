@@ -46,11 +46,12 @@ SemanticFactorGraph::SemanticFactorGraph() {
   noise_model_pose = noiseModel::Diagonal::Sigmas(noise_model_pose_vec);
   noise_model_closure =
       noiseModel::Diagonal::Sigmas(noise_model_pose_vec * 0.01);
-  
-  // XYZ 5mm standard deviation, Rotation 0.0175 rad standard deviation (~1 degree)
+    
+  // For Relative Inter-Robot Measurements
+  // XYZ 0.1m standard deviation, Rotation 0.1 rad standard deviation (~5.7 degree)
   // TODO: These are currently just estimates, update!
   Vector6 noise_model_rel_meas_vec;
-  noise_model_rel_meas_vec << 0.005, 0.005, 0.005, 0.0175, 0.0175, 0.0175;
+  noise_model_rel_meas_vec << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1;
   noise_model_rel_meas = noiseModel::Diagonal::Sigmas(noise_model_rel_meas_vec);
       
   start_time_ = ros::Time::now();
@@ -303,21 +304,18 @@ void SemanticFactorGraph::addLoopClosureFactor(const Pose3 poseRelative,
                                   noise_model_closure));
 }
 
-/**
- * @brief Adds a Relative Inter-Robot Measurement Factor to the factor graph.
- * 
- * @param poseRelative - Transformation from Robot #fromRobotID to Robot #toRobotID
- * @param fromIdx - 
- */
-void SemanticFactorGraph::addRelativeMeasurementFactor(const Pose3 poseRelative, 
-                                 const size_t fromIdx, const size_t fromRobotID, 
-                                 const size_t toIdx, const size_t toRobotID) {
-
-  // TODO: Scale the noise model based on the relative distance
-  fgraph.add(BetweenFactor<Pose3>(getSymbol(fromRobotID, fromIdx),
-                                  getSymbol(toRobotID, toIdx), poseRelative,
+void SemanticFactorGraph::addRelativeMeasFactor(const Pose3 poseRelative,
+                                               const size_t prevIdx,
+                                               const size_t robotID1,
+                                               const size_t curIdx,
+                                               const size_t robotID2) {
+  // Correct interface for BetweenFactor<Pose3>(pose1, pose2, H_pose2^pose1,
+  // noise) poseRelative is H_query^candidate, i.e., from query pose to
+  // candidate (history) pose candidate is robotID1, prevIdx query is robotID2,
+  // curIdx
+  fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID1, prevIdx),
+                                  getSymbol(robotID2, curIdx), poseRelative,
                                   noise_model_rel_meas));
-
 }
 
 void SemanticFactorGraph::solve() {

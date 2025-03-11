@@ -1,0 +1,12 @@
+<launch>
+    <!-- Setup arguments for node name -->
+    <arg name="multi_UGV_to_SlideSLAM_node_name" default="multi_UGV_pub"/>
+    <arg name="publish_for_rviz" default="false"/>
+
+    <!-- Setup parameters -->
+    <param name="multi_UGV_to_SlideSLAM_node_name" value="$(arg multi_UGV_to_SlideSLAM_node_name)"/>
+    <param name="publish_for_rviz" value="$(arg publish_for_rviz)"/>
+
+    <!-- Launch the node -->
+    <node pkg="relative_meas_gen" type="multiUGVToSlideSLAM.py" name="$(arg multi_UGV_to_SlideSLAM_node_name)" output="screen"/>
+</launch>

@@ -46,10 +46,9 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
 
   bool turn_off_rel_inter_robot_factor = nh_.param(node_name+"/turn_off_rel_inter_robot_factor", true);
   if (!turn_off_rel_inter_robot_factor) {
-    std::string relativeMeasSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/relative_inter_robot_meas";
+    std::string relativeMeasSub_topic = "/relative_inter_robot_meas_sync";
     RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
   }
-
 
   ROS_INFO_STREAM("Robot Initialized! Robot # " << robotId_);
 }
@@ -160,16 +159,30 @@ void Robot::RobotObservationCb(
  * inputNode will pass this onto the databaseManager
  * in sloamNode.
  * 
- * @param sloam_msgs::RelativeInterRobotMeasurement 
+ * @param sloam_msgs::RelativeInterRobotMeasurementOdom
  *    &relativeMeas_msg
  */
-void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurement &relativeMeas_msg) {
-  RelativeMeas cur_measurement;
-  cur_measurement.stamp = relativeMeas_msg.header.stamp;
-  cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometry.pose.pose);
-  cur_measurement.relativePose = databaseManager::toSE3Pose(relativeMeas_msg.relativePose);
-  cur_measurement.robotIndex = relativeMeas_msg.robotId;
-  robotRelativeMeasQueue_.push_back(cur_measurement);
+void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurementOdom &relativeMeas_msg) {
+  // If this relative measurement involves our robot in some way, add it
+  if(relativeMeas_msg.robotIdObserver == robotId_ || relativeMeas_msg.robotIdObserved == robotId_) {
+    RelativeMeas cur_measurement;
+    cur_measurement.stamp = relativeMeas_msg.header.stamp;
+    cur_measurement.relativePose = databaseManager::toSE3Pose(relativeMeas_msg.relativePose);
+
+    // If we are observed, we only use the odometry to add a factor,
+    // but don't consider it for a relative inter-robot factor
+    if(relativeMeas_msg.robotIdObserver == robotId_) {
+      cur_measurement.onlyUseOdom = false;
+      cur_measurement.robotIndex = relativeMeas_msg.robotIdObserved;
+      cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserver.pose.pose);
+    } else {
+      cur_measurement.onlyUseOdom = true;
+      cur_measurement.robotIndex = relativeMeas_msg.robotIdObserver;
+      cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserved.pose.pose);
+    }
+
+    robotRelativeMeasQueue_.push_back(cur_measurement);
+  }
 }
 
 std::vector<Cylinder> Robot::rosCylinder2CylinderObj(

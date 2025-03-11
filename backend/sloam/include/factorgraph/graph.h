@@ -92,7 +92,7 @@ class SemanticFactorGraph {
   void addLoopClosureFactor(const Pose3 poseRelative, const size_t fromIdx,
                             const size_t fromRobotID, const size_t toIdx,
                             const size_t toRobotID);
-  void addRelativeMeasurementFactor(const Pose3 poseRelative, const size_t fromIdx,
+  void addRelativeMeasFactor(const Pose3 poseRelative, const size_t fromIdx,
                                     const size_t fromRobotID, const size_t toIdx,
                                     const size_t toRobotID);
   void addPointLandmarkKey(const size_t ugvIdx, const Point3& ugv_position);

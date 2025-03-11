@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf
   roscpp
+  roslib
   actionlib
   actionlib_msgs
 )
@@ -107,6 +108,7 @@ cc_library(
 if (USE_CLIPPER)
   target_link_libraries(${CC_TARGET_PREFIX}_core PRIVATE semantic_clipper)
 endif()
+target_link_libraries(${CC_TARGET_PREFIX}_core PRIVATE m)
 
 cc_binary(
   NAME node

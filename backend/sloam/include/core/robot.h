@@ -29,6 +29,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <sloam_msgs/SemanticMeasSyncOdom.h>
 #include <sloam_msgs/RelativeInterRobotMeasurement.h>
+#include <sloam_msgs/RelativeInterRobotMeasurementOdom.h>
 #include <sloam_msgs/ROSCylinder.h>
 
 #include <deque>
@@ -100,7 +101,7 @@ class Robot {
   // Callback functions for Subscribers
   void RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg);
   void RobotObservationCb(const sloam_msgs::SemanticMeasSyncOdom &observation_msg);
-  void RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurement &relativeMeas_msg);
+  void RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurementOdom &relativeMeas_msg);
 
   // Helper methods for converting messages to objects
   std::vector<Ellipsoid> rosEllipsoid2EllipObj(const std::vector<sloam_msgs::ROSEllipsoid>& msgs);

@@ -117,10 +117,14 @@ SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
     ROS_WARN("Relative Inter-Robot Loop Closure is turned off");
   } else {
     relInterRobotFactorthread_ = std::thread(&SLOAMNode::relInterRobotFactorThread_, this);
+    pubRelInterRobotFactors_ = nh_.advertise<visualization_msgs::MarkerArray>(
+        "rel_inter_robot_factors", 1, true);
     ROS_WARN("Relative Inter-Robot Loop Closure is turned on");
   }
 
-  // initialize the runtime analysis variables 
+  // initialize save variables
+  save_results_dir_ = ros::package::getPath("sloam") + "/results";
+  save_runtime_analysis_dir_ = save_results_dir_ + "/runtime_analysis";
   runtime_analysis_file = save_runtime_analysis_dir_ + "/robot"+std::to_string(hostRobotID)+"_runtime_analysis.txt";
   ROS_DEBUG_STREAM("THE RUNTIME ANALYSIS FILE IS: " << runtime_analysis_file);
 }
@@ -211,11 +215,72 @@ void SLOAMNode::publishCubeMaps_(const ros::Time stamp) {
   pubSubmapCubeModel_.publish(cubeSubMapTMarkerArray);
 }
 
+void SLOAMNode::publishInterRobotFactors(const int &robotID) {
+
+  relInterRobotFactorsMtx_.lock();
+
+  // Create a marker array of all inter-robot factors
+  visualization_msgs::MarkerArray inter_robot_factors_;
+  for(int i = 0; i < relative_inter_robot_factors.size(); i++) {
+
+    // Get this factor's information
+    RelativeInterRobotFactor factor = relative_inter_robot_factors[i];
+
+    // Represent it as a line between the two poses
+    visualization_msgs::Marker line;
+    line.header.frame_id = map_frame_id_;
+    line.header.stamp = factor.stamp;
+    line.id = i;
+    line.type = visualization_msgs::Marker::LINE_LIST;  // Use LINE_LIST to create independent line segments
+    line.action = visualization_msgs::Marker::ADD;
+
+    // Initialize default quaternion
+    line.pose.orientation.w = 1.0;
+    
+    // Define the line width
+    line.scale.x = 0.05; // Adjust as needed
+
+    // Set color (e.g., red)
+    line.color.r = 1.0;
+    line.color.g = 0.0;
+    line.color.b = 0.0;
+    line.color.a = 1.0;
+
+    // Get the poses associated with this factor
+    gtsam::Pose3 hostRobotPose;
+    gtsam::Pose3 otherRobotPose;
+    factorGraph_.getPose(factor.hostPoseIndex, factor.hostRobotID, hostRobotPose);
+    factorGraph_.getPose(factor.observedPoseIndex, factor.observedRobotID, otherRobotPose);
+
+    // Add the two pose positions as points
+    geometry_msgs::Point p1, p2;
+    gtsam::Point3 positionHost = hostRobotPose.translation();
+    p1.x = positionHost.x();
+    p1.y = positionHost.y();
+    p1.z = positionHost.z();
+    gtsam::Point3 positionObserved = otherRobotPose.translation();
+    p2.x = positionObserved.x();
+    p2.y = positionObserved.y();
+    p2.z = positionObserved.z();
+
+    line.points.push_back(p1);
+    line.points.push_back(p2);
+
+    // Add to the marker array
+    inter_robot_factors_.markers.push_back(line);
+  }
+
+  // Publish for RViz
+  pubRelInterRobotFactors_.publish(inter_robot_factors_);
+  relInterRobotFactorsMtx_.unlock();
+}
+
 void SLOAMNode::publishResults_(const SloamInput &sloamIn,
                                 const SloamOutput &sloamOut, ros::Time stamp,
                                 const int &robotID) {
   publishMap_(stamp);
   publishCubeMaps_(stamp);
+  publishInterRobotFactors(robotID);
 
   std::vector<SE3> allLandmarks;
   std::vector<int> allLabels;
@@ -250,18 +315,20 @@ void SLOAMNode::publishResults_(const SloamInput &sloamIn,
       // Save the trajectory of the robot and corresponding timestamps for
       // each pose as a csv file save rotation as quaternion
       std::ofstream myfile;
-      std::string fname = save_results_dir_ + "/trajectory.csv";
+      std::string fname = save_results_dir_ + "/robot" + std::to_string(robotID) + "trajectory.txt";
       myfile.open(fname);
-      myfile << "x,y,z,qx,qy,qz,qw,timestamp\n";
       for (size_t i = 0; i < trajectory.size(); i++) {
-        myfile << trajectory[i].translation()[0] << ","
-               << trajectory[i].translation()[1] << ","
-               << trajectory[i].translation()[2] << ","
-               << trajectory[i].so3().unit_quaternion().x() << ","
-               << trajectory[i].so3().unit_quaternion().y() << ","
-               << trajectory[i].so3().unit_quaternion().z() << ","
-               << trajectory[i].so3().unit_quaternion().w() << ","
-               << KeyPoseTimeStamps[i] << "\n";
+        myfile << KeyPoseTimeStamps[i] << " "
+               << trajectory[i].translation()[0] << " "
+               << trajectory[i].translation()[1] << " "
+               << trajectory[i].translation()[2] << " "
+               << trajectory[i].so3().unit_quaternion().x() << " "
+               << trajectory[i].so3().unit_quaternion().y() << " "
+               << trajectory[i].so3().unit_quaternion().z() << " "
+               << trajectory[i].so3().unit_quaternion().w();
+        if (i != trajectory.size() - 1) {
+          myfile << "\n";
+        }
       }
     }
 
@@ -702,31 +769,47 @@ void SLOAMNode::relInterRobotFactorThread_() {
         GetIndexClosestPoseMstPair(dbManager.getRobotDataByID(relativeMeas.robotIndex).poseMstPacket, 
                                   relativeMeas.stamp, indexClosestOtherRobot, timeDiffClosest);
         if (indexClosestOtherRobot == -1 || timeDiffClosest > maxTimeDiff ||
-            indexClosestOtherRobot >= pose_counter_other) { continue; }
+            indexClosestOtherRobot >= pose_counter_other) { 
+              continue; 
+        }
 
         // Iterate through our own poses, and make sure one exists in the factor graph thats close 
         // enough in time to our measurement
-        size_t pose_counter_host = factorGraph_.getPoseCounterById(relativeMeas.robotIndex);
+        size_t pose_counter_host = factorGraph_.getPoseCounterById(hostRobotID);
         GetIndexClosestPoseMstPair(poseMstPacket, relativeMeas.stamp, indexClosestHostRobot, timeDiffClosest);
         if (indexClosestHostRobot == -1 || timeDiffClosest > maxTimeDiff ||
-            indexClosestHostRobot >= pose_counter_host) { continue; }
+            indexClosestHostRobot >= pose_counter_host) { 
+              continue; 
+        }
 
         // We found a match, so add it to the factor graph
         matches_found += 1;
         factorGraphMtx_.lock();
         gtsam::Pose3 relativeMeasPose = SE3ToGTSAMPose3(relativeMeas.relativePose);
-        factorGraph_.addLoopClosureFactor(relativeMeasPose, indexClosestHostRobot,
+        factorGraph_.addRelativeMeasFactor(relativeMeasPose, indexClosestHostRobot,
                       hostRobotID, indexClosestOtherRobot, relativeMeas.robotIndex);
         factorGraphMtx_.unlock();
-        ROS_DEBUG_STREAM("A Relative Inter-Robot Measurement Factor is added between Robot #" << hostRobotID << " Pose " << indexClosestHostRobot
-                         << "and Robot #" << relativeMeas.robotIndex << " Pose " << indexClosestOtherRobot);
+        //ROS_DEBUG_STREAM("Rel-Inter-Robot Factor added between Robot #" << hostRobotID << " Pose " << indexClosestHostRobot
+        //                 << "and Robot #" << relativeMeas.robotIndex << " Pose " << indexClosestOtherRobot);
+
+        // Save this factor separately so that we can visualize it
+        RelativeInterRobotFactor factor;
+        factor.hostPoseIndex = indexClosestHostRobot;
+        factor.hostRobotID = hostRobotID;
+        factor.observedPoseIndex = indexClosestOtherRobot;
+        factor.observedRobotID = relativeMeas.robotIndex;
+        factor.relativePose = relativeMeas.relativePose;
+        factor.stamp = relativeMeas.stamp;
+        relInterRobotFactorsMtx_.lock();
+        relative_inter_robot_factors.push_back(factor);
+        relInterRobotFactorsMtx_.unlock();
 
         // Remove this measurement from vector, so we don't use it again
         feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);
         i--;
       }
 
-      // Check which factors are no longer feasible for removal
+      // Check which factors are no longer feasible so we can remove them
       for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
 
         // Get pose_counter (tracks number of poses added to factor graph)
@@ -758,7 +841,7 @@ void SLOAMNode::relInterRobotFactorThread_() {
       }
     } 
     else {
-      ROS_DEBUG("No Available Relative Inter Robot Measurements");
+      ROS_DEBUG_THROTTLE(5.0, "No Available Relative Inter Robot Measurements");
     }
 
     // Unlock the mutexes and sleep

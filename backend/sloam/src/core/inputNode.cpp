@@ -181,6 +181,7 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   if(!turn_off_rel_inter_robot_factor) {
     // For each received measurement
     for (int i = 0; i < robot.robotRelativeMeasQueue_.size(); i++) {
+
       // If measurement is at least robot.semantic_meas_delay_tolerance_ seconds old
       if ((robot.robotRelativeMeasQueue_.back().stamp - robot.robotRelativeMeasQueue_[i].stamp).toSec() 
             > robot.semantic_meas_delay_tolerance_) {
@@ -219,18 +220,21 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
           updateLastPose(raw_vio_odom_used_for_sloam, hostRobotID_);
         }
 
-        // Extract Host Robot Data class
-        sloam_->dbMutex.lock();
-        robotData data = sloam_->dbManager.getHostRobotData();
+        // If this is a relative measurement we observed
+        if (!relativeMeas.onlyUseOdom) {
+          // Extract Host Robot Data class
+          sloam_->dbMutex.lock();
+          robotData data = sloam_->dbManager.getHostRobotData();
 
-        // Pass the relative inter-robot measurement to the database manager
-        // and factor generation thread
-        data.relativeMeasPacket.push_back(relativeMeas);
-        sloam_->addRelativeMeasurement(relativeMeas);
+          // Pass the relative inter-robot measurement to the database manager
+          // and factor generation thread
+          data.relativeMeasPacket.push_back(relativeMeas);
+          sloam_->addRelativeMeasurement(relativeMeas);
+          sloam_->dbMutex.unlock();
+        }
 
         // Remove this value from the queue, as it's been used
         robot.robotRelativeMeasQueue_.erase(robot.robotRelativeMeasQueue_.begin() + i);
-        sloam_->dbMutex.unlock();
         i--;
 
       } 

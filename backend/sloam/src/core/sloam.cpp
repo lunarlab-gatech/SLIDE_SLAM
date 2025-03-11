@@ -76,13 +76,13 @@ void sloam::matchModels(const std::vector<T> &currObjects,
                         std::vector<int> &matchIndices) {
   size_t obj_counter = 0;
   if (currObjects.size() == 0) {
-    ROS_WARN("No cylinder detected in current scan!");
+    ROS_WARN_THROTTLE(30, "No cylinder detected in current scan!");
     if (mapObjects.size() == 0) {
-      ROS_WARN("No cylinder in submap!");
+      ROS_WARN_THROTTLE(30, "No cylinder in submap!");
     }
     return;
   } else if (mapObjects.size() == 0) {
-    ROS_WARN("No cylinder in submap!");
+    ROS_WARN_THROTTLE(30, "No cylinder in submap!");
     return;
   }
   for (const auto &co : currObjects) {

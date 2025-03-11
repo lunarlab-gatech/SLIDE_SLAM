@@ -111,11 +111,33 @@ struct FeatureModelParams {
  *    between the current robot and robot assigned to
  *    "robotIndex".
  * @param robotIndex - the index assigned to the robot
- *    whose relative pose was measured.
+ *    that isn't the host. If onlyUseOdom is true, then
+ *    this is the robot that observed us. If onlyUseOdom
+ *    is false, this is the robot we observed.
+ * @param onlyUseOdom - if true, only use the odometry. 
+ *    This is for when we are observed by another robot,
+ *    so we add a factor to the graph, but don't add the
+ *    relative measurement to the database.
  */
 struct RelativeMeas {
   ros::Time stamp;
   SE3 odomPose;
   SE3 relativePose;
   int robotIndex; 
+  bool onlyUseOdom;
+};
+
+/**
+ * @brief This struct holds information on all
+ * created relative inter-robot factors so that
+ * they can be easily published and visualized
+ * with RViz.
+ */
+struct RelativeInterRobotFactor {
+  int hostRobotID;
+  int observedRobotID;
+  int hostPoseIndex;
+  int observedPoseIndex;
+  SE3 relativePose;
+  ros::Time stamp;
 };

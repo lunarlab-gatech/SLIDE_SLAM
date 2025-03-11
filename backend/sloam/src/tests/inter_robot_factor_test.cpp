@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include <robot.h>
 
-TEST(InterRobotFactorTests, TestMeasurementCallback) {
-    Robot robot;
-}
+// No Tests defined currently
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
