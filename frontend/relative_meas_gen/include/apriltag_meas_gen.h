@@ -23,8 +23,8 @@ class ApriltagMeasurer {
 
         void imageCallback(const sensor_msgs::CompressedImage msg);
         void PublishRelativeMeasurement(int8_t, Eigen::Matrix4f transformation);
-        Eigen::Matrix4f CalculateRelativeTransformation(Eigen::Matrix4f bot_to_cam_RT, Eigen::Matrix4f cam_to_tag_RT, Eigen::Matrix4f bot_to_tag);
-        Eigen::Matrix4f RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw);
+        Eigen::Matrix4d CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
+                      Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag);
         std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> LoadTransformations(slidetag tag);
 
         ros::NodeHandle nh_;

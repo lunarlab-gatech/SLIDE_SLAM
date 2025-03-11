@@ -157,16 +157,32 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-Eigen::Matrix4f ApriltagMeasurer::RollPitchYaw_to_RT(float x, float y, float z, float roll, float pitch, float yaw) {
-    /*
-    TODO: Write calculations
-    */
-}
+/*
+ * This function calculates the relative transformation between
+ * two robots.
+ * 
+ * Parameters:
+ *  H_hostBot_to_cam - Transformation from the host robot base frame 
+ *                  to the camera frame
+ *  H_cam_to_tag - Transformation from the camera to the observed tag
+ *  H_observedBot_to_tag - Transformation from the observed robot base 
+ *                  frame to the observed tag
+ * 
+ * Returns:
+ *  Eigen::Matrix4d -  Transformation from the host robot base frame to 
+ *                  the observed robot base frame.
+ */
+Eigen::Matrix4d ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
+                                    Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag) {
+    // Calculate transformation from bot_to_tag
+    Eigen::Matrix4d H_bot_to_tag = H_hostBot_to_cam * H_cam_to_tag;
 
-Eigen::Matrix4f ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4f bot_to_cam, Eigen::Matrix4f cam_to_tag, Eigen::Matrix4f bot_to_tag) {
-    /*
-    TODO: Write calculations
-    */
+    // Invert to get tag to observedBot
+    Eigen::Matrix4d T_tag_to_observedBot = H_observedBot_to_tag.inverse();
+
+    // Chain to get bot -> observedBot
+    Eigen::Matrix4d T_bot_to_observedBot = H_bot_to_tag * T_tag_to_observedBot;
+    return T_bot_to_observedBot;
 }
 
 void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4f transformation) {
