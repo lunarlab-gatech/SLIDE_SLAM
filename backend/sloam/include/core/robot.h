@@ -59,11 +59,8 @@ class Robot {
   ros::NodeHandle nh_;
 
  public: 
-  bool robotOdomUpdated_ = false;
-  bool robotObservationUpdated_ = false;
   StampedSE3 robotLatestOdom_;
   SE3 robotLastSLOAMKeyPose_ = SE3();
-  bool robotFirstOdom_;
   size_t robotOdomCounter_;
   bool turn_off_rel_inter_robot_loop_closure;
   
@@ -81,8 +78,8 @@ class Robot {
   // Used by inputNode.cpp to track if sloam has already updated a previous odometry
   bool robotOdomReceived_ = false;
 
-  // How many seconds max to wait for semantic measurements to arrive
-  double semantic_meas_delay_tolerance_ = 3.0;
+  // Time to wait for all incoming messages to be recieved before processing
+  double msg_delay_tolerance = 3.0; // seconds
 
   // Publishers
   ros::Publisher pubRobotHighFreqSLOAMPose_;
@@ -106,4 +103,7 @@ class Robot {
   // Helper methods for converting messages to objects
   std::vector<Ellipsoid> rosEllipsoid2EllipObj(const std::vector<sloam_msgs::ROSEllipsoid>& msgs);
   std::vector<Cylinder> rosCylinder2CylinderObj(const std::vector<sloam_msgs::ROSCylinder>& rosCylinders);
+
+  // Logging methods
+  void PrintLateMsgWarning(const std::string &msg_type);
 };
