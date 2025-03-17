@@ -9,7 +9,7 @@
  * @param robotOdomQueue_: The deque of odometry measurements.
  * @param robotObservationQueue_: The queue of observation measurements.
  * @param robotRelativeMeasQueue_: The deque of relative measurements.
- * @param current_time: The current time of the robot.
+ * @param current_time: The current time of the robot (in seconds)
  * @param msg_delay_tolerance: The amount of time to wait before adding
  *                    a measurement.
  * @param minOdomDistance_: The minimum distance of estimated odometry 
@@ -24,7 +24,7 @@ void Input::PickNextMeasurementToAdd(std::deque<StampedSE3> &robotOdomQueue_,
                                      std::queue<Observation> &robotObservationQueue_,
                                      std::deque<RelativeMeas> &robotRelativeMeasQueue_, 
                                      StampedSE3 &robotLatestOdom_,
-                                     ros::Time current_time,
+                                     double current_time,
                                      double msg_delay_tolerance,
                                      float minOdomDistance_,
                                      int &meas_to_add) {
@@ -38,7 +38,7 @@ void Input::PickNextMeasurementToAdd(std::deque<StampedSE3> &robotOdomQueue_,
   // Get the oldest observation if it exists
   if (!robotObservationQueue_.empty()) {
     obs = robotObservationQueue_.front();
-    validObs = (current_time - obs.stampedPose.stamp).toSec() > msg_delay_tolerance;
+    validObs = (current_time - obs.stampedPose.stamp.toSec()) >= msg_delay_tolerance;
   } else {
     validObs = false;
   }
@@ -46,7 +46,7 @@ void Input::PickNextMeasurementToAdd(std::deque<StampedSE3> &robotOdomQueue_,
   // Get the oldest relative measurement if it exists
   if (!robotRelativeMeasQueue_.empty()) {
     relMeas = robotRelativeMeasQueue_.front();
-    validRelMeas = (current_time - relMeas.stamp).toSec() > msg_delay_tolerance;
+    validRelMeas = (current_time - relMeas.stamp.toSec()) >= msg_delay_tolerance;
   } else {
     validRelMeas = false;
   }
@@ -69,7 +69,7 @@ void Input::PickNextMeasurementToAdd(std::deque<StampedSE3> &robotOdomQueue_,
   for (int i = robotOdomQueue_.size() - 1; i >= 0; i--) {
 
     // Check if this odometry measurement is valid yet. Otherwise, move to next one
-    if ((current_time - robotOdomQueue_[i].stamp).toSec() > msg_delay_tolerance) {
+    if ((current_time - robotOdomQueue_[i].stamp.toSec()) >= msg_delay_tolerance) {
 
       // If it is, check if we have moved enough to add a new odometry measurement
       SE3 currRelativeMotion = robotLatestOdom_.pose.inverse() * robotOdomQueue_[i].pose;

@@ -90,7 +90,7 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   // Find out if we have any measurements to add
   int meas_to_add;
   PickNextMeasurementToAdd(robot.robotOdomQueue_, robot.robotObservationQueue_, robot.robotRelativeMeasQueue_, 
-           robot.robotLatestOdom_, ros::Time::now(), robot.msg_delay_tolerance, minOdomDistance_, meas_to_add);
+           robot.robotLatestOdom_, ros::Time::now().toSec(), robot.msg_delay_tolerance, minOdomDistance_, meas_to_add);
 
   // Keep adding measurements as long as we have valid ones to add
   while(meas_to_add != 0) {
@@ -189,7 +189,7 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
 
     // Check to see if we have another measurement to add
     PickNextMeasurementToAdd(robot.robotOdomQueue_, robot.robotObservationQueue_, robot.robotRelativeMeasQueue_, 
-             robot.robotLatestOdom_, ros::Time::now(), robot.msg_delay_tolerance, minOdomDistance_, meas_to_add);
+             robot.robotLatestOdom_, ros::Time::now().toSec(), robot.msg_delay_tolerance, minOdomDistance_, meas_to_add);
   }
 
   // If desired, save runtime & communication usage info
