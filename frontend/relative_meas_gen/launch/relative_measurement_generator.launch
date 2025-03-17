@@ -1,22 +1,22 @@
 <?xml version="1.0"?>
 <launch>
 
-    <arg name="robotID" default="robot0"/>
-    <arg name="camera" default ="camera0"/>
+    <arg name="host_robot" default="robot0"/>
+    <arg name="camera_ID" default ="camera0"/>
     <arg name="tagsize" default="0.17"/>
     
-    <arg name="measurement"/>
-    <arg name="images"/>
-    <arg name="config"/>
+    <arg name="measurement_topic" default="default_meas_topic"/>
+    <arg name="images_topic" default="default_images_topic"/>
+    <arg name="config_file" default="default_config_file"/>
     
     <node pkg="relative_meas_gen" type="ApriltagMeasurer" name="apriltag_node" output="screen">
-        <param name="image_topic" value="$(arg images)"/>
-        <param name="host_robot" value="$(arg robotID)"/>
-        <param name="config_file" value="$(arg config)"/>
-        <param name="camera_ID" value="$(arg camera)"/>
+        <param name="image_topic" value="$(arg images_topic)"/>
+        <param name="host_robot" value="$(arg host_robot)"/>
+        <param name="config_file" value="$(arg config_file)"/>
+        <param name="camera_ID" value="$(arg camera_ID)"/>
         <param name="tagsize" value="$(arg tagsize)"/>
         
-        <param name="relative_meas" value="$(arg measurement)"/>
+        <param name="relative_meas" value="$(arg measurement_topic)"/>
     </node>
 
 </launch>

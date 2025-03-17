@@ -43,7 +43,9 @@ tmux split-window -h -t $SESSION_NAME
 tmux select-pane -t $SESSION_NAME:1.0
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch sloam decentralized_sloam.launch enable_rviz:=false" Enter
 tmux select-pane -t $SESSION_NAME:1.1
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock -r 6.0 -s 0 --topics /wilbur/lidar_points /wilbur/imu/data /wilbur/stereo_left/image_rect_color/compressed /wilbur/lidar_points:=/robot0/lidar_points /wilbur/imu/data:=/robot0/imu/data" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock -r $BAG_PLAY_RATE -s 0 --topics /wilbur/lidar_points /wilbur/imu/data /wilbur/stereo_left/image_rect_color/compressed /wilbur/lidar_points:=/robot0/lidar_points /wilbur/imu/data:=/robot0/imu/data" Enter
+tmux select-pane -t $SESSION_NAME:1.2
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch relative_meas_gen CoPeD_relative_meas_gen.launch" Enter
 tmux select-layout -t $SESSION_NAME tiled
 
 # Add window for roscore

@@ -1,10 +1,10 @@
-#include "slidetag.h"
+#include "apriltag_wrapper.h"
 
-slidetag::slidetag(int id) :
+apriltag_wrapper::apriltag_wrapper(int id) :
     id (id)
 {}
 
-slidetag::slidetag(int id, double center[2], double corners[4][2], matd_t *rotation, matd_t *translation) :
+apriltag_wrapper::apriltag_wrapper(int id, double center[2], double corners[4][2], matd_t *rotation, matd_t *translation) :
     id (id)
 {
     this->center[0] = center[0];
@@ -20,9 +20,9 @@ slidetag::slidetag(int id, double center[2], double corners[4][2], matd_t *rotat
     }
 }
 
-slidetag::slidetag() {}
+apriltag_wrapper::apriltag_wrapper() {}
 
-std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4], float tagsize) {
+std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat img, float intrinsics[4], float tagsize) {
 
     // Create usable image object from Mat
     image_u8_t img_header = { .width = img.cols,
@@ -41,7 +41,7 @@ std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4], float t
     zarray_t *detections = apriltag_detector_detect(td, image);
 
     // Create tag object vector
-    std::vector<slidetag> tags;
+    std::vector<apriltag_wrapper> tags;
 
     // Iterate through detected apriltags
     for (int i = 0; i < zarray_size(detections); i++) {
@@ -72,7 +72,7 @@ std::vector<slidetag> ExtractAprilTags(cv::Mat img, float intrinsics[4], float t
             }
         }
 
-        slidetag new_tag(id, center, corners, pose.R, pose.t);
+        apriltag_wrapper new_tag(id, center, corners, pose.R, pose.t);
         tags.push_back(new_tag);
     }
 

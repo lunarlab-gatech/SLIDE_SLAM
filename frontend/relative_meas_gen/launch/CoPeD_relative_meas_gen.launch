@@ -2,11 +2,11 @@
 
     <!--Set params and launch relative measurement generator-->
     <include file="$(find relative_meas_gen)/launch/relative_measurement_generator.launch">
-        <arg name="robotID" value="robot0"/>
-        <arg name="camera" value="camera0"/>
+        <arg name="host_robot" value="robot0"/>
+        <arg name="camera_ID" value="camera0"/>
         <arg name="tagsize" value=".17"/>
-        <arg name="measurement" value="/relative_inter_robot_meas"/>
-        <arg name="images" value = "/wilbur/stereo_left/image_rect_color/compressed"/>
-        <arg name="config" value = "$(find relative_meas_gen)/params/CoPeD.yaml"/>
+        <arg name="measurement_topic" value="/relative_inter_robot_meas"/>
+        <arg name="images_topic" value = "/wilbur/stereo_left/image_rect_color/compressed"/>
+        <arg name="config_file" value = "$(find relative_meas_gen)/params/CoPeD.yaml"/>
     </include>
 </launch>

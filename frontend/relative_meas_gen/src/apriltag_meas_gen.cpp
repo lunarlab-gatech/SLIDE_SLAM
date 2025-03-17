@@ -9,10 +9,10 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
         return;
     }
 
-    std::vector<slidetag> tags = ExtractAprilTags(img, this->intrinsics, this->tagsize);\
+    std::vector<apriltag_wrapper> tags = ExtractAprilTags(img, this->intrinsics, this->tagsize);\
 
     // Publish transformation for each detected apriltag
-    for (slidetag t : tags) {
+    for (apriltag_wrapper t : tags) {
         int8_t bot_id;
         Eigen::Matrix4f bot_to_cam;
         Eigen::Matrix4f cam_to_tag;
@@ -44,7 +44,7 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
 
 }
 
-std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> ApriltagMeasurer::LoadTransformations(slidetag t) {
+std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> ApriltagMeasurer::LoadTransformations(apriltag_wrapper t) {
     std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> return_tuple;
     int8_t bot_id = -1;
     std::array<Eigen::Matrix4f, 2> transformations;
@@ -145,8 +145,8 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     intrinsics[3] = cy;
 
     // Instantiate sub and pub
-    robot_images = nh_.subscribe(image_topic, 1, &ApriltagMeasurer::imageCallback, this);
-    relative_meas = nh_.advertise<geometry_msgs::Pose>(return_topic, 10);
+    robot_images_sub = nh_.subscribe(image_topic, 1, &ApriltagMeasurer::imageCallback, this);
+    relative_meas_pub = nh_.advertise<geometry_msgs::Pose>(return_topic, 10);
 }
 
 int main(int argc, char** argv) {

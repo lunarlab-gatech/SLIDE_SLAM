@@ -144,7 +144,7 @@ include_directories(
   include
 )
 
-add_executable(ApriltagMeasurer src/apriltag_meas_gen.cpp src/slidetag.cpp)
+add_executable(ApriltagMeasurer src/apriltag_meas_gen.cpp src/apriltag_wrapper.cpp)
 set_target_properties(ApriltagMeasurer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
 target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
 
@@ -224,7 +224,7 @@ target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apri
 if (CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED COMPONENTS roscpp rostest)
 
-  catkin_add_gtest(apriltag_test test/apriltag_test.cpp src/slidetag.cpp)
+  catkin_add_gtest(apriltag_test test/apriltag_test.cpp src/apriltag_wwapper.cpp)
   target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
   target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES})
 endif()
