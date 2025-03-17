@@ -9,8 +9,8 @@
 
 #include <graphWrapper.h>
 
-SemanticFactorGraphWrapper::SemanticFactorGraphWrapper(int num_of_robots)
-    : numRobots(num_of_robots) {
+SemanticFactorGraphWrapper::SemanticFactorGraphWrapper(const ros::NodeHandle &nh, int num_of_robots)
+    : nh_(nh), numRobots(num_of_robots) {
   cyl_counter_ = 0;
   cube_counter_ = 0;
   point_landmark_counter_ = 0;
@@ -21,6 +21,26 @@ SemanticFactorGraphWrapper::SemanticFactorGraphWrapper(int num_of_robots)
   // keep this because we need it for old indoor activeSlamInputNode
   // should remove this after we finish the new activeSlamInputNode
   pose_counter_robot1_ = 0;
+
+  // Pull covariance parameters and convert to Eigen vectors
+  std::vector<double> noise_model_prior_first_pose_temp;
+  std::vector<double> noise_model_odom_temp;
+  std::vector<double> noise_model_cube_temp;
+  std::vector<double> noise_model_rel_meas_temp;
+
+  nh_.param("noise_model_prior_first_pose_vec", noise_model_prior_first_pose_temp, std::vector<double>(6, 0.000001));
+  nh_.param("noise_model_odom_vec", noise_model_odom_temp, std::vector<double>(6, 0.1));
+  nh_.param("noise_model_cube_vec", noise_model_cube_temp, std::vector<double>(9, 0.1));
+  nh_.param("noise_model_rel_meas_vec", noise_model_rel_meas_temp, std::vector<double>(6, 0.1));
+
+  for(int i = 0; i < 6; i++) {
+    noise_model_prior_first_pose_vec(i) = noise_model_prior_first_pose_temp[i];
+    noise_model_odom_vec(i) = noise_model_odom_temp[i];
+    noise_model_rel_meas_vec(i) = noise_model_rel_meas_temp[i];
+  }
+  for(int i = 0; i < 9; i++) {
+    noise_model_cube_vec(i) = noise_model_cube_temp[i];
+  }
 }
 
 // for active team localization
@@ -81,7 +101,7 @@ bool SemanticFactorGraphWrapper::addSLOAMObservation(
         "pose prior, this may cause problems!!!");
   } else {
     // if cov is not specified, deafult covariance will be used, see
-    // noise_model_pose param in graph.cpp
+    // noise_model_odom param in graph.cpp
     addKeyPoseAndBetween(pose_counter - 1, pose_counter, relativeMotion,
                          curr_pose, robotID);
   }

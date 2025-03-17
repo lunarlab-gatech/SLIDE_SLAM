@@ -862,10 +862,19 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   cubeSemanticMapMtx_.lock();
   ellipsoidSemanticMapMtx_.lock();
   dbMutex.lock();
+
+  // Make sure that factors are created in timestamp order
+  ros::Time last_stamp = dbManager.getHostRobotData().poseMstPacket.back().stamp;
+  if (stamp < last_stamp) {
+    ROS_ERROR_STREAM("Adding a factor with a timestamp earlier than the last "
+                     "one in the factor graph! This should never happen.");
+  }
+
   SE3 poseEstimate = prevKeyPose * relativeRawOdomMotion;
   // compute translation and add to the trajectory length
   double translation = relativeRawOdomMotion.translation().norm();
   trajectory_length += translation;
+ 
   // if isInLoopClosureRegion_ clear all measurements to avoid adding them to
   // pollute the map, however, keep track of them in PoseMstPair so that loop
   // closure can use it

@@ -9,6 +9,7 @@
 
 #pragma once
 #define MAX_NUM_ROBOTS 13
+#include <cmath>
 #include <cubeFactor.h>
 #include <cylinderFactor.h>
 #include <gtsam/geometry/BearingRange.h>
@@ -112,26 +113,31 @@ class SemanticFactorGraph {
   std::vector<int> point_landmark_labels_;
   void logEntropy();
 
-  // these two noise models will be passed as parameters from graphWarpper
-  boost::shared_ptr<noiseModel::Diagonal> noise_model_pose;
   Vector6 noise_model_pose_vec_per_m;
-  SharedNoiseModel noise_model_bearing;
   double noise_model_pose_inflation = 0.0;
   double start_timestamp = 0.0;
-
-  boost::shared_ptr<noiseModel::Diagonal> noise_model_closure;
 
   // TODO(xu:) unify the following two functions
   Symbol getSymbol(const int& robotID, const int idx);
   Symbol getSymbol(const int& robotID, const size_t idx);
 
  protected:
-  // Noise models
+  // Noise models (per unit of relative distance)
+  double noise_floor = 0.1; // Clipping noises prevents numerical issues
   boost::shared_ptr<noiseModel::Diagonal> noise_model_prior_first_pose;
-  boost::shared_ptr<noiseModel::Diagonal> noise_model_gps;
+  Vector6 noise_model_prior_first_pose_vec;
+  
+  Vector6 noise_model_odom_vec;
+
+  boost::shared_ptr<noiseModel::Diagonal> noise_model_closure;
+
+  Vector9 noise_model_cube_vec;
+
   boost::shared_ptr<noiseModel::Diagonal> noise_model_cylinder;
-  boost::shared_ptr<noiseModel::Diagonal> noise_model_cube;
-  boost::shared_ptr<noiseModel::Diagonal> noise_model_rel_meas;
+  
+  SharedNoiseModel noise_model_bearing;
+
+  Vector6 noise_model_rel_meas_vec;
 
   // Aux attributes
   Pose3 odomToGPS_;

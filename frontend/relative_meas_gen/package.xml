@@ -80,6 +80,7 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>python-pyproj</exec_depend>
   <exec_depend>message_filters</exec_depend>
+  <exec_depend>python-numpy</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
