@@ -7,6 +7,9 @@
 #include <sloam_msgs/RelativeInterRobotMeasurement.h>
 #include <yaml-cpp/yaml.h>
 #include <Eigen/Dense>
+#include <tf/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Transform.h>
 
 
 class ApriltagMeasurer {
@@ -17,15 +20,16 @@ class ApriltagMeasurer {
         ros::Publisher relative_meas_pub;
         std::string robot_ID;
         std::string camera_ID;
-        float intrinsics[4];
-        float tagsize;
+        double intrinsics[4];
+        double tagsize;
         YAML::Node config;
+        Eigen::Matrix4d bot_to_cam;
 
         void imageCallback(const sensor_msgs::CompressedImage msg);
-        void PublishRelativeMeasurement(int8_t, Eigen::Matrix4f transformation);
+        void PublishRelativeMeasurement(int8_t, Eigen::Matrix4d transformation);
         Eigen::Matrix4d CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
                       Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag);
-        std::tuple<int8_t, std::array<Eigen::Matrix4f, 2>> LoadTransformations(apriltag_wrapper tag);
+        std::tuple<int8_t, Eigen::Matrix4d> LoadTransformations(apriltag_wrapper tag);
 
         ros::NodeHandle nh_;
 };

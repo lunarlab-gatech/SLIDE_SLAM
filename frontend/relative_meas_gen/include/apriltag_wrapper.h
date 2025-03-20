@@ -23,5 +23,5 @@ class apriltag_wrapper {
         apriltag_wrapper();
 };
 
-std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat image, float intrinsics[4], float tagsize);
+std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat image, double intrinsics[4], double tagsize);
 cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg);

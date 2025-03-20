@@ -22,7 +22,7 @@ apriltag_wrapper::apriltag_wrapper(int id, double center[2], double corners[4][2
 
 apriltag_wrapper::apriltag_wrapper() {}
 
-std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat img, float intrinsics[4], float tagsize) {
+std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat img, double intrinsics[4], double tagsize) {
 
     // Create usable image object from Mat
     image_u8_t img_header = { .width = img.cols,

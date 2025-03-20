@@ -1,8 +1,11 @@
 dataset: "CoPeD"
+
+# Configuration for wilbur robot
 robot0:
   id: 0
   name: "wilbur"
-  camera0:
+  # Camera pose information taken from extrinsics config file
+  camera0: # Left optical link -> info taken from 19504539.yaml in calibration/wilbur
     image_width: 1440
     image_height: 1080
     fx: 1903.520006386324
@@ -21,7 +24,7 @@ robot0:
       rows: 3
       cols: 4
       data: [1794.791137695312, 0, 676.5970053006567, 0, 0, 1833.858642578125, 515.3424035623175, 0, 0, 0, 1, 0]
-  camera1:
+  camera1: # Right optical link -> info taken from 19509631.yaml in calibration/wilbur
     image_width: 1440
     image_height: 1080
     fx: 1836.368323539261
@@ -40,6 +43,7 @@ robot0:
       rows: 3
       cols: 4
       data: [1725.12744140625, 0, 723.5165065089095, 0, 0, 1763.703735351562, 522.8930017468156, 0, 0, 0, 1, 0]
+  # Tag information from tag_bundle_wilbur.yaml in calibration/wilbur
   tags:
         [
           {id: 5, size: 0.17, x: 0.0000, y: 0.0000, z: 0.0000, qw: 1.0000, qx: 0.0000, qy: 0.0000, qz: 0.0000},
@@ -52,10 +56,12 @@ robot0:
           {id: 6, size: 0.17, x: 0.4940, y: 0.2477, z: -0.0743, qw: 0.9572, qx: -0.2750, qy: -0.0895, qz: -0.0070}
         ]
 
+# Configuration for wanda robot
 robot1:
   id: 1
   name: "wanda"
-  camera0:
+  # Camera pose information taken from extrinsics config file
+  camera0: # left optical link -> info taken from 19509635.yaml in calibration/wanda
     image_width: 1440
     image_height: 1080
     fx: 1192.45276
@@ -74,7 +80,7 @@ robot1:
       rows: 3
       cols: 4
       data: [ 980.67499, 0, 738.69215, 0, 0, 1076.08105, 566.97831, 0, 0, 0, 1, 0]
-  camera1:
+  camera1: # right optical link -> info taken from 19509600.yaml in calibration/wanda
     image_width: 1440
     image_height: 1080
     fx: 1190.130507756544
@@ -93,6 +99,7 @@ robot1:
       rows: 3
       cols: 4
       data: [975.4818115234375, 0, 734.7269645256092, 0, 0, 1071.288208007812, 571.0164652120948, 0, 0, 0, 1, 0]
+  # Tag information from tag_bundle_wanda.yaml in calibration/wanda
   tags:
         [
           {id: 8, size: 0.17, x: 0.0000, y: 0.0000, z: 0.0000, qw: 1.0000, qx: 0.0000, qy: 0.0000, qz: 0.0000},
@@ -105,6 +112,7 @@ robot1:
           {id: 13, size: 0.17, x: 0.3355, y: -0.5865, z: 0.0061, qw: 0.9447, qx: 0.3228, qy: 0.0416, qz: -0.0409}
         ]
 
+# Configuration for race1 drone from camchain-imucam.yaml in calibration/race1
 robot2:
   id: 2
   name: "race1"
@@ -172,6 +180,7 @@ robot2:
       - [0.010993599480977004, 0.9993874128976246, 0.03322558821523644, -0.0593976812355273]
       - [0.0, 0.0, 0.0, 1.0]
 
+# Configuration for race5 drone from camchain-imucam.yaml in calibration/race5
 robot3:
   id: 3
   name: "race5"
