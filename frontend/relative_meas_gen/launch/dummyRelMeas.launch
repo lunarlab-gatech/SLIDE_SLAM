@@ -1,0 +1,20 @@
+<launch>
+    <!-- Setup arguments for node name -->
+    <arg name="dummy_rel_node_name" default="dummy_rel_meas"/>
+    <arg name="observing_robot_frame" default="/wanda/base"/>
+    <arg name="gps_topic_observing_robot" default="/wanda/gps"/>
+    <arg name="gps_topic_observed_robot" default="/race1/mavros/global_position/raw/fix"/>
+    <arg name="robot_id_observer" default="0"/>
+    <arg name="robot_id_observed" default="1"/>
+
+    <!-- Setup parameters -->
+    <param name="dummy_rel_node_name" value="$(arg dummy_rel_node_name)"/>
+    <param name="observing_robot_frame" value="$(arg observing_robot_frame)"/>
+    <param name="gps_topic_observing_robot" value="$(arg gps_topic_observing_robot)"/>
+    <param name="gps_topic_observed_robot" value="$(arg gps_topic_observed_robot)"/>
+    <param name="robot_id_observer" value="$(arg robot_id_observer)"/>
+    <param name="robot_id_observed" value="$(arg robot_id_observed)"/>
+
+    <!-- Launch the node -->
+    <node pkg="relative_meas_gen" type="dummyRelMeas.py" name="$(arg dummy_rel_node_name)" output="screen"/>
+</launch>

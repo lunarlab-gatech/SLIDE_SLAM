@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf
   roscpp
+  roslib
   actionlib
   actionlib_msgs
 )
@@ -99,7 +100,7 @@ cc_library(
 cc_library(
   NAME core
   INCS include/core ${CLIPPER_DIR}/include
-  SRCS "src/core/sloam.cpp" "src/core/robot.cpp" "src/core/databaseManager.cpp" "src/core/place_recognition.cpp"
+  SRCS "src/core/sloam.cpp" "src/core/robot.cpp" "src/core/databaseManager.cpp" "src/core/place_recognition.cpp" "src/core/input.cpp"
   DEPS sloam_log sloam_base sloam_objects sloam_viz sloam_map sloam_factorgraph Eigen3::Eigen gtsam ${catkin_LIBRARIES} -ldw
   DEFINES USE_CLIPPER=${CLIPPER_VALUE}
 )
@@ -107,6 +108,7 @@ cc_library(
 if (USE_CLIPPER)
   target_link_libraries(${CC_TARGET_PREFIX}_core PRIVATE semantic_clipper)
 endif()
+target_link_libraries(${CC_TARGET_PREFIX}_core PRIVATE m)
 
 cc_binary(
   NAME node
@@ -115,27 +117,12 @@ cc_binary(
   # DEPS sloam_log sloam_base sloam_objects sloam_core sloam_viz sloam_segmentation sloam_factorgraph gtsam ${catkin_LIBRARIES} -ldw #sloam_loop 
 )
 
+# Example usage: ./sloam_ws/devel/lib/sloam/sloam_all_test --gtest_filter=CylinderTest* (optional filter)
 cc_binary(
   NAME place_recognition_test
-  SRCS "src/tests/place_recognition_test.cpp"
+  SRCS "src/test/place_recognition_test.cpp"
   DEPS sloam_base sloam_core)
 
-# TESTS
-# It appears that these test cases are not up to date, and thus won't work on current code.
-#
-# if(BUILD_TESTING)
-# enable_testing()
-# Example usage: ./sloam_ws/devel/lib/sloam/sloam_all_test --gtest_filter=CylinderTest* (optional filter)
-# cc_test(
-  # NAME all_sloam_test
-  # SRCS "src/tests/run_all_test.cpp" "src/tests/plane_test.cpp" "src/tests/cylinder_test.cpp" "src/tests/core_test.cpp"
-  # DEPS sloam_base sloam_objects sloam_core GTest::GTest)
-# cc_test(
-  # NAME fg_test
-  # SRCS "src/tests/cylinder_factor_test.cpp"
-  # DEPS sloam_base sloam_factorgraph GTest::GTest)
-# cc_test(
-    # NAME cube_fg_test
-    # SRCS "src/tests/cube_factor_test.cpp"
-    # DEPS sloam_base sloam_factorgraph GTest::GTest)
-# endif()
+# Add Unit Tests
+catkin_add_gtest(input_test "src/test/input_test.cpp")
+target_link_libraries(input_test sloam_core ${catkin_LIBRARIES})

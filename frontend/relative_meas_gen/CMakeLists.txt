@@ -8,8 +8,10 @@ project(relative_meas_gen)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
   message_generation
   message_runtime
+  message_filters
   nav_msgs
   roscpp
   rospy
@@ -17,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   rostest
   sloam_msgs
   std_msgs
-  std_msgs
+  sensor_msgs
 )
 
 catkin_package(
@@ -37,7 +39,7 @@ set(apriltag_INCLUDE_DIRS "${apriltag_INCLUDE_DIRS}/apriltag")
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -188,8 +190,8 @@ target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apri
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#   scripts/multiUGVToSlideSLAM.py
+#   DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
 # )
 
 ## Mark executables for installation
@@ -231,3 +233,8 @@ endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest(launch/testCases.launch)
+endif()

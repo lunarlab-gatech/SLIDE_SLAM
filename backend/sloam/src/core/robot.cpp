@@ -22,7 +22,6 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
   nh_.param<int>(idName, robotId_, 0);
 
   // Initialize variables
-  robotFirstOdom_ = true;
   robotOdomCounter_ = 0;
 
   // Initialize publishers
@@ -46,15 +45,23 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
 
   bool turn_off_rel_inter_robot_factor = nh_.param(node_name+"/turn_off_rel_inter_robot_factor", true);
   if (!turn_off_rel_inter_robot_factor) {
-    std::string relativeMeasSub_topic = robot_ns_prefix_ + std::to_string(robotId_) + "/relative_inter_robot_meas";
+    std::string relativeMeasSub_topic = "/relative_inter_robot_meas_sync";
     RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
   }
-
 
   ROS_INFO_STREAM("Robot Initialized! Robot # " << robotId_);
 }
 
+/*
+ * @brief This method is called when a new odometry message is received.
+ * It extracts the odometry and adds it to a queue. It filters out
+ * messages at the rate of odomFreqFilter_, and skips a message if the
+ * robot's z position is below minSLOAMAltitude_.
+ * 
+ * @param odom_msg: The odometry message received.
+ */
 void Robot::RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg) {
+  // Only take 1 out of every odomFreqFilter_ odometry messages
   if (odomFreqFilter_ > 1) {
     robotOdomCounter_++;
     if (robotOdomCounter_ % odomFreqFilter_ != 0)
@@ -62,64 +69,43 @@ void Robot::RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg) {
     robotOdomCounter_ = 0;
   } 
 
+  // Check to make sure that this message is not too old
+  if ((ros::Time::now() - odom_msg->header.stamp).toSec() > msg_delay_tolerance) {
+    PrintLateMsgWarning("Odometry");
+    return;
+  }
+
+  // Extract info from the message
   auto pose = odom_msg->pose.pose;
   ros::Time odomStamp = odom_msg->header.stamp;
   Quat rot(pose.orientation.w, pose.orientation.x, pose.orientation.y,
            pose.orientation.z);
   Vector3 pos(pose.position.x, pose.position.y, pose.position.z);
 
+  // Construct odom as SE3 object
   SE3 odom = SE3();
   odom.setQuaternion(rot);
   odom.translation() = pos;
 
-
-  if (robotFirstOdom_ && pose.position.z < minSLOAMAltitude_) {
-    ROS_INFO_STREAM_THROTTLE(
-        5, "Robot is too low, will not call sloam, height threshold is "
-               << minSLOAMAltitude_);
+  // Skip adding odometry if the robot is too low
+  if (pose.position.z < minSLOAMAltitude_) {
+    ROS_WARN_STREAM_THROTTLE(5, "Robot is too low, will not call sloam, height threshold is " << minSLOAMAltitude_);
     return;
   } 
 
-  // if either robotObservationQueue_.empty() or robotOdomQueue_.empty(), we need to add odom factor
-  bool is_first_run = false;
-  if (robotObservationQueue_.empty() || robotOdomQueue_.empty()) {
-    ROS_INFO_STREAM_THROTTLE(1.0, "Either robotObservationQueue_ or robotOdomQueue_ is empty, will add odom factor");
-    is_first_run = true;
-  }
-
+  // Add odometry to the queue, and pop the oldest one if the queue is too long
   robotOdomQueue_.emplace_back(odom, odomStamp);
-  if (robotOdomQueue_.size() > 10 * maxQueueSize_)
-    robotOdomQueue_.pop_front();
-
-  if(is_first_run){
-    robotOdomUpdated_ = true;
-    return;
-  } else {
-    // we set robotOdomUpdated_ to true only if the latest semantic measurements can be discard (i.e. its timestamp is at least semantic_meas_delay_tolerance_ seconds earlier than the latest odometry stamp)
-    auto latest_observation_stamp = robotObservationQueue_.back().stampedPose.stamp;
-    if ((odomStamp - latest_observation_stamp).toSec() > semantic_meas_delay_tolerance_) {
-      ROS_INFO_STREAM_THROTTLE(5.0, "Odometry delay is enabled, and semantic observation is old enough, setting robotOdomUpdated_ to true");
-      robotOdomUpdated_ = true;
-    } else {
-      robotOdomUpdated_ = false;
-    }
-  }
+  if (robotOdomQueue_.size() > 10 * maxQueueSize_) robotOdomQueue_.pop_front();
 }
 
-void Robot::RobotObservationCb(
-    const sloam_msgs::SemanticMeasSyncOdom &observation_msg) {
-  // ROS_INFO_STREAM("RobotObservationCb!");
-  // compared the stamp of the observation with the latest odometry stamp, if too old, discard this observation msg
-  if (robotOdomQueue_.empty()) {
-    ROS_WARN_STREAM("RobotOdomQueue is empty, cannot compare stamp");
+void Robot::RobotObservationCb(const sloam_msgs::SemanticMeasSyncOdom &observation_msg) {
+  // Check to make sure that this message is not too old
+  if ((ros::Time::now() - observation_msg.header.stamp).toSec() > msg_delay_tolerance) {
+    PrintLateMsgWarning("Observation");
     return;
   }
-  auto latest_odom_stamp = robotOdomQueue_.back().stamp;
-  if ((latest_odom_stamp - observation_msg.header.stamp).toSec() > semantic_meas_delay_tolerance_) {
-    ROS_WARN_STREAM("Semantic observation arrived too late, discard this observation");
-    ROS_WARN_STREAM("Semantic observation arrived " << (latest_odom_stamp - observation_msg.header.stamp).toSec() << " seconds late, tolerance is " << semantic_meas_delay_tolerance_);
-    return;
-  }
+
+  // Save the observation
   Observation cur_observation;
   cur_observation.stampedPose.pose =
       databaseManager::toSE3Pose(observation_msg.odometry.pose.pose);
@@ -150,26 +136,41 @@ void Robot::RobotObservationCb(
   cur_observation.ellipsoids =
       rosEllipsoid2EllipObj(observation_msg.ellipsoid_factors);
   robotObservationQueue_.push(cur_observation);
-  robotObservationUpdated_ = true;
 }
 
 /**
- * @brief This method converts a 
- * sloam_msgs::RelativeInterRobotMeasurement into
- * a RelativeMeas struct and adds it to the queue.
- * inputNode will pass this onto the databaseManager
- * in sloamNode.
+ * @brief This method converts a sloam_msgs::RelativeInterRobotMeasurement 
+ * into a RelativeMeas struct and adds it to the queue. 
  * 
- * @param sloam_msgs::RelativeInterRobotMeasurement 
- *    &relativeMeas_msg
+ * @param relativeMeas_msg: The relative measurement message received.
  */
-void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurement &relativeMeas_msg) {
-  RelativeMeas cur_measurement;
-  cur_measurement.stamp = relativeMeas_msg.header.stamp;
-  cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometry.pose.pose);
-  cur_measurement.relativePose = databaseManager::toSE3Pose(relativeMeas_msg.relativePose);
-  cur_measurement.robotIndex = relativeMeas_msg.robotId;
-  robotRelativeMeasQueue_.push_back(cur_measurement);
+void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurementOdom &relativeMeas_msg) {
+  // Check to make sure that this message is not too old
+  if ((ros::Time::now() - relativeMeas_msg.header.stamp).toSec() > msg_delay_tolerance) {
+    PrintLateMsgWarning("Relative Measurement");
+    return;
+  }
+  
+  // If this relative measurement involves our robot in some way, add it
+  if(relativeMeas_msg.robotIdObserver == robotId_ || relativeMeas_msg.robotIdObserved == robotId_) {
+    RelativeMeas cur_measurement;
+    cur_measurement.stamp = relativeMeas_msg.header.stamp;
+    cur_measurement.relativePose = databaseManager::toSE3Pose(relativeMeas_msg.relativePose);
+
+    // If we are observed, we only use the odometry to add a factor,
+    // but don't consider it for a relative inter-robot factor
+    if(relativeMeas_msg.robotIdObserver == robotId_) {
+      cur_measurement.onlyUseOdom = false;
+      cur_measurement.robotIndex = relativeMeas_msg.robotIdObserved;
+      cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserver.pose.pose);
+    } else {
+      cur_measurement.onlyUseOdom = true;
+      cur_measurement.robotIndex = relativeMeas_msg.robotIdObserver;
+      cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserved.pose.pose);
+    }
+
+    robotRelativeMeasQueue_.push_back(cur_measurement);
+  }
 }
 
 std::vector<Cylinder> Robot::rosCylinder2CylinderObj(
@@ -205,4 +206,9 @@ std::vector<Ellipsoid> Robot::rosEllipsoid2EllipObj(
   }
 
   return ellipsoids;
+}
+
+void Robot::PrintLateMsgWarning(const std::string &msg_type) {
+  ROS_WARN_STREAM_THROTTLE(10, msg_type << "message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
+  ROS_WARN_STREAM_THROTTLE(10, "Please increase `msg_delay_tolerance` to account for lag in your system");
 }

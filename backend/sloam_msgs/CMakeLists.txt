@@ -21,6 +21,7 @@ add_message_files(DIRECTORY msg FILES
     ROSSubMap.msg
     ROSObservation.msg
     ObservationPair.msg
+    OdometryGPSBundle.msg
     LoopClosure.msg
     keyPoses.msg
     cubeMap.msg
@@ -28,6 +29,7 @@ add_message_files(DIRECTORY msg FILES
     MultiArrayPoseObjectEdges.msg
     poseObjectEdges.msg 
     RelativeInterRobotMeasurement.msg
+    RelativeInterRobotMeasurementOdom.msg
     ROSCube.msg
     PoseMst.msg
     PoseMstBundle.msg

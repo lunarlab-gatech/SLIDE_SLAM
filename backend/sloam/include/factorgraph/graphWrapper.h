@@ -23,7 +23,7 @@
 class SemanticFactorGraphWrapper : public SemanticFactorGraph {
  public:
   // constructor
-  SemanticFactorGraphWrapper(int numRobots = 1);
+  SemanticFactorGraphWrapper(const ros::NodeHandle &nh, int numRobots = 1);
 
   /** brief: addLoopClosureObservation (only for active SLAM, currently not used
    * in slideSLAM)
@@ -130,4 +130,7 @@ class SemanticFactorGraphWrapper : public SemanticFactorGraph {
   size_t point_landmark_counter_;
   std::vector<size_t> pose_counter_robot_;
   std::vector<gtsam::Pose3> robot_prev_pose_;
+
+  // ROS NodeHandle for getting rosparams
+  ros::NodeHandle nh_;
 };

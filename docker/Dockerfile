@@ -16,5 +16,8 @@ RUN git clone https://github.com/AprilRobotics/apriltag.git && \
     cmake --build build --target install && \
     ldconfig
 
+# Install pyproj into the python environment
+RUN pip install pyproj==3.5.0
+
 # Set working directory back to default
 WORKDIR /app

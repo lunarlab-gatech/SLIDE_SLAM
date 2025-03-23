@@ -5,7 +5,8 @@
         <node pkg="rviz" type="rviz" name="sloam_rviz" output="screen" args="-d $(find sloam)/launch/rviz/decentralized_sloam.rviz" />
     </group>
     <!-- robot_ns_prefix and number_of_robots is specified in sloam.yaml -->
-    <rosparam file="$(find sloam)/params/sloam.yaml" command="load" />
+    <arg name="param_file" default="sloam.yaml"/>
+    <rosparam file="$(find sloam)/params/$(arg param_file)" command="load" />
     <arg name="hostRobot_ID" default="0" />
     <arg name="odom_topic" default="/robot0/odom"/>
     <arg name="turn_off_intra_loop_closure" default="false"/>
@@ -32,6 +33,7 @@
             <remap from="/sloam/cylinders_map"                         to="robot_$(arg hostRobot_ID)/sloam/cylinders_map"/>
             <remap from="/sloam/submap_cylinder_models"         to="robot_$(arg hostRobot_ID)/sloam/submap_cylinder_models"/>
             <remap from="/sloam/optimized_point_landmarks"         to="robot_$(arg hostRobot_ID)/sloam/optimized_point_landmarks"/>
+            <remap from="/sloam/rel_inter_robot_factors" to="robot_$(arg hostRobot_ID)/sloam/rel_inter_robot_factors"/>
             <!-- for subscribe -->
             <remap from="/sloam/odom"         to="$(arg odom_topic)"/>
             <!-- semantic measurements will be under topic robot_ns_prefix+hostRobotID/semantic_meas_sync_odom -->
