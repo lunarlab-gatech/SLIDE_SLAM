@@ -8,7 +8,7 @@
 #include <yaml-cpp/yaml.h>
 #include <Eigen/Dense>
 #include <tf/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <tf/transform_datatypes.h>
 #include <geometry_msgs/Transform.h>
 
 
@@ -18,7 +18,7 @@ class ApriltagMeasurer {
     private:
         ros::Subscriber robot_images_sub;
         ros::Publisher relative_meas_pub;
-        std::string robot_ID;
+        int robot_ID;
         std::string camera_ID;
         double intrinsics[4];
         double tagsize;

@@ -27,7 +27,7 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
         std::cout << "Tag ID: " << t.id << std::endl;
 
         std::tuple<int8_t, Eigen::Matrix4d> loaded_transformations = LoadTransformations(t);
-        Eigen::Matrix4d tag_to_bot = std::get<1>(loaded_transformations);
+        tag_to_bot = std::get<1>(loaded_transformations);
         bot_id = std::get<0>(loaded_transformations);
         
         if (bot_id == -1) {
@@ -94,7 +94,7 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     // Load params
     std::string image_topic;
     nh_.param<std::string>("apriltag_node/image_topic", image_topic, "/default_topic");
-    nh_.param<std::string>("apriltag_node/host_robot", robot_ID, "robot0");
+    nh_.param<int>("apriltag_node/host_robot", robot_ID, 0);
     nh_.param<double>("apriltag_node", tagsize, .17);
     nh_.param<std::string>("apriltag_node/camera_ID", camera_ID, "camera0");
     std::cout << "Subscribing to topic: " << image_topic << std::endl;
@@ -113,19 +113,19 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
 
     // Get bot to cam transformation from tf tree
     tf::TransformListener listener;
-    geometry_msgs::TransformStampted transformStamped;
+    tf::StampedTransform transformStamped;
 
     listener.waitForTransform(camera_link, base_link, ros::Time(0), ros::Duration(5.0));
     listener.lookupTransform(camera_link, base_link, ros::Time(0), transformStamped);
 
     double x, y, z, qw, qx, qy, qz;
-    x = transformStamped.transform.translation.x;
-    y = transformStamped.transform.translation.y;
-    z = transformStamped.transform.translation.z;
-    qw = transformStamped.transform.rotation.w;
-    qx = transformStamped.transform.rotation.x;
-    qy = transformStamped.transform.rotation.y;
-    qz = transformStamped.transform.rotation.z;
+    x = transformStamped.getOrigin().x();
+    y = transformStamped.getOrigin().y();
+    z = transformStamped.getOrigin().z();
+    qw = transformStamped.getRotation().w();
+    qx = transformStamped.getRotation().x();
+    qy = transformStamped.getRotation().y();
+    qz = transformStamped.getRotation().z();
 
     Eigen::Vector3d translation = Eigen::Vector3d(x, y, z);
     Eigen::Quaterniond q = Eigen::Quaterniond(qw, qx, qy, qz);
@@ -194,20 +194,24 @@ void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d
     geometry_msgs::Point position;
     geometry_msgs::Quaternion orientation;
 
-    /*
-    TODO: some math to get these two fields
-    */
+    position.x = (float) transformation(0, 3);
+    position.y = (float) transformation(1, 3);
+    position.z = (float) transformation(2, 3);
+
+    Eigen::Matrix3d rotation = bot_to_cam.block<3,3>(0,0);
+    Eigen::Quaterniond quat(rotation);
+
+    orientation.x = (float) quat.x();
+    orientation.y = (float) quat.y();
+    orientation.z = (float) quat.z();
+    orientation.w = (float) quat.w();
 
     msg.header.stamp = ros::Time::now();
     msg.relativePose = pose_msg;
-    
-    /*
-    TODO: Get odometry data
-    */
+    msg.robotIdObserved = bot_id;
+    msg.robotIdObserver = robot_ID;
 
-    msg.robotId = bot_id;
+    std::cout << "Publishing pose from robot " << robot_ID << " to robot " << bot_id << std::endl;
 
-    std::cout << "Publishing pose from host to " << bot_id << std::endl;
-
-    relative_meas.publish(pose_msg);
+    relative_meas_pub.publish(pose_msg);
 }

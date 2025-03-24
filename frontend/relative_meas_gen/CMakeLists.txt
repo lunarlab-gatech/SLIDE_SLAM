@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   sloam_msgs
   std_msgs
   sensor_msgs
+  tf
 )
 
 catkin_package(
@@ -226,7 +227,7 @@ target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apri
 if (CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED COMPONENTS roscpp rostest)
 
-  catkin_add_gtest(apriltag_test test/apriltag_test.cpp src/apriltag_wwapper.cpp)
+  catkin_add_gtest(apriltag_test test/apriltag_test.cpp src/apriltag_wrapper.cpp)
   target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
   target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES})
 endif()

@@ -54,6 +54,7 @@
   <build_depend>rospy</build_depend>
   <build_depend>sloam_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>tf</build_depend>
   <build_depend>gazebo_msgs</build_depend>
   <build_depend>yaml-cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
@@ -81,10 +82,10 @@
   <exec_depend>python-pyproj</exec_depend>
   <exec_depend>message_filters</exec_depend>
   <exec_depend>python-numpy</exec_depend>
+  <exec_depend>tf</exec_depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>gtest</test_depend>
-
 
 
   <!-- The export tag contains other, unspecified, tags -->

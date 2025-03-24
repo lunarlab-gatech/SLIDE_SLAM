@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-    <arg name="host_robot" default="robot0"/>
+    <arg name="host_robot" default="0"/>
     <arg name="camera_ID" default ="camera0"/>
     <arg name="tagsize" default="0.17"/>
     <arg name="base_link" default="/wilbur/imu_link"/>

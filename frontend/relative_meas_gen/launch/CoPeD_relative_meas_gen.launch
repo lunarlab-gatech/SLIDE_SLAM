@@ -2,7 +2,7 @@
 
     <!--Set params and launch relative measurement generator-->
     <include file="$(find relative_meas_gen)/launch/relative_measurement_generator.launch">
-        <arg name="host_robot" value="robot0"/>
+        <arg name="host_robot" value="0"/>
         <arg name="camera_ID" value="camera0"/>
         <arg name="tagsize" value=".17"/>
         <arg name="measurement_topic" value="/relative_inter_robot_meas"/>

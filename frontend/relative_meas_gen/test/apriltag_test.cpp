@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <gtest/gtest.h>
 #include <ros/package.h>
-#include <slidetag.h>
+#include <apriltag_wrapper.h>
 
 TEST(apriltag_test, Detect) {
     
@@ -17,16 +17,16 @@ TEST(apriltag_test, Detect) {
     cv::Mat image;
     cv::cvtColor(matrix, image, cv::COLOR_BGR2GRAY);
     
-    float intrinsics[4];
+    double intrinsics[4];
     intrinsics[0] = 1903.520006386324;
     intrinsics[1] = 681.5060629940748;
     intrinsics[2] = 1895.619818759923;
     intrinsics[3] = 517.1128313302568;
 
-    float tagsize = 0.17;
+    double tagsize = 0.17;
 
-    std::vector<slidetag> tags = ExtractAprilTags(image, intrinsics, tagsize);
-    slidetag test_tag = tags[0];
+    std::vector<apriltag_wrapper> tags = ExtractAprilTags(image, intrinsics, tagsize);
+    apriltag_wrapper test_tag = tags[0];
     std::cout << "Detected tag: " << test_tag.id << std::endl;
     std::cout << "Expected tag: 6" << std::endl;
 
