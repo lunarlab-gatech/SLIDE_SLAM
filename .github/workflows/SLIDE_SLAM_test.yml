@@ -36,6 +36,8 @@ jobs:
       run: |
         cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
         export WS_PATH="$(pwd)"
+        chmod +x run_container.sh
+        chmod +x enter_container.sh
         ./run_container.sh
         ./enter_container.sh
 
