@@ -22,25 +22,26 @@ jobs:
 
     - name: Set Up Workspace and Clone Repo
       run: |
-        mkdir -p ~/slideslam_docker_ws/src &&
-        cd ~/slideslam_docker_ws/src &&
+        mkdir -p ~/slideslam_docker_ws/src
+        cd ~/slideslam_docker_ws/src
         git clone https://github.com/lunarlab-gatech/SLIDE_SLAM.git
 
     - name: Build Docker Image
       run: |
-        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker &&
+        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
+        git checkout apriltag
         ./build_image.sh
 
     - name: Run Docker Container
       run: |
-        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker &&
-        export WS_PATH="$(pwd)" &&
-        ./run_container.sh &&
-        ./enter_container.sh &&
+        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
+        export WS_PATH="$(pwd)"
+        ./run_container.sh
+        ./enter_container.sh
 
     - name: Build SLIDE_SLAM inside Container
       run: |
-        catkin_make &&
+        catkin_make
         source devel/setup.bash
 
     - name: Run SLIDE_SLAM Tests
