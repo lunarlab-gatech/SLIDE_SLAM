@@ -2,6 +2,7 @@
 
 #include <apriltag_wrapper.h>
 #include <ros/ros.h>
+#include <math.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <geometry_msgs/Pose.h>
 #include <sloam_msgs/RelativeInterRobotMeasurement.h>

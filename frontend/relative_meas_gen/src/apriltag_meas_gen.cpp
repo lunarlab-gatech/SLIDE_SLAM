@@ -22,7 +22,7 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
             for (int j = 0; j < 3; j++) {
                 cam_to_tag(i, j) = t.rotation.data[i + j];
             }
-            cam_to_tag(3, i) = t.translation.data[i];
+            cam_to_tag(i, 3) = t.translation.data[i];
         }
         std::cout << "Tag ID: " << t.id << std::endl;
 
@@ -43,7 +43,7 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
 
 std::tuple<int8_t, Eigen::Matrix4d> ApriltagMeasurer::LoadTransformations(apriltag_wrapper t) {
     std::tuple<int8_t, Eigen::Matrix4d> return_tuple;
-    int8_t bot_id = -1;
+    int8_t bot_id;
     Eigen::Matrix4d tag_to_bot;
 
     std::string dataset = config["dataset"].as<std::string>();
@@ -52,13 +52,13 @@ std::tuple<int8_t, Eigen::Matrix4d> ApriltagMeasurer::LoadTransformations(aprilt
         bool tag_on_bot = false;
 
         // Obtain translation vector and quaternion from detected apriltag -> detected robot
-        for (auto it = config.begin(); it != config.end(); ++it) {
+        for (auto it = ++config.begin(); it != config.end(); ++it) {
             std::string key = it->first.as<std::string>();
             if (config[key]["tags"].IsDefined()) {
                 YAML::Node tags = config[key]["tags"];
                 for (auto tag = tags.begin(); tag != tags.end(); ++tag) {
                     if (t.id == (*tag)["id"].as<int>()) {
-                        bot_id = config[key]["id"].as<int>();
+                        bot_id = config[key]["id"].as<int8_t>();
                         double x = (*tag)["x"].as<double>();
                         double y = (*tag)["y"].as<double>();
                         double z = (*tag)["z"].as<double>();
@@ -80,7 +80,6 @@ std::tuple<int8_t, Eigen::Matrix4d> ApriltagMeasurer::LoadTransformations(aprilt
         if (!tag_on_bot) {
             ROS_WARN("Detected tag does not belong to any robot in dataset");
         }
-
         return_tuple = std::make_tuple(bot_id, tag_to_bot);
         return return_tuple;
         
@@ -94,10 +93,11 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     // Load params
     std::string image_topic;
     nh_.param<std::string>("apriltag_node/image_topic", image_topic, "/default_topic");
-    nh_.param<int>("apriltag_node/host_robot", robot_ID, 0);
+    std::string host_robot;
+    nh_.param<std::string>("apriltag_node/host_robot", host_robot, "robot0");
+    nh_.param<int>("apriltag_node/robot_ID", robot_ID, 0);
     nh_.param<double>("apriltag_node", tagsize, .17);
     nh_.param<std::string>("apriltag_node/camera_ID", camera_ID, "camera0");
-    std::cout << "Subscribing to topic: " << image_topic << std::endl;
     std::string config_file;
     nh_.param<std::string>("apriltag_node/config_file", config_file, "default.yaml");
     std::string return_topic;
@@ -115,8 +115,8 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     tf::TransformListener listener;
     tf::StampedTransform transformStamped;
 
-    listener.waitForTransform(camera_link, base_link, ros::Time(0), ros::Duration(5.0));
-    listener.lookupTransform(camera_link, base_link, ros::Time(0), transformStamped);
+    listener.waitForTransform(camera_link, base_link, ros::Time::now(), ros::Duration(5.0));
+    listener.lookupTransform(camera_link, base_link, ros::Time::now(), transformStamped);
 
     double x, y, z, qw, qx, qy, qz;
     x = transformStamped.getOrigin().x();
@@ -135,10 +135,10 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     bot_to_cam.block<3,3>(0,0) = q.toRotationMatrix();
 
     // Load host_robot properties
-    double fx = config[robot_ID][camera_ID]["fx"].as<double>();
-    double cx = config[robot_ID][camera_ID]["cx"].as<double>();
-    double fy = config[robot_ID][camera_ID]["fy"].as<double>();
-    double cy = config[robot_ID][camera_ID]["cy"].as<double>();
+    double fx = config[host_robot][camera_ID]["fx"].as<double>();
+    double cx = config[host_robot][camera_ID]["cx"].as<double>();
+    double fy = config[host_robot][camera_ID]["fy"].as<double>();
+    double cy = config[host_robot][camera_ID]["cy"].as<double>();
 
     intrinsics[0] = fx;
     intrinsics[1] = cx;
@@ -148,6 +148,7 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     // Instantiate sub and pub
     robot_images_sub = nh_.subscribe(image_topic, 1, &ApriltagMeasurer::imageCallback, this);
     relative_meas_pub = nh_.advertise<geometry_msgs::Pose>(return_topic, 10);
+    std::cout << "Subscribed to topic: " << image_topic << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -211,6 +212,9 @@ void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d
     msg.robotIdObserved = bot_id;
     msg.robotIdObserver = robot_ID;
 
+    double mag = pow(pow(position.x, 2) + pow(position.y, 2) + pow(position.z, 2), .5);
+    
+    std::cout << "Transformation magnitude: " << mag << std::endl;
     std::cout << "Publishing pose from robot " << robot_ID << " to robot " << bot_id << std::endl;
 
     relative_meas_pub.publish(pose_msg);

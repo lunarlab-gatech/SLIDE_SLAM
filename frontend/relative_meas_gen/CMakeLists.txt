@@ -60,17 +60,6 @@ catkin_python_setup()
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -147,9 +136,9 @@ include_directories(
   include
 )
 
-add_executable(ApriltagMeasurer src/apriltag_meas_gen.cpp src/apriltag_wrapper.cpp)
-set_target_properties(ApriltagMeasurer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
-target_link_libraries(ApriltagMeasurer ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
+add_executable(apriltag_meas_gen src/apriltag_meas_gen.cpp src/apriltag_wrapper.cpp)
+set_target_properties(apriltag_meas_gen PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
+target_link_libraries(apriltag_meas_gen ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

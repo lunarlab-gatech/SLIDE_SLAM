@@ -5,7 +5,7 @@
 
 TEST(apriltag_test, Detect) {
     
-    std::string path = "/home/cam/Documents/slideslam_docker_ws/src/SLIDE_SLAM/frontend/relative_meas_gen/test/apriltag_test_pic.jpg";
+    std::string path = "/home/cam/Documents/slideslam_docker_ws/src/SLIDE_SLAM/frontend/relative_meas_gen/tests/apriltag_test_pic.jpg";
     
     //std::string package_path = ros::package::getPath("relative_meas_gen");
     //std::string path = package_path + "/test/apriltag_test_pic.jpg";
