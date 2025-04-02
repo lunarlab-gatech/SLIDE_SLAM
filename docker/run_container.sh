@@ -2,7 +2,7 @@ SlideSlamWs="$WS_PATH" # point to your workspace directory
 SlideSlamCodeDir="$WS_PATH/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
 BAGS_DIR="$WS_PATH/src/SLIDE_SLAM/bags" # point to your bags / data directory
 
-xhost +local:root # for the lazy and reckless
+# xhost +local:root # for the lazy and reckless
 docker run -it \
     --name="slideslam_ros" \
     --net="host" \
