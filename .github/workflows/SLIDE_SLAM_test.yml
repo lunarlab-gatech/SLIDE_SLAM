@@ -34,18 +34,17 @@ jobs:
 
     - name: Run Docker Container
       run: |
+        xhost _local:root
         cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
         export WS_PATH="$(pwd)"
         chmod +x run_container.sh
-        chmod +x enter_container.sh
         ./run_container.sh
-        ./enter_container.sh
 
     - name: Build SLIDE_SLAM inside Container
       run: |
-        catkin_make
-        source devel/setup.bash
+        docker exec -it slideslam_ros sh -c "catkin_make"
+        docker exec -it slideslam_ros sh -c "source devel/setup.bash"
 
     - name: Run SLIDE_SLAM Tests
       run: |
-        catkin_make run_tests
+        docker exec -it slideslam_ros sh -c "catkin_make run_tests"
