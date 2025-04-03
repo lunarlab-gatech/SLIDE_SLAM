@@ -17,7 +17,7 @@ docker run -it \
     --volume="/home/$USER/.bash_aliases:/root/.bash_aliases" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
-    --volume="$XAUTHORITY:/root/.Xauthority:ro"
+    --volume="$XAUTHORITY:/root/.Xauthority:ro" \
     slideslam_ros_image \
     bash
 
