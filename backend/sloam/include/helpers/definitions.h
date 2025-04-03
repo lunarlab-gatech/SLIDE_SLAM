@@ -107,6 +107,7 @@ struct FeatureModelParams {
  * 
  * @param stamp - the timestamp.
  * @param odomPose - the synced odometry.
+ * @param covariance - the covariance of the odometry.
  * @param relativePose - the relative measurement
  *    between the current robot and robot assigned to
  *    "robotIndex".
@@ -122,6 +123,7 @@ struct FeatureModelParams {
 struct RelativeMeas {
   ros::Time stamp;
   SE3 odomPose;
+  std::array<double, 6> covariance;
   SE3 relativePose;
   int robotIndex; 
   bool onlyUseOdom;

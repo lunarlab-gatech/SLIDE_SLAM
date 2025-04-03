@@ -85,8 +85,8 @@ class SemanticFactorGraph {
                      bool alreadyExists, const int& robotID);
   void addKeyPoseAndBetween(
       const size_t fromIdx, const size_t toIdx, const Pose3& relativeMotion,
+      const std::array<double, 6> relativeMotionCov,
       const Pose3& poseEstimate, const int& robotID,
-      boost::optional<boost::array<double, 36>> cov = boost::none,
       const bool& loopClosureFound = false,
       const SE3& loop_closure_pose = SE3(),
       const size_t& closure_matched_pose_idx = 0);
@@ -126,7 +126,9 @@ class SemanticFactorGraph {
   double noise_floor = 0.1; // Clipping noises prevents numerical issues
   boost::shared_ptr<noiseModel::Diagonal> noise_model_prior_first_pose;
   Vector6 noise_model_prior_first_pose_vec;
-  
+ 
+  // If true, ignore noise_model_odom_vec and use the cov from the nav message instead
+  bool use_odom_cov_in_nav_msg_; 
   Vector6 noise_model_odom_vec;
 
   boost::shared_ptr<noiseModel::Diagonal> noise_model_closure;
@@ -138,6 +140,11 @@ class SemanticFactorGraph {
   SharedNoiseModel noise_model_bearing;
 
   Vector6 noise_model_rel_meas_vec;
+
+
+    /// TO REMOVE 
+  boost::shared_ptr<noiseModel::Diagonal> noise_model_pose;
+  boost::shared_ptr<noiseModel::Diagonal> noise_model_cube;
 
   // Aux attributes
   Pose3 odomToGPS_;

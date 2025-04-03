@@ -16,7 +16,7 @@
 
 namespace sloam {
 SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
-    : nh_(nh), dbManager(nh), inter_loopCloser_(nh), intra_loopCloser_(nh) {
+    : nh_(nh), dbManager(nh), inter_loopCloser_(nh), intra_loopCloser_(nh), factorGraph_(nh) {
 
   // initialize intra loop closure and inter loop closure nodes 
   intra_loopCloser_.inter_loop_closure = false;
@@ -147,7 +147,7 @@ void SLOAMNode::initParams_() {
   semanticMap_ = CylinderMapManager(numRobots);
   cube_semantic_map_ = CubeMapManager();
   ellipsoid_semantic_map_ = EllipsoidMapManager();
-  factorGraph_ = SemanticFactorGraphWrapper(numRobots);
+  factorGraph_ = SemanticFactorGraphWrapper(nh_, numRobots);
   fmParams_.cylinderMatchThresh = nh_.param("cylinder_match_thresh", 2.0); // Cylinder data association threshold
   fmParams_.cuboidMatchThresh = nh_.param("cuboid_match_thresh",  2.0); // Cuboid data association threshold
   fmParams_.ellipsoidMatchThresh = nh_.param("ellipsoid_match_thresh",  0.75); // Ellipsoid data association threshold
@@ -852,6 +852,7 @@ void SLOAMNode::relInterRobotFactorThread_() {
 }
 
 bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
+                             std::array<double, 6> relativeRawOdomMotionCov,
                              const SE3 &prevKeyPose,
                              const std::vector<Cylinder> &cylindersBodyIn,
                              const std::vector<Cube> &cubesBodyIn,
@@ -864,11 +865,14 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   dbMutex.lock();
 
   // Make sure that factors are created in timestamp order
-  ros::Time last_stamp = dbManager.getHostRobotData().poseMstPacket.back().stamp;
-  if (stamp < last_stamp) {
-    ROS_ERROR_STREAM("Adding a factor with a timestamp earlier than the last "
-                     "one in the factor graph! This should never happen.");
-  }
+  std::deque<PoseMstPair> packets = dbManager.getHostRobotData().poseMstPacket;
+  if(packets.size() >= 1) {
+    ros::Time last_stamp = dbManager.getHostRobotData().poseMstPacket.back().stamp;
+    if (stamp < last_stamp) {
+      ROS_ERROR_STREAM("Adding a factor with a timestamp earlier than the last "
+                        "one in the factor graph! This should never happen.");
+    }               
+  }               
 
   SE3 poseEstimate = prevKeyPose * relativeRawOdomMotion;
   // compute translation and add to the trajectory length
@@ -883,6 +887,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   pmp.cylinderMsts = cylindersBodyIn;
   pmp.stamp = stamp;
   pmp.relativeRawOdomMotion = relativeRawOdomMotion;
+  pmp.relativeRawOdomMotionCov = relativeRawOdomMotionCov;
   pmp.cubeMsts = cubesBodyIn;
   pmp.ellipsoidMsts = ellipsoidBodyIn;
   dbManager.getHostRobotData().poseMstPacket.push_back(pmp);
@@ -979,8 +984,8 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
       semanticMap_, cube_semantic_map_, ellipsoid_semantic_map_,
       sloamOut.cylinderMatches, sloamOut.scanCylindersWorld,
       sloamOut.cubeMatches, sloamOut.scanCubesWorld, sloamOut.ellipsoidMatches,
-      sloamOut.scanEllipsoidsWorld, relativeRawOdomMotion, sloamOut.T_Map_Curr,
-      robotID);
+      sloamOut.scanEllipsoidsWorld, relativeRawOdomMotion, relativeRawOdomMotionCov,
+      sloamOut.T_Map_Curr, robotID);
   double fg_optimization_end = ros::Time::now().toSec();
   double time_diff = fg_optimization_end - fg_optimization_start;
   fg_optimization_time.push_back(time_diff);
@@ -1029,6 +1034,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
                                      iter->second.poseMstPacket[i].keyPose;
         SE3 relativeRawOdomMotionInRefFrame =
             iter->second.poseMstPacket[i].relativeRawOdomMotion;
+        std::array<double, 6> relativeRawOdomMotionCovInRefFrame = iter->second.poseMstPacket[i].relativeRawOdomMotionCov;
         // transform the pose and landmark into host robot map frame
         std::vector<Cylinder> CylinderMeasurement =
             iter->second.poseMstPacket[i].cylinderMsts;
@@ -1082,8 +1088,8 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
             semanticMap_, cube_semantic_map_, ellipsoid_semantic_map_,
             cylinderMatchIndices, cylinderInRefFrame, cubeMatchIndices,
             cubeInRefFrame, ellipsoidMatchIndices, ellipsoidInRefFrame,
-            relativeRawOdomMotionInRefFrame, poseEstimateInRefFrame, curRobotID,
-            false);
+            relativeRawOdomMotionInRefFrame, relativeRawOdomMotionCovInRefFrame,
+            poseEstimateInRefFrame, curRobotID, false);
       }
       factorGraph_.solve();
       dbManager.updateFGBookmark(curSize, curRobotID);
