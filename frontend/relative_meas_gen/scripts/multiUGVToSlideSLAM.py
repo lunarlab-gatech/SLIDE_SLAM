@@ -86,16 +86,18 @@ class MultiUGVPub:
         # Transform pose into the relative frame of the robots
         cuboid.pose = transforms.calculate_relative_pose(robot_pose, pose)
 
-        # Add 0.5 m and 1 degree/0.017 rad (per unit distance) Gaussian noise to the cuboid pose
+        # Add 0.05 m and 1 degree/0.017 rad (per unit distance) Gaussian noise to the cuboid pose
         relative_dist = np.sqrt(cuboid.pose.position.x**2 + cuboid.pose.position.y**2 + cuboid.pose.position.z**2)
-        cuboid.pose = transforms.add_zero_mean_gaussian_noise_to_pose(cuboid.pose, 0.5 * relative_dist, 0.017 * relative_dist)
+        #if relative_dist > 5:
+        #    return None # Return None if the cuboid isn't within 5 meters of the robot
+        cuboid.pose = transforms.add_zero_mean_gaussian_noise_to_pose(cuboid.pose, 0.05 * relative_dist, 0.017 * relative_dist)
 
-        # Extract the scale of the cuboid and add 0.05 m Gaussian noise (per unit distance)
+        # Extract the scale of the cuboid and add 0.01 m Gaussian noise (per unit distance)
         scale_vals = model.find('link').find('collision').find('geometry').find('box').find('size').text.strip().split(' ')
-        noise = np.random.normal(0, 0.05 * relative_dist, 3)
-        cuboid.scale.x = float(scale_vals[0] + noise[0])
-        cuboid.scale.y = float(scale_vals[1] + noise[1])
-        cuboid.scale.z = float(scale_vals[2] + noise[2])
+        noise = np.random.normal(0, 0.01 * relative_dist, 3)
+        cuboid.scale.x = float(scale_vals[0]) + noise[0]
+        cuboid.scale.y = float(scale_vals[1]) + noise[1]
+        cuboid.scale.z = float(scale_vals[2]) + noise[2]
 
         # Set other values
         cuboid.lifetime = rospy.Duration(0) # 0 means forever
@@ -126,10 +128,10 @@ class MultiUGVPub:
         # Calculate the relative measurement from jackal0 to jackal1
         relative_meas: Pose = transforms.calculate_relative_pose(jackal0_pose, jackal1_pose)
 
-        # Add 0.06 m and 0.1 degree/0.0017 rad (per unit distance) Gaussian noise to the relative measurement
+        # Add 0.03 m and 0.06 degree/0.001 rad (per unit distance) Gaussian noise to the relative measurement
         # Current inspiration for this is Fig. 5 & 6 of AprilTag 2 paper.
         relative_dist = np.sqrt(relative_meas.position.x**2 + relative_meas.position.y**2 + relative_meas.position.z**2)
-        relative_meas = transforms.add_zero_mean_gaussian_noise_to_pose(relative_meas, 0.06 * relative_dist, 0.0017 * relative_dist)
+        relative_meas = transforms.add_zero_mean_gaussian_noise_to_pose(relative_meas, 0.03 * relative_dist, 0.001 * relative_dist)
 
         # Create the header for the messages
         header = Header()
@@ -170,8 +172,12 @@ class MultiUGVPub:
         for model in world.findall('model'):
             name = model.get('name')
             if "_box_" in name:
-                jackal0_cuboids.markers.append(self.create_marker_for_cuboid(model, "jackal0", jackal0_pose))
-                jackal1_cuboids.markers.append(self.create_marker_for_cuboid(model, "jackal1", jackal1_pose))
+                jackal0_box = self.create_marker_for_cuboid(model, "jackal0", jackal0_pose)
+                jackal1_box = self.create_marker_for_cuboid(model, "jackal1", jackal1_pose)
+                if jackal0_box is not None:
+                    jackal0_cuboids.markers.append(jackal0_box)
+                if jackal1_box is not None:
+                    jackal1_cuboids.markers.append(jackal1_box)
 
         # Create the StampedRvizMarkerArray messages
         jackal0_array = StampedRvizMarkerArray()

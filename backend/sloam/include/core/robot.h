@@ -37,10 +37,12 @@
 #include <vector>
 
 struct StampedSE3 {
+  StampedSE3(SE3 p, ros::Time s, std::array<double, 6> c) : pose(p), stamp(s), covariance(c) {};
   StampedSE3(SE3 p, ros::Time s) : pose(p), stamp(s){};
   StampedSE3() : pose(SE3()), stamp(ros::Time::now()){};
   SE3 pose;
   ros::Time stamp;
+  std::array<double, 6> covariance; // Ordering XYZRPY
 };
 
 struct Observation {
@@ -103,6 +105,7 @@ class Robot {
   // Helper methods for converting messages to objects
   std::vector<Ellipsoid> rosEllipsoid2EllipObj(const std::vector<sloam_msgs::ROSEllipsoid>& msgs);
   std::vector<Cylinder> rosCylinder2CylinderObj(const std::vector<sloam_msgs::ROSCylinder>& rosCylinders);
+  std::array<double, 6> ExtractCovarianceFromOdometry(nav_msgs::Odometry odom_msg);
 
   // Logging methods
   void PrintLateMsgWarning(const std::string &msg_type);

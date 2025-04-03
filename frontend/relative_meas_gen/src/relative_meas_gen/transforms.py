@@ -52,7 +52,7 @@ def add_zero_mean_gaussian_noise_to_pose(pose: Pose, stddev_translation: float, 
 
     # Extract quaternion and convert to euler angles
     q = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
-    r = Rotation.from_quat(q, scalar_first=False)
+    r = Rotation.from_quat(q)
     euler_angles = r.as_euler('xyz', degrees=False)
 
     # Add rotation noise

@@ -48,7 +48,7 @@ sloam:
   # parameters for place recognition (slide graph version)
   place_recognition_slidegraph:
     # ------- MOST IMPORTANT PARAMS TO TUNE: -------
-    num_inliners_threshold: 2
+    num_inliners_threshold: 3
     descriptor_matching_threshold: 0.1
     min_num_map_objects_to_start: 4 # 30 for outdoor parking lot # 100 for forests # minimum number of objects in a map to start SlideGraph place recognition attempt
     #-----------------------------------------------
@@ -57,8 +57,11 @@ sloam:
 
   # Parameters for Factor graph
   factor_graph:
-    #VERY IMPORTANT: First three (Rotation) and last three (Translation)
-    noise_model_prior_first_pose_vec: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+    # For the noise models below:
+    # VERY IMPORTANT: For Pose3 Noise models, ordering is RPYXYZ.
+    # Values are standard deviation of the noise in radians and meters respectively
+    noise_model_prior_first_pose_vec: [0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001] 
+    use_odom_cov_in_nav_msg: false # If true, ignore noise_model_odom_vec and use the covariance included in the nav_msgs/Odometry message
     noise_model_odom_vec: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-    noise_model_cube_vec: [0.017, 0.017, 0.017, 0.5, 0.5, 0.5, 0.05, 0.05, 0.05]
-    noise_model_rel_meas_vec: [0.0017, 0.0017, 0.0017, 0.06, 0.06, 0.06]
+    noise_model_cube_vec: [0.017, 0.017, 0.017, 0.05, 0.05, 0.05, 0.01, 0.01, 0.01]
+    noise_model_rel_meas_vec: [0.001, 0.001, 0.001, 0.03, 0.03, 0.03]

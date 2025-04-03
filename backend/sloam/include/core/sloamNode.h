@@ -62,7 +62,9 @@ class SLOAMNode : public sloam {
   using ConstPtr = boost::shared_ptr<const SLOAMNode>;
 
   // timestamp is used for visualization
-  bool runSLOAMNode(const SE3 &relativeRawOdomMotion, const SE3 &prevKeyPose,
+  bool runSLOAMNode(const SE3 &relativeRawOdomMotion, 
+                    std::array<double, 6> relativeRawOdomMotionCov,
+                    const SE3 &prevKeyPose,
                     const std::vector<Cylinder> &cylindersBody,
                     const std::vector<Cube> &cubesBody,
                     const std::vector<Ellipsoid> &ellipsoidBody,
