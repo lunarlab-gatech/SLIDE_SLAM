@@ -45,4 +45,4 @@ jobs:
 
     - name: Run SLIDE_SLAM Tests
       run: |
-        docker exec -it slideslam_ros sh -c "catkin_make run_tests"
+        docker exec slideslam_ros sh -c "catkin_make run_tests"

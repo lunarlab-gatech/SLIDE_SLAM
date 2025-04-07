@@ -2,7 +2,14 @@ SlideSlamWs="$WS_PATH" # point to your workspace directory
 SlideSlamCodeDir="$WS_PATH/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
 BAGS_DIR="$WS_PATH/src/SLIDE_SLAM/bags" # point to your bags / data directory
 
-docker run -it \
+DOCKER_RUN_FLAGS=""
+
+# If not running in CI, add -it
+if [ -z "$CI" ]; then
+  DOCKER_RUN_FLAGS="-it"
+fi
+
+docker run $DOCKER_RUN_FLAGS \
     --name="slideslam_ros" \
     --net="host" \
     --privileged \
@@ -17,7 +24,9 @@ docker run -it \
     --volume="/home/$USER/.bash_aliases:/root/.bash_aliases" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
-    --volume="$XAUTHORITY:/root/.Xauthority:ro" \
+    if [ -n "$XAUTHORITY" ]; then
+    DOCKER_ARGS="$DOCKER_ARGS -v $XAUTHORITY:/root/.Xauthority:ro"
+    fi
     slideslam_ros_image \
     bash
 

@@ -39,4 +39,3 @@ class TestMultiUGV(unittest.TestCase):
 if __name__ == '__main__':
     import rostest
     rostest.rosrun('relative_meas_gen', 'test_multi_ugv', TestMultiUGV)
-    rostest.rosrun('relative_meas_gen', 'apriltag_test', 'Detect')
