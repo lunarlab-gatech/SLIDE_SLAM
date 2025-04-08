@@ -2,7 +2,7 @@ SlideSlamWs="$WS_PATH" # point to your workspace directory
 SlideSlamCodeDir="$WS_PATH/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
 BAGS_DIR="$WS_PATH/src/SLIDE_SLAM/bags" # point to your bags / data directory
 
-DOCKER_RUN_FLAGS=""
+DOCKER_RUN_FLAGS="-d"
 
 # If not running in CI, add -it
 if [ -z "$CI" ]; then
@@ -32,5 +32,5 @@ docker run $DOCKER_RUN_FLAGS \
     --volume="/home/$USER/repos:/home/$USER/repos" \
     $EXTRA_VOLUMES \
     slideslam_ros_image \
-    bash
+    bash -c "while true; do sleep 60; done"
 

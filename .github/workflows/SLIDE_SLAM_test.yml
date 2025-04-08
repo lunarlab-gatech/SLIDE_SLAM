@@ -37,7 +37,7 @@ jobs:
         cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
         export WS_PATH="$(pwd)"
         chmod +x run_container.sh
-        ./run_container.sh --no-gpu
+        ./run_container.sh
 
     - name: Build SLIDE_SLAM inside Container
       run: |
