@@ -42,5 +42,6 @@ jobs:
     - name: Build SLIDE_SLAM inside Container and run tests
       run: |
         docker start slideslam_ros
+        docker exec slideslam_ros bash -c "source /opt/ros/noetic/setup.bash && rosdep update && rosdep install --from-paths /opt/slideslam_docker_ws/src --ignore-src -r -y"
         docker exec slideslam_ros bash -c "source /opt/ros/noetic/setup.bash && cd /opt/slideslam_docker_ws && catkin_make && source devel/setup.bash"
         docker exec slideslam_ros bash -c "cd /opt/slideslam_docker_ws && catkin_make run_tests"
