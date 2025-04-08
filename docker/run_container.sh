@@ -11,6 +11,7 @@ fi
 
 EXTRA_VOLUMES=""
 if [ -z "$CI" ]; then
+  EXTRA_VOLUMES+=" --gpus=\"all\""
   EXTRA_VOLUMES+=" --env=\"DISPLAY=$DISPLAY\""
   EXTRA_VOLUMES+=" --env=\"QT_X11_NO_MITSHM=1\""
   EXTRA_VOLUMES+=" --env=\"XAUTHORITY=/root/.Xauthority\""
@@ -23,7 +24,6 @@ docker run $DOCKER_RUN_FLAGS \
     --name="slideslam_ros" \
     --net="host" \
     --privileged \
-    --gpus="all" \
     --workdir="/opt/slideslam_docker_ws" \
     --env="DISPLAY=$DISPLAY" \
     --volume="$SlideSlamWs:/opt/slideslam_docker_ws" \
