@@ -63,7 +63,6 @@ class SLOAMNode : public sloam {
 
   // timestamp is used for visualization
   bool runSLOAMNode(const SE3 &relativeRawOdomMotion, 
-                    std::array<double, 6> relativeRawOdomMotionCov,
                     const SE3 &prevKeyPose,
                     const std::vector<Cylinder> &cylindersBody,
                     const std::vector<Cube> &cubesBody,

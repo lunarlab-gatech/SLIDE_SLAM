@@ -24,7 +24,7 @@ SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
 
   debugMode_ = nh_.param("debug_mode", false);
   if (debugMode_) {
-    ROS_DEBUG_STREAM("Running SLOAM in Debug Mode" << std::endl);
+    ROS_DEBUG("Running SLOAM in Debug Mode");
     if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
                                        ros::console::levels::Debug)) {
       ros::console::notifyLoggerLevelsChanged();
@@ -126,7 +126,7 @@ SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
   save_results_dir_ = ros::package::getPath("sloam") + "/results";
   save_runtime_analysis_dir_ = save_results_dir_ + "/runtime_analysis";
   runtime_analysis_file = save_runtime_analysis_dir_ + "/robot"+std::to_string(hostRobotID)+"_runtime_analysis.txt";
-  ROS_DEBUG_STREAM("THE RUNTIME ANALYSIS FILE IS: " << runtime_analysis_file);
+  ROS_DEBUG_STREAM("THE RUNTIME ANALYSIS FILE IS: " << runtime_analysis_file << "");
 }
 
 /**
@@ -471,7 +471,7 @@ void SLOAMNode::intraLoopClosureThread_() {
                                             hostRobotID);
           factorGraphMtx_.unlock();
         } else{
-          ROS_DEBUG_STREAM("Tried loop closure but was not succesfull");
+          ROS_DEBUG("Tried loop closure but was not succesful");
         }
       } else {
         ROS_DEBUG("No loop closure candidate history key pose found");
@@ -852,7 +852,6 @@ void SLOAMNode::relInterRobotFactorThread_() {
 }
 
 bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
-                             std::array<double, 6> relativeRawOdomMotionCov,
                              const SE3 &prevKeyPose,
                              const std::vector<Cylinder> &cylindersBodyIn,
                              const std::vector<Cube> &cubesBodyIn,
@@ -887,7 +886,6 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   pmp.cylinderMsts = cylindersBodyIn;
   pmp.stamp = stamp;
   pmp.relativeRawOdomMotion = relativeRawOdomMotion;
-  pmp.relativeRawOdomMotionCov = relativeRawOdomMotionCov;
   pmp.cubeMsts = cubesBodyIn;
   pmp.ellipsoidMsts = ellipsoidBodyIn;
   dbManager.getHostRobotData().poseMstPacket.push_back(pmp);
@@ -984,7 +982,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
       semanticMap_, cube_semantic_map_, ellipsoid_semantic_map_,
       sloamOut.cylinderMatches, sloamOut.scanCylindersWorld,
       sloamOut.cubeMatches, sloamOut.scanCubesWorld, sloamOut.ellipsoidMatches,
-      sloamOut.scanEllipsoidsWorld, relativeRawOdomMotion, relativeRawOdomMotionCov,
+      sloamOut.scanEllipsoidsWorld, relativeRawOdomMotion,
       sloamOut.T_Map_Curr, robotID);
   double fg_optimization_end = ros::Time::now().toSec();
   double time_diff = fg_optimization_end - fg_optimization_start;
@@ -1034,7 +1032,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
                                      iter->second.poseMstPacket[i].keyPose;
         SE3 relativeRawOdomMotionInRefFrame =
             iter->second.poseMstPacket[i].relativeRawOdomMotion;
-        std::array<double, 6> relativeRawOdomMotionCovInRefFrame = iter->second.poseMstPacket[i].relativeRawOdomMotionCov;
+
         // transform the pose and landmark into host robot map frame
         std::vector<Cylinder> CylinderMeasurement =
             iter->second.poseMstPacket[i].cylinderMsts;
@@ -1088,8 +1086,8 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
             semanticMap_, cube_semantic_map_, ellipsoid_semantic_map_,
             cylinderMatchIndices, cylinderInRefFrame, cubeMatchIndices,
             cubeInRefFrame, ellipsoidMatchIndices, ellipsoidInRefFrame,
-            relativeRawOdomMotionInRefFrame, relativeRawOdomMotionCovInRefFrame,
-            poseEstimateInRefFrame, curRobotID, false);
+            relativeRawOdomMotionInRefFrame, poseEstimateInRefFrame, 
+            curRobotID, false);
       }
       factorGraph_.solve();
       dbManager.updateFGBookmark(curSize, curRobotID);

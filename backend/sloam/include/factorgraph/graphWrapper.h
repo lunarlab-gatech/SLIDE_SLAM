@@ -89,7 +89,6 @@ class SemanticFactorGraphWrapper : public SemanticFactorGraph {
                            const std::vector<int> &ellipsoid_matches,
                            const std::vector<Ellipsoid> &ellipsoids,
                            const SE3 &relativeMotion, 
-                           const std::array<double, 6> relativeMotionCov,
                            const SE3 &poseEstimates,
                            const int &robotID, bool opt = true);
 

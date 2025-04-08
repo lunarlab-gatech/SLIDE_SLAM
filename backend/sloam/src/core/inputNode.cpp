@@ -58,10 +58,8 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   if (robot.robotOdomReceived_) {
     // if odom has been updated in sloam, use the relative odom pose and add
     // it to the previous sloam pose
-    SE3 latestRelativeMotionFactorGraph =
-        robot.robotLatestOdom_.pose.inverse() * cur_vio_odom.pose;
-    highFreqSLOAMPose =
-        robot.robotLastSLOAMKeyPose_ * latestRelativeMotionFactorGraph;
+    SE3 latestRelativeMotionFactorGraph = robot.robotLatestOdom_.pose.inverse() * cur_vio_odom.pose;
+    highFreqSLOAMPose = robot.robotLastSLOAMKeyPose_ * latestRelativeMotionFactorGraph;
     odom_stamp = cur_vio_odom.stamp;
   } else {
     // directly take current odometry and publish
@@ -139,7 +137,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
         StampedSE3 validStampedPose;
         validStampedPose.pose = relativeMeas.odomPose;
         validStampedPose.stamp = relativeMeas.stamp;
-        validStampedPose.covariance = relativeMeas.covariance;
         latestObservation.stampedPose = validStampedPose;
 
         // If we observed another robot (rather than being observed)
@@ -169,10 +166,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
     StampedSE3 raw_vio_odom_used_for_sloam = latestObservation.stampedPose;
     SE3 relativeRawOdomMotion = robot.robotLatestOdom_.pose.inverse() * raw_vio_odom_used_for_sloam.pose;
 
-    // Estimate the covariance of the relative motion
-    std::array<double, 6> relativeRawOdomCovariance = computeRelativeMotionCovariance(
-        robot.robotLatestOdom_.pose, robot.robotLatestOdom_.covariance,
-        raw_vio_odom_used_for_sloam.pose, raw_vio_odom_used_for_sloam.covariance);
 
     // Get the Previous Key Pose
     SE3 prevKeyPose;
@@ -186,7 +179,7 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
     // Send the measurement to SLOAM
     SE3 keyPose;
     bool success = sloam_->runSLOAMNode(
-        relativeRawOdomMotion, relativeRawOdomCovariance, prevKeyPose, 
+        relativeRawOdomMotion, prevKeyPose, 
         latestObservation.cylinders, latestObservation.cubes, 
         latestObservation.ellipsoids, latestObservation.stampedPose.stamp, 
         keyPose, hostRobotID_);
@@ -210,7 +203,6 @@ void InputManager::updateLastPose(const StampedSE3 &odom, const int &robotID) {
   robot.robotOdomReceived_ = true;
   robot.robotLatestOdom_.pose = odom.pose;
   robot.robotLatestOdom_.stamp = odom.stamp;
-  robot.robotLatestOdom_.covariance = odom.covariance;
   if (robot.robotKeyPoses_.size() == 0) {
     robot.robotLastSLOAMKeyPose_ = robot.robotLatestOdom_.pose;
   } else {

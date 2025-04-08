@@ -74,7 +74,6 @@ void SemanticFactorGraph::setPriors(const Pose3 &pose_prior,
 
 void SemanticFactorGraph::addKeyPoseAndBetween(
     const size_t prevIdx, const size_t curIdx, const Pose3 &relativeMotion,
-    const std::array<double, 6> relativeMotionCov,
     const Pose3 &poseEstimate, const int &robotID, const bool &loopClosureFound,
     const SE3 &loop_closure_relative_pose,
     const size_t &closure_matched_pose_idx) {

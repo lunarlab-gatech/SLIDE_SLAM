@@ -46,7 +46,6 @@ struct PoseMstPair {
   SE3 keyPose;               // the current pose of the robot
   SE3 relativeRawOdomMotion; // relative motion from last keyPose to current as
                              // measured using odometry
-  std::array<double, 6> relativeRawOdomMotionCov; // Covariance for relativeRawOdomMotion
   ros::Time stamp;           // the timestamp associated with the keyPose
 
   // measurement in robot frame

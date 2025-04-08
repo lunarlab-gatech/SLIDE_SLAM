@@ -11,7 +11,7 @@ public:
                                   double msg_delay_tolerance,
                                   float minOdomDistance_,
                                   int &meas_to_add);
-    std::array<double, 6> computeRelativeMotionCovariance(
-                                const SE3 &T1, const std::array<double, 6> &cov1,
-                                const SE3 &T2, const std::array<double, 6> &cov2);
+    // std::array<double, 6> computeRelativeMotionCovariance(
+    //                             const SE3 &T1, const std::array<double, 6> &cov1,
+    //                             const SE3 &T2, const std::array<double, 6> &cov2);
 };

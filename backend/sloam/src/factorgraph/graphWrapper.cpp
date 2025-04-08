@@ -84,7 +84,6 @@ bool SemanticFactorGraphWrapper::addSLOAMObservation(
     const std::vector<Cube> &scan_cubes_world,
     const std::vector<int> &ellipse_matches,
     const std::vector<Ellipsoid> &ellipses, const SE3 &relativeMotionSE3,
-    const std::array<double, 6> relativeMotionCov,
     const SE3 &poseEstimateSE3, const int &robotID, bool opt) {
   size_t pose_counter;
 
@@ -102,8 +101,7 @@ bool SemanticFactorGraphWrapper::addSLOAMObservation(
         "ERROR: Factor graph optimization is done when adding the first "
         "pose prior, this may cause problems!!!");
   } else {
-    addKeyPoseAndBetween(pose_counter - 1, pose_counter, relativeMotion,
-                         relativeMotionCov, curr_pose, robotID);
+    addKeyPoseAndBetween(pose_counter - 1, pose_counter, relativeMotion, curr_pose, robotID);
   }
   const auto matchesMap = semanticMap.getMatchesMap();
   const auto cubeMatchesMap = cube_semantic_map.getMatchesMap();

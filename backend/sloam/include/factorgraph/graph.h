@@ -85,7 +85,6 @@ class SemanticFactorGraph {
                      bool alreadyExists, const int& robotID);
   void addKeyPoseAndBetween(
       const size_t fromIdx, const size_t toIdx, const Pose3& relativeMotion,
-      const std::array<double, 6> relativeMotionCov,
       const Pose3& poseEstimate, const int& robotID,
       const bool& loopClosureFound = false,
       const SE3& loop_closure_pose = SE3(),
