@@ -24,7 +24,8 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS roscpp sloam_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -121,6 +122,7 @@ include_directories(
 )
 
 add_executable(apriltag_meas_gen src/apriltag_meas_gen.cpp src/apriltag_wrapper.cpp)
+add_dependencies(apriltag_meas_gen ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 set_target_properties(apriltag_meas_gen PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
 target_link_libraries(apriltag_meas_gen ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
 
