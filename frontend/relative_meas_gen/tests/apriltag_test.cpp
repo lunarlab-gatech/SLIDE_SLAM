@@ -30,7 +30,7 @@ TEST(apriltag_test, Detect) {
     std::cout << "Detected tag: " << test_tag.id << std::endl;
     std::cout << "Expected tag: 6" << std::endl;
 
-    EXPECT_EQ(5, test_tag.id);
+    EXPECT_EQ(6, test_tag.id);
 
 }
 
