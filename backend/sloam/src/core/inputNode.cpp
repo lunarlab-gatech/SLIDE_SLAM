@@ -30,16 +30,9 @@ InputManager::InputManager(ros::NodeHandle nh)
   nh_.param<int>(idName, hostRobotID_, 0);
   nh_.param<bool>(node_name + "/turn_off_intra_loop_closure",
                   turn_off_intra_loop_closure_, false);
-  nh_.param(node_name+"/turn_off_rel_inter_robot_factor", 
-                  turn_off_rel_inter_robot_factor, true);
 
   auto sloam_ptr = boost::make_shared<sloam::SLOAMNode>(nh_);
   sloam_ = std::move(sloam_ptr);
-
-  // Print information about parameters
-  if (turn_off_intra_loop_closure_) {
-    ROS_INFO_ONCE("Intra Loop closure is turned off, the default of the variable is false");
-  }
 }
 
 void InputManager::RunInputNode(const ros::TimerEvent &e) {

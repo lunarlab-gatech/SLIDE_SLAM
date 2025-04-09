@@ -45,6 +45,7 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
 
   bool turn_off_rel_inter_robot_factor = nh_.param(node_name+"/turn_off_rel_inter_robot_factor", true);
   if (!turn_off_rel_inter_robot_factor) {
+    ROS_INFO("Relative Inter-Robot Factors are enabled!");
     std::string relativeMeasSub_topic = "/relative_inter_robot_meas_sync";
     RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
   }
@@ -213,19 +214,3 @@ void Robot::PrintLateMsgWarning(const std::string &msg_type) {
   ROS_WARN_STREAM_THROTTLE(10, msg_type << " message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
   ROS_WARN_STREAM_THROTTLE(10, "Please increase `msg_delay_tolerance` to account for lag in your system");
 }
-
-/**
- * @brief This method extracts the covariance values from a
- * nav_msgs::Odometry message.
- * 
- * @param odom_msg: The odometry message from which to extract the covariance.
- * @return A std::array containing the covariance diagonal values (in XYZRPY order)
- */
-// std::array<double, 6> Robot::ExtractCovarianceFromOdometry(nav_msgs::Odometry odom_msg) {
-//   std::array<double, 6> covariance;
-//   for (size_t i = 0; i < 6; i++) {
-//     // Absolute value used in case some very small covariance values come in negative
-//     covariance[i] = std::abs(odom_msg.pose.covariance[i * 6 + i]);
-//   }
-//   return covariance;
-// }
