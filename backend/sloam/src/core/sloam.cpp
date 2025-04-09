@@ -117,10 +117,10 @@ void sloam::matchCubeModels(const std::vector<T> &currObjects,
   size_t obj_counter = 0;
 
   if (currObjects.size() == 0) {
-    ROS_WARN("No cube detected in current scan!");
+    ROS_WARN_THROTTLE(20, "No cube detected in current scan!");
     return;
   } else if (mapObjects.size() == 0) {
-    ROS_WARN("No cube in submap!");
+    ROS_WARN_THROTTLE(20, "No cube in submap!");
     return;
   }
 
@@ -152,7 +152,7 @@ void sloam::matchCubeModels(const std::vector<T> &currObjects,
     }
     obj_counter++;
   }
-  std::cout << "total scan objects in matchCubeModels:" << obj_counter << '\n';
+  //std::cout << "total scan objects in matchCubeModels:" << obj_counter << '\n';
 }
 
 template <typename T>
@@ -161,10 +161,10 @@ void sloam::matchEllipsoidModels(const std::vector<T> &currObjects,
                                  std::vector<int> &matchIndices) {
 
   if (currObjects.size() == 0) {
-    ROS_WARN_STREAM_THROTTLE(1.0, "No Ellipsoid detected in current scan!");
+    ROS_WARN_STREAM_THROTTLE(20.0, "No Ellipsoid detected in current scan!");
     return;
   } else if (mapObjects.size() == 0) {
-    ROS_WARN("No Ellipsoid in submap!");
+    ROS_WARN_THROTTLE(20.0, "No Ellipsoid in submap!");
     return;
   }
   // TODO(ankit): Make ellip_match_search_threshold and valid_match_treshold a parameter

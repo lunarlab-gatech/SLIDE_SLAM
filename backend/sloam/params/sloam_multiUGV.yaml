@@ -1,4 +1,4 @@
-enable_rviz: false
+enable_rviz: true
 sloam:
   # ------- MOST IMPORTANT PARAMS TO TUNE: -------
   use_slidematch: false # VERY IMPORANT: (recommended: false) place recognition algorithm choice, if true, use slidematch, if false, use slidegraph

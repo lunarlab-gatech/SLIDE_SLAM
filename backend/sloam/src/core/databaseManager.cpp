@@ -197,7 +197,6 @@ void databaseManager::measureReceivedCommMsgSize(const sloam_msgs::PoseMstBundle
   for (int i = 0; i < msgs.poseMstPair.size(); i++) {
     cur_received_msg_size_bytes += 56;
     cur_received_msg_size_bytes += 56;
-    cur_received_msg_size_bytes += 48; // From covariance
     cur_received_msg_size_bytes +=  8; // For the time stamp (theorized, not proven)
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].ellipsoids.size();
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].cubes.size();
@@ -248,7 +247,6 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
         cur_publish_msg_size_bytes += 56;
         cur_publish_msg_size_bytes += 56;
         cur_publish_msg_size_bytes += 8; // From time stamp (not proven)
-        cur_publish_msg_size_bytes += 48; // From covariance
       }
 
       for (int i = 0; i < robotMapDict_[curRobotID].size(); i++) {

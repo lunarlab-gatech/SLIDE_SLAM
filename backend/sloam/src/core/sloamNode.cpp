@@ -367,10 +367,10 @@ void SLOAMNode::intraLoopClosureThread_() {
       ros::Duration(0.1).sleep();
       continue;
     } else {
-      ROS_ERROR_THROTTLE(
-          1.0, "isInLoopClosureRegion_ is true, attempting loop closure");
+      ROS_INFO_THROTTLE(20.0, "isInLoopClosureRegion_ is true, attempting loop closure");
     }
-    ROS_DEBUG("****** Starting Intra Loop Closure Thread *****");
+    //ROS_DEBUG("****** Starting Intra Loop Closure Thread *****");
+
     // get latest pose and its observation to do loop closure
     semanticMapMtx_.lock();
     int latestPoseIdx = semanticMap_.getLatestPoseIdx(hostRobotID);
@@ -471,10 +471,10 @@ void SLOAMNode::intraLoopClosureThread_() {
                                             hostRobotID);
           factorGraphMtx_.unlock();
         } else{
-          ROS_DEBUG("Tried loop closure but was not succesful");
+          ROS_DEBUG_THROTTLE(20.0, "Tried loop closure but was not succesful");
         }
       } else {
-        ROS_DEBUG("No loop closure candidate history key pose found");
+        ROS_DEBUG_THROTTLE(20.0, "No loop closure candidate history key pose found");
       }
     }
     rate.sleep();
@@ -594,8 +594,8 @@ void SLOAMNode::interLoopClosureThread_() {
     dbMutex.unlock();
     num_attempts_inter_loop_closure++;
     for (auto query_robot_id : robotIDLoopClosureToFind) {
-      ROS_INFO_STREAM("START TO FIND INTER LOOP CLOSURE BETWEEN ROBOTS: "
-                      << query_robot_id << " AND " << dbManager.getHostRobotID());
+      //ROS_INFO_STREAM("START TO FIND INTER LOOP CLOSURE BETWEEN ROBOTS: "
+      //                << query_robot_id << " AND " << dbManager.getHostRobotID());
       dbMutex.lock();
       std::vector<Eigen::Vector7d> reference_map =
           dbManager.getRobotMap(dbManager.getHostRobotID());
@@ -751,8 +751,6 @@ void SLOAMNode::relInterRobotFactorThread_() {
 
     // Only run loop closures if we have relative inter-robot measurements waiting
     if (feasible_relative_meas_for_factors.size() > 0) {
-      ROS_DEBUG("****** Starting Relative Inter Robot Factor Generation Thread *****");
-
       // Prepare return variables
       int indexClosestHostRobot;
       int indexClosestOtherRobot;
@@ -834,14 +832,12 @@ void SLOAMNode::relInterRobotFactorThread_() {
 
       // Keep track of total added
       if (matches_found > 0) {
-        ROS_INFO_STREAM("Success: " << matches_found << " Relative Inter Robot Measurement Factors added");
         num_successful_rel_inter_robot_factor += matches_found;
-      } else {
-        ROS_DEBUG_STREAM("Added no Relative Inter Robot Measurement Factors");
+        ROS_INFO_STREAM_THROTTLE(20, "Total of " << num_successful_rel_inter_robot_factor << " Relative Factors added");
       }
     } 
     else {
-      ROS_DEBUG_THROTTLE(5.0, "No Available Relative Inter Robot Measurements");
+      ROS_DEBUG_THROTTLE(20.0, "No Available Relative Inter Robot Measurements");
     }
 
     // Unlock the mutexes and sleep
@@ -868,6 +864,8 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   if(packets.size() >= 1) {
     ros::Time last_stamp = dbManager.getHostRobotData().poseMstPacket.back().stamp;
     if (stamp < last_stamp) {
+      // Print out all available information on this data
+      ROS_ERROR_STREAM("Current stamp: " << stamp << " Last stamp: " << last_stamp);
       ROS_ERROR_STREAM("Adding a factor with a timestamp earlier than the last "
                         "one in the factor graph! This should never happen.");
     }               
@@ -895,9 +893,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   if (isInLoopClosureRegion_) {
     // TODO(xu): record all the semantic measurements and corresponding pose
     // so as to add them after the robot exits the loop closure region
-    ROS_WARN_THROTTLE(
-        1.0,
-        "isInLoopClosureRegion_ is true, clearing all measurements to avoid "
+    ROS_WARN_THROTTLE(20.0, "isInLoopClosureRegion_ is true, clearing all measurements to avoid "
         "polluting the map");
     cylindersBody = std::vector<Cylinder>();
     cubesBody = std::vector<Cube>();

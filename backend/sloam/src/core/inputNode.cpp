@@ -166,7 +166,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
     StampedSE3 raw_vio_odom_used_for_sloam = latestObservation.stampedPose;
     SE3 relativeRawOdomMotion = robot.robotLatestOdom_.pose.inverse() * raw_vio_odom_used_for_sloam.pose;
 
-
     // Get the Previous Key Pose
     SE3 prevKeyPose;
     if (robot.robotKeyPoses_.size() > 0) {
