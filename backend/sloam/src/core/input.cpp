@@ -17,7 +17,7 @@
  *                    a measurement.
  * @param minOdomDistance_: The minimum distance of estimated odometry 
  *                    movement to add a new odometry measurement.  
- * @param meas_to_add: Value will represent which measurement to add.
+ * @param[out] meas_to_add: Value will represent which measurement to add.
  *                    0: None
  *                    1: Odometry
  *                    2: Observation

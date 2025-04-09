@@ -12,7 +12,8 @@ sloam:
   main_node_rate: 5.0 # rate at which the main node runs, should not be less than the desired keyframe rate (e.g. 1-5 Hz is usually good)
   place_recognition_attempt_time_offset: 7.0 # (keep default unless you know what you are doing) time offset for place recognition attempts for different robot's nodes to avoid extra compute
   #-----------------------------------------------
-  intra_robot_place_recognition_frequency: 0.05 # [intra-robot place recog is default turned off] frequency at which place recognition is run within a robot 
+  intra_robot_place_recognition_frequency: 0.05 # frequency at which place recognition is run within a robot 
+  rel_inter_robot_factor_frequency: 1.0 # frequency at which relative inter-robot factors are attempted to be added
   number_of_robots: 2
   robot_ns_prefix: /robot # robot_namespace will be robot_prefix + ROBOT_ID (e.g. /quadrotor1, /quadrotor2)
   debug_mode: true

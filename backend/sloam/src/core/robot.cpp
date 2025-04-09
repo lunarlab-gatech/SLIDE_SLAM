@@ -45,7 +45,6 @@ Robot::Robot(const ros::NodeHandle &nh) : nh_(nh) {
 
   bool turn_off_rel_inter_robot_factor = nh_.param(node_name+"/turn_off_rel_inter_robot_factor", true);
   if (!turn_off_rel_inter_robot_factor) {
-    ROS_INFO("Relative Inter-Robot Factors are enabled!");
     std::string relativeMeasSub_topic = "/relative_inter_robot_meas_sync";
     RobotRelativeMeasSub_ = nh_.subscribe(relativeMeasSub_topic, 10, &Robot::RobotRelativeMeasCb, this);
   }

@@ -129,3 +129,6 @@ target_link_libraries(input_test sloam_core ${catkin_LIBRARIES})
 
 catkin_add_gtest(utils_test "src/test/utils_test.cpp")
 target_link_libraries(utils_test sloam_core ${catkin_LIBRARIES})
+
+catkin_add_gtest(sloam_test "src/test/sloam_test.cpp")
+target_link_libraries(sloam_test sloam_core ${catkin_LIBRARIES})

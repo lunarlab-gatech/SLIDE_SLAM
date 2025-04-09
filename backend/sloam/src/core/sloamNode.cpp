@@ -126,7 +126,7 @@ SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
   save_results_dir_ = ros::package::getPath("sloam") + "/results";
   save_runtime_analysis_dir_ = save_results_dir_ + "/runtime_analysis";
   runtime_analysis_file = save_runtime_analysis_dir_ + "/robot"+std::to_string(hostRobotID)+"_runtime_analysis.txt";
-  ROS_DEBUG_STREAM("THE RUNTIME ANALYSIS FILE IS: " << runtime_analysis_file << "");
+  ROS_DEBUG_STREAM("THE RUNTIME ANALYSIS FILE IS: " << runtime_analysis_file);
 }
 
 /**
@@ -215,7 +215,11 @@ void SLOAMNode::publishCubeMaps_(const ros::Time stamp) {
   pubSubmapCubeModel_.publish(cubeSubMapTMarkerArray);
 }
 
-void SLOAMNode::publishInterRobotFactors(const int &robotID) {
+/**
+ * @brief This method publishes the inter-robot factors for 
+ * visualization in RViz. 
+ */
+void SLOAMNode::publishInterRobotFactors() {
 
   relInterRobotFactorsMtx_.lock();
 
@@ -280,7 +284,7 @@ void SLOAMNode::publishResults_(const SloamInput &sloamIn,
                                 const int &robotID) {
   publishMap_(stamp);
   publishCubeMaps_(stamp);
-  publishInterRobotFactors(robotID);
+  publishInterRobotFactors();
 
   std::vector<SE3> allLandmarks;
   std::vector<int> allLabels;
@@ -693,39 +697,8 @@ void SLOAMNode::interLoopClosureThread_() {
 }
 
 /**
- * @brief This function searches through the deque of 
- * PoseMstPair and finds the message with the 
- * closest timestamp. It returns the corresponding
- * index. If two entries have the same time difference, 
- * then the first index is returned.
- * 
- * @param std::deque<PoseMstPair> &poseMstPacket : The queue to search.
- * @param ros::Time stamp : The stamp we compare to.
- * @return int &indexClosets : Index in postMstPacket that is closest in time.
- *            Returns -1 if empty.
- * @return double &timeDiffClosest : The difference in time between stamp and
- *            the closest PoseMstPair (in seconds).
- */
-void SLOAMNode::GetIndexClosestPoseMstPair(std::deque<PoseMstPair> &poseMstPacket, ros::Time stamp, int &indexClosest, double &timeDiffClosest) {
-  indexClosest = -1;
-  timeDiffClosest = std::numeric_limits<double>::max();
-
-  for(int i = 0; i < poseMstPacket.size(); i++) {
-    double currTimeDiff = abs((poseMstPacket[i].stamp - stamp).toSec());
-    if (currTimeDiff < timeDiffClosest) {
-      indexClosest = i;
-      timeDiffClosest = currTimeDiff;
-    }
-  }
-}
-
-/**
- * This function handles relative inter-robot factor generation
- * by iterating through each relative measurement and seeing
- * if the corresponding pair of robot poses (within reasonable
- * time) are found within the graph. If so, its added to the 
- * factor graph. Does this at a rate of
- * rel_inter_robot_factor_frequency_ Hz.
+ * @brief This function handles relative inter-robot factor generation.
+ * Does this at a rate of rel_inter_robot_factor_frequency_ Hz.
  * 
  * NOTE: Currently relative inter-robot loop closures detected
  * by other robots are NOT sent to other robots, should fix 
@@ -736,113 +709,52 @@ void SLOAMNode::relInterRobotFactorThread_() {
   double desired_interval = 1.0 / rel_inter_robot_factor_frequency_;
   ros::Rate rate(desired_interval);
 
-  // Maximum time difference between relative inter robot measurement and stamped pose
-  // in order to add measurement to the factor graph
-  double maxTimeDiff = 0.001; // 1 ms
+  // Setup variable to hold all matches
+  std::vector<RelativeMeasMatch> matches;
 
   while (ros::ok()) {
-
     // Lock mutexes
     dbMutex.lock();
-    feasRelMeasVectorMtx_.lock();
+    
+    // Get all relative measurements that can be added as factors
+    FindRelativeMeasurementMatch(factorGraph_.pose_counter_robot_,
+               dbManager.getRobotDataDict(), hostRobotID, matches);
 
-    // Retrive poses from host robot
-    std::deque<PoseMstPair> poseMstPacket = dbManager.getHostRobotData().poseMstPacket;
+    // Add each match to the graph
+    for (int i = 0; i < matches.size(); i++) {
 
-    // Only run loop closures if we have relative inter-robot measurements waiting
-    if (feasible_relative_meas_for_factors.size() > 0) {
-      // Prepare return variables
-      int indexClosestHostRobot;
-      int indexClosestOtherRobot;
-      double timeDiffClosest;
-      int matches_found = 0;
+      // Extract the relative measurement associated with this match
+      RelativeMeas relativeMeas = feasible_relative_meas_for_factors[matches[i].index];
+      
+      // Add to the factor graph
+      factorGraphMtx_.lock();
+      gtsam::Pose3 relativeMeasPose = SE3ToGTSAMPose3(relativeMeas.relativePose);
+      factorGraph_.addRelativeMeasFactor(relativeMeasPose, matches[i].indexClosestHostRobot,
+                    hostRobotID, matches[i].indexClosestOtherRobot, relativeMeas.robotIndex);
+      factorGraphMtx_.unlock();
 
-      // Try to add each relative measurement
-      for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
-        RelativeMeas relativeMeas = feasible_relative_meas_for_factors[i];
-
-        // Iterate through the other robot's poses, and make sure one exists in the factor graph
-        // that is close enough in time to our measurement
-        size_t pose_counter_other = factorGraph_.getPoseCounterById(relativeMeas.robotIndex);
-        GetIndexClosestPoseMstPair(dbManager.getRobotDataByID(relativeMeas.robotIndex).poseMstPacket, 
-                                  relativeMeas.stamp, indexClosestOtherRobot, timeDiffClosest);
-        if (indexClosestOtherRobot == -1 || timeDiffClosest > maxTimeDiff ||
-            indexClosestOtherRobot >= pose_counter_other) { 
-              continue; 
-        }
-
-        // Iterate through our own poses, and make sure one exists in the factor graph thats close 
-        // enough in time to our measurement
-        size_t pose_counter_host = factorGraph_.getPoseCounterById(hostRobotID);
-        GetIndexClosestPoseMstPair(poseMstPacket, relativeMeas.stamp, indexClosestHostRobot, timeDiffClosest);
-        if (indexClosestHostRobot == -1 || timeDiffClosest > maxTimeDiff ||
-            indexClosestHostRobot >= pose_counter_host) { 
-              continue; 
-        }
-
-        // We found a match, so add it to the factor graph
-        matches_found += 1;
-        factorGraphMtx_.lock();
-        gtsam::Pose3 relativeMeasPose = SE3ToGTSAMPose3(relativeMeas.relativePose);
-        factorGraph_.addRelativeMeasFactor(relativeMeasPose, indexClosestHostRobot,
-                      hostRobotID, indexClosestOtherRobot, relativeMeas.robotIndex);
-        factorGraphMtx_.unlock();
-        //ROS_DEBUG_STREAM("Rel-Inter-Robot Factor added between Robot #" << hostRobotID << " Pose " << indexClosestHostRobot
-        //                 << "and Robot #" << relativeMeas.robotIndex << " Pose " << indexClosestOtherRobot);
-
-        // Save this factor separately so that we can visualize it
-        RelativeInterRobotFactor factor;
-        factor.hostPoseIndex = indexClosestHostRobot;
-        factor.hostRobotID = hostRobotID;
-        factor.observedPoseIndex = indexClosestOtherRobot;
-        factor.observedRobotID = relativeMeas.robotIndex;
-        factor.relativePose = relativeMeas.relativePose;
-        factor.stamp = relativeMeas.stamp;
-        relInterRobotFactorsMtx_.lock();
-        relative_inter_robot_factors.push_back(factor);
-        relInterRobotFactorsMtx_.unlock();
-
-        // Remove this measurement from vector, so we don't use it again
-        feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);
-        i--;
-      }
-
-      // Check which factors are no longer feasible so we can remove them
-      for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
-
-        // Get pose_counter (tracks number of poses added to factor graph)
-        RelativeMeas relativeMeas = feasible_relative_meas_for_factors[i];
-        size_t pose_counter = factorGraph_.getPoseCounterById(relativeMeas.robotIndex);
-
-        // If factor graph for this robot isn't empty
-        if (pose_counter > 0) { 
-
-          // Get timestamp of most recent pose added to factor graph from observed robot
-          ros::Time stamp = dbManager.getRobotDataByID(relativeMeas.robotIndex).poseMstPacket[pose_counter - 1].stamp;
-
-          // If this timestamp is later than relative measurement timestamp
-          if (stamp > relativeMeas.stamp) {
-            // This relative measurement is no longer feasible, as other robot
-            // simply doesn't have a pose factor to connect this measurement to
-            feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);
-            i--;
-          }
-        }
-      }
-
-      // Keep track of total added
-      if (matches_found > 0) {
-        num_successful_rel_inter_robot_factor += matches_found;
-        ROS_INFO_STREAM_THROTTLE(20, "Total of " << num_successful_rel_inter_robot_factor << " Relative Factors added");
-      }
-    } 
-    else {
-      ROS_DEBUG_THROTTLE(20.0, "No Available Relative Inter Robot Measurements");
+      // Save this factor separately so that we can visualize it
+      RelativeInterRobotFactor factor;
+      factor.hostPoseIndex = matches[i].indexClosestHostRobot;
+      factor.hostRobotID = hostRobotID;
+      factor.observedPoseIndex = matches[i].indexClosestOtherRobot;
+      factor.observedRobotID = relativeMeas.robotIndex;
+      factor.relativePose = relativeMeas.relativePose;
+      factor.stamp = relativeMeas.stamp;
+      relInterRobotFactorsMtx_.lock();
+      relative_inter_robot_factors.push_back(factor);
+      relInterRobotFactorsMtx_.unlock();
     }
+
+    // Keep track of all added factors
+    num_successful_rel_inter_robot_factor += matches.size();
+    ROS_INFO_STREAM_THROTTLE(20, "Total of " << num_successful_rel_inter_robot_factor << " Relative Factors added");
+
+    // Empty out the matches for the next iteration
+    matches.clear();
 
     // Unlock the mutexes and sleep
     dbMutex.unlock();
-    feasRelMeasVectorMtx_.unlock();
     rate.sleep();
   }
 }

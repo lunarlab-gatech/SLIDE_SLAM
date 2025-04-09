@@ -12,6 +12,7 @@
 
 #include <cube.h>
 #include <cylinder.h>
+#include <databaseManager.h>
 #include <ellipsoid.h>
 #include <definitions.h>
 #include <plane.h>
@@ -61,6 +62,15 @@ struct SloamOutput {
   SE3 T_Delta;
 };
 
+// Holds results from FindRelativeMeasurementMatch()
+struct RelativeMeasMatch {
+  RelativeMeasMatch(int i, int h, int o) : index(i),
+        indexClosestHostRobot(h), indexClosestOtherRobot(o) {}
+  int index;
+  int indexClosestHostRobot;
+  int indexClosestOtherRobot;
+};
+
 namespace sloam {
 class sloam {
  public:
@@ -107,6 +117,16 @@ class sloam {
 
   std::vector<Plane> getPrevGroundModel();
   CloudT getPrevGroundFeatures();
+
+  // Relative Inter-Robot Factor Generation
+  void FindRelativeMeasurementMatch(std::vector<size_t>& pose_counter_robot_,
+                 const std::unordered_map<size_t, robotData>& robotDataDict_,
+                                                             int hostRobotID,
+                                    std::vector<RelativeMeasMatch>& matches);
+  void GetIndexClosestPoseMstPair(std::deque<PoseMstPair> &poseMstPacket, 
+            ros::Time stamp, int &indexClosest, double &timeDiffClosest);
+  std::vector<RelativeMeas> feasible_relative_meas_for_factors; // All measurements that could still be used to generate a factor
+  std::mutex feasRelMeasVectorMtx_;
 
  private:
   // Pose of ANCHOR frame in the Map frame
