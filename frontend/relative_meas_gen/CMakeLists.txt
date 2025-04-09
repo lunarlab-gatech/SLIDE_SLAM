@@ -25,7 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp sloam_msgs
+  CATKIN_DEPENDS roscpp sloam_msgs roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -204,7 +204,7 @@ if (CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(apriltag_test tests/apriltag_test.cpp src/apriltag_wrapper.cpp)
   target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
-  target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES})
+  target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES} ${roslib_LIBRARIES})
 endif()
 
 ## Add folders to be run by python nosetests
