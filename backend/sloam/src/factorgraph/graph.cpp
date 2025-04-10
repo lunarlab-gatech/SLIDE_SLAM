@@ -19,37 +19,6 @@ SemanticFactorGraph::SemanticFactorGraph() {
 
   // Get the start time
   start_time_ = ros::Time::now();
-
-  // VERY IMPORTANT: the first three corresponds to Rotation and the last three
-  // corresponds to Translation
-  Vector6 noise_vec_prior_first_pose;
-  noise_vec_prior_first_pose << 0.000001, 0.000001, 0.000001, 0.00001, 0.00001,
-      0.00001;
-  noise_model_prior_first_pose =
-      noiseModel::Diagonal::Sigmas(noise_vec_prior_first_pose);
-
-  // Landmark Noise model
-  // TODO(xu:) update the cylinder measurement noise
-  noise_model_cylinder =
-      noiseModel::Diagonal::Sigmas(100 * Vector7::Ones() * 4);
-
-  // TODO(xu:) update the cuboid measurement noise
-  double stddev_angle = 5 * (3.14 / 180);  // 120.0 * (3.14 / 180);
-  double stddev_pos = 1.0;                 // 3.0;
-  Vector9 noise_vec;
-  noise_vec << stddev_angle, stddev_angle, stddev_angle, stddev_pos, stddev_pos,
-      stddev_pos, stddev_pos, stddev_pos, stddev_pos;
-  noise_model_cube = noiseModel::Diagonal::Sigmas(noise_vec);
-
-  // For range and bearing (ellipsoid objects) measurements
-  double bearing_noise_std_temp = 1;
-  noise_model_bearing = noiseModel::Isotropic::Sigma(3, bearing_noise_std_temp);
-
-  Vector6 noise_model_pose_vec;
-  noise_model_pose_vec << 0.01, 0.01, 0.01, 0.02, 0.02, 0.02; // 2% drift per dist traveled & 0.5 degree
-  noise_model_pose = noiseModel::Diagonal::Sigmas(noise_model_pose_vec);
-  noise_model_closure =
-      noiseModel::Diagonal::Sigmas(noise_model_pose_vec * 0.01);
 }
 
 void SemanticFactorGraph::setPriors(const Pose3 &pose_prior,
@@ -74,26 +43,21 @@ void SemanticFactorGraph::setPriors(const Pose3 &pose_prior,
 
 void SemanticFactorGraph::addKeyPoseAndBetween(
     const size_t prevIdx, const size_t curIdx, const Pose3 &relativeMotion,
-    const std::array<double, 6> relativeMotionCov,
     const Pose3 &poseEstimate, const int &robotID, const bool &loopClosureFound,
     const SE3 &loop_closure_relative_pose,
     const size_t &closure_matched_pose_idx) {
   
-  Vector6 cur_noise_vec;
-   // scale covariance by travel distance so that motion uncertainty is properly
-  // accounted for
-  cur_noise_vec = noise_model_pose->sigmas();
-  double relative_dist = relativeMotion.translation().norm();
-  // clip the relative dist to avoid numerical issues when optimizing
-  if (relative_dist < 0.1) {
-    relative_dist = 0.1;
-  }
-  Vector6 noise_vec_scaled_by_travel_dist = cur_noise_vec * relative_dist;
+  // Calculate the covariance for the relative motion
+  Vector6 noise_vec;
+
+  // Scale covariance by travel distance 
+  double relative_dist = std::max(relativeMotion.translation().norm(), noise_floor);
+  noise_vec = noise_model_odom_vec * relative_dist;
 
   // noiseModel::Diagonal::Sigmas() takes in standard deviation, not variance
   fgraph.add(BetweenFactor<Pose3>(
       getSymbol(robotID, prevIdx), getSymbol(robotID, curIdx), relativeMotion,
-      noiseModel::Diagonal::Sigmas(noise_vec_scaled_by_travel_dist)));
+      noiseModel::Diagonal::Sigmas(noise_vec)));
 
   // Only for active SLAM
   // fgraph_loop.add(BetweenFactor<Pose3>(

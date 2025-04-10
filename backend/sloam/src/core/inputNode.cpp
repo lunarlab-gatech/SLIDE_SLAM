@@ -30,16 +30,9 @@ InputManager::InputManager(ros::NodeHandle nh)
   nh_.param<int>(idName, hostRobotID_, 0);
   nh_.param<bool>(node_name + "/turn_off_intra_loop_closure",
                   turn_off_intra_loop_closure_, false);
-  nh_.param(node_name+"/turn_off_rel_inter_robot_factor", 
-                  turn_off_rel_inter_robot_factor, true);
 
   auto sloam_ptr = boost::make_shared<sloam::SLOAMNode>(nh_);
   sloam_ = std::move(sloam_ptr);
-
-  // Print information about parameters
-  if (turn_off_intra_loop_closure_) {
-    ROS_INFO_ONCE("Intra Loop closure is turned off, the default of the variable is false");
-  }
 }
 
 void InputManager::RunInputNode(const ros::TimerEvent &e) {
@@ -58,10 +51,8 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
   if (robot.robotOdomReceived_) {
     // if odom has been updated in sloam, use the relative odom pose and add
     // it to the previous sloam pose
-    SE3 latestRelativeMotionFactorGraph =
-        robot.robotLatestOdom_.pose.inverse() * cur_vio_odom.pose;
-    highFreqSLOAMPose =
-        robot.robotLastSLOAMKeyPose_ * latestRelativeMotionFactorGraph;
+    SE3 latestRelativeMotionFactorGraph = robot.robotLatestOdom_.pose.inverse() * cur_vio_odom.pose;
+    highFreqSLOAMPose = robot.robotLastSLOAMKeyPose_ * latestRelativeMotionFactorGraph;
     odom_stamp = cur_vio_odom.stamp;
   } else {
     // directly take current odometry and publish
@@ -139,7 +130,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
         StampedSE3 validStampedPose;
         validStampedPose.pose = relativeMeas.odomPose;
         validStampedPose.stamp = relativeMeas.stamp;
-        validStampedPose.covariance = relativeMeas.covariance;
         latestObservation.stampedPose = validStampedPose;
 
         // If we observed another robot (rather than being observed)
@@ -169,11 +159,6 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
     StampedSE3 raw_vio_odom_used_for_sloam = latestObservation.stampedPose;
     SE3 relativeRawOdomMotion = robot.robotLatestOdom_.pose.inverse() * raw_vio_odom_used_for_sloam.pose;
 
-    // Estimate the covariance of the relative motion
-    std::array<double, 6> relativeRawOdomCovariance = computeRelativeMotionCovariance(
-        robot.robotLatestOdom_.pose, robot.robotLatestOdom_.covariance,
-        raw_vio_odom_used_for_sloam.pose, raw_vio_odom_used_for_sloam.covariance);
-
     // Get the Previous Key Pose
     SE3 prevKeyPose;
     if (robot.robotKeyPoses_.size() > 0) {
@@ -186,7 +171,7 @@ void InputManager::RunInputNode(const ros::TimerEvent &e) {
     // Send the measurement to SLOAM
     SE3 keyPose;
     bool success = sloam_->runSLOAMNode(
-        relativeRawOdomMotion, relativeRawOdomCovariance, prevKeyPose, 
+        relativeRawOdomMotion, prevKeyPose, 
         latestObservation.cylinders, latestObservation.cubes, 
         latestObservation.ellipsoids, latestObservation.stampedPose.stamp, 
         keyPose, hostRobotID_);
@@ -210,7 +195,6 @@ void InputManager::updateLastPose(const StampedSE3 &odom, const int &robotID) {
   robot.robotOdomReceived_ = true;
   robot.robotLatestOdom_.pose = odom.pose;
   robot.robotLatestOdom_.stamp = odom.stamp;
-  robot.robotLatestOdom_.covariance = odom.covariance;
   if (robot.robotKeyPoses_.size() == 0) {
     robot.robotLastSLOAMKeyPose_ = robot.robotLatestOdom_.pose;
   } else {

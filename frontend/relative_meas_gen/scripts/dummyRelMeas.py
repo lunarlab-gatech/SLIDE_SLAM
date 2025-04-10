@@ -107,6 +107,9 @@ if __name__ == '__main__':
     rospy.init_node(node_name)
     meas_gen = DummyRelativeMeasGen()
 
+    # NOTE: NODE NOT FULLY IMPLEMENTED/TESTED
+    raise NotImplementedError("This node is not fully implemented or tested. Please check the code and test it before use.")
+
     # Run until shutdown
     while not rospy.is_shutdown():
         rospy.spin()

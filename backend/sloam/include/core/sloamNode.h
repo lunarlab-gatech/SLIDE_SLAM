@@ -24,7 +24,6 @@
 #include <cube.h>
 #include <cubeMapManager.h>
 #include <cylinderMapManager.h>
-#include <databaseManager.h>
 #include <definitions.h>
 #include <ellipsoid.h>
 #include <ellipsoidMapManager.h>
@@ -63,7 +62,6 @@ class SLOAMNode : public sloam {
 
   // timestamp is used for visualization
   bool runSLOAMNode(const SE3 &relativeRawOdomMotion, 
-                    std::array<double, 6> relativeRawOdomMotionCov,
                     const SE3 &prevKeyPose,
                     const std::vector<Cylinder> &cylindersBody,
                     const std::vector<Cube> &cubesBody,
@@ -112,7 +110,7 @@ class SLOAMNode : public sloam {
       const std::vector<std::vector<TreeVertex>> &landmarks);
   void publishMap_(const ros::Time stamp);
   void publishCubeMaps_(const ros::Time stamp);
-  void publishInterRobotFactors(const int &robotID);
+  void publishInterRobotFactors();
 
   bool prepareInputs_(const SE3 relativeMotion, const SE3 prevKeyPose,
                       CloudT::Ptr tree_cloud, CloudT::Ptr ground_cloud,
@@ -122,8 +120,7 @@ class SLOAMNode : public sloam {
   void intraLoopClosureThread_();
   void interLoopClosureThread_();
   void relInterRobotFactorThread_();
-  void GetIndexClosestPoseMstPair(std::deque<PoseMstPair> &poseMstPacket, ros::Time stamp, int &indexClosest, double &timeDiffClosest);
-
+  
   std::vector<Eigen::Vector3d> extractPosition(
       const std::vector<Cylinder> &candidateCylinderObs,
       const std::vector<Cube> &candidateCubeObs,
@@ -190,9 +187,7 @@ class SLOAMNode : public sloam {
   // Relative Measurement Factor Generation
   ros::Time last_rel_inter_robot_factor_stamp_;
   std::thread relInterRobotFactorthread_;
-  std::vector<RelativeMeas> feasible_relative_meas_for_factors; // All measurements that could still be used to generate a factor
   std::vector<RelativeInterRobotFactor> relative_inter_robot_factors; // All measurements that have been used to generate a factor
-  std::mutex feasRelMeasVectorMtx_;
   std::mutex relInterRobotFactorsMtx_;
 
   // For cuboid semantic landmarks

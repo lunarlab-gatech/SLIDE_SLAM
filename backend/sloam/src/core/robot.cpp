@@ -93,11 +93,8 @@ void Robot::RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg) {
     return;
   } 
 
-  // Extract covariance
-  std::array<double, 6> covariance = ExtractCovarianceFromOdometry(*odom_msg);
-
   // Add odometry to the queue, and pop the oldest one if the queue is too long
-  robotOdomQueue_.emplace_back(odom, odomStamp, covariance);
+  robotOdomQueue_.emplace_back(odom, odomStamp);
   if (robotOdomQueue_.size() > 10 * maxQueueSize_) robotOdomQueue_.pop_front();
 }
 
@@ -113,7 +110,6 @@ void Robot::RobotObservationCb(const sloam_msgs::SemanticMeasSyncOdom &observati
   cur_observation.stampedPose.pose =
       databaseManager::toSE3Pose(observation_msg.odometry.pose.pose);
   cur_observation.stampedPose.stamp = observation_msg.header.stamp;
-  cur_observation.stampedPose.covariance = ExtractCovarianceFromOdometry(observation_msg.odometry);
 
   std::vector<Cube> scan_cubes_body;
   int total_cuboids = observation_msg.cuboid_factors.size();
@@ -168,12 +164,10 @@ void Robot::RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurementO
       cur_measurement.onlyUseOdom = false;
       cur_measurement.robotIndex = relativeMeas_msg.robotIdObserved;
       cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserver.pose.pose);
-      cur_measurement.covariance = ExtractCovarianceFromOdometry(relativeMeas_msg.odometryObserver);
     } else {
       cur_measurement.onlyUseOdom = true;
       cur_measurement.robotIndex = relativeMeas_msg.robotIdObserver;
       cur_measurement.odomPose = databaseManager::toSE3Pose(relativeMeas_msg.odometryObserved.pose.pose);
-      cur_measurement.covariance = ExtractCovarianceFromOdometry(relativeMeas_msg.odometryObserved);
     }
 
     robotRelativeMeasQueue_.push_back(cur_measurement);
@@ -216,22 +210,6 @@ std::vector<Ellipsoid> Robot::rosEllipsoid2EllipObj(
 }
 
 void Robot::PrintLateMsgWarning(const std::string &msg_type) {
-  ROS_WARN_STREAM_THROTTLE(10, msg_type << "message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
-  ROS_WARN_STREAM_THROTTLE(10, "Please increase `msg_delay_tolerance` to account for lag in your system");
-}
-
-/**
- * @brief This method extracts the covariance values from a
- * nav_msgs::Odometry message.
- * 
- * @param odom_msg: The odometry message from which to extract the covariance.
- * @return A std::array containing the covariance diagonal values (in XYZRPY order)
- */
-std::array<double, 6> Robot::ExtractCovarianceFromOdometry(nav_msgs::Odometry odom_msg) {
-  std::array<double, 6> covariance;
-  for (size_t i = 0; i < 6; i++) {
-    // Absolute value used in case some very small covariance values come in negative
-    covariance[i] = std::abs(odom_msg.pose.covariance[i * 6 + i]);
-  }
-  return covariance;
+  ROS_WARN_STREAM_ONCE(msg_type << " message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
+  ROS_WARN_STREAM_ONCE("To avoid this, increase `msg_delay_tolerance` to account for lag in your system");
 }

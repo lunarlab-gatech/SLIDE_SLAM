@@ -89,7 +89,6 @@ class SemanticFactorGraphWrapper : public SemanticFactorGraph {
                            const std::vector<int> &ellipsoid_matches,
                            const std::vector<Ellipsoid> &ellipsoids,
                            const SE3 &relativeMotion, 
-                           const std::array<double, 6> relativeMotionCov,
                            const SE3 &poseEstimates,
                            const int &robotID, bool opt = true);
 
@@ -124,13 +123,14 @@ class SemanticFactorGraphWrapper : public SemanticFactorGraph {
 
   size_t pose_counter_robot1_;
   size_t pose_counter_robot2_;
+  
   size_t getPoseCounterById(const int &robotID) const;
+  std::vector<size_t> pose_counter_robot_;
 
  private:
   size_t cyl_counter_;
   size_t cube_counter_;
   size_t point_landmark_counter_;
-  std::vector<size_t> pose_counter_robot_;
   std::vector<gtsam::Pose3> robot_prev_pose_;
 
   // ROS NodeHandle for getting rosparams

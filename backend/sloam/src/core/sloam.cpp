@@ -117,10 +117,10 @@ void sloam::matchCubeModels(const std::vector<T> &currObjects,
   size_t obj_counter = 0;
 
   if (currObjects.size() == 0) {
-    ROS_WARN("No cube detected in current scan!");
+    ROS_WARN_THROTTLE(20, "No cube detected in current scan!");
     return;
   } else if (mapObjects.size() == 0) {
-    ROS_WARN("No cube in submap!");
+    ROS_WARN_THROTTLE(20, "No cube in submap!");
     return;
   }
 
@@ -152,7 +152,7 @@ void sloam::matchCubeModels(const std::vector<T> &currObjects,
     }
     obj_counter++;
   }
-  std::cout << "total scan objects in matchCubeModels:" << obj_counter << '\n';
+  //std::cout << "total scan objects in matchCubeModels:" << obj_counter << '\n';
 }
 
 template <typename T>
@@ -161,10 +161,10 @@ void sloam::matchEllipsoidModels(const std::vector<T> &currObjects,
                                  std::vector<int> &matchIndices) {
 
   if (currObjects.size() == 0) {
-    ROS_WARN_STREAM_THROTTLE(1.0, "No Ellipsoid detected in current scan!");
+    ROS_WARN_STREAM_THROTTLE(20.0, "No Ellipsoid detected in current scan!");
     return;
   } else if (mapObjects.size() == 0) {
-    ROS_WARN("No Ellipsoid in submap!");
+    ROS_WARN_THROTTLE(20.0, "No Ellipsoid in submap!");
     return;
   }
   // TODO(ankit): Make ellip_match_search_threshold and valid_match_treshold a parameter
@@ -304,5 +304,139 @@ bool sloam::RunSloam(SloamInput &in, SloamOutput &out) {
     return success;
   }
 } // end of RunSloam
+
+/**
+ * @brief Iterates through each relative measurement and checks
+ * if a corresponding pair of robot poses (within reasonable
+ * time) are found within the graph. Return all the matches.
+ * 
+ * @param pose_counter_robot_: The pose counters for each robot,
+ *   which tracks the number of pose variables in the factor graph.
+ * @param robotDataDict_: The robot data dictionary, which contains
+ *   all recieved robot data for each robot.
+ * @param hostRobotID: The ID of the current robot.
+ * @param[out] matches: The vector of relative measurements that have
+ *   matches onto poses for both robots in the factor graph.
+ */
+void sloam::FindRelativeMeasurementMatch(std::vector<size_t>& pose_counter_robot_,
+                      const std::unordered_map<size_t, robotData>& robotDataDict_,
+                                                                  int hostRobotID,
+                                         std::vector<RelativeMeasMatch>& matches) {
+  // Lock mutexes
+  feasRelMeasVectorMtx_.lock();
+
+  // Maximum time difference between relative inter robot measurement and stamped pose
+  // in order to add measurement to the factor graph
+  double maxTimeDiff = 0.001; // 1 ms
+
+  // Get the data of the host robot
+  std::deque<PoseMstPair> poseMstPacketHost = robotDataDict_.at(hostRobotID).poseMstPacket;
+
+  // Only run loop closures if we have relative inter-robot measurements waiting
+  if (feasible_relative_meas_for_factors.size() > 0) {
+    // Prepare return variables
+    int indexClosestHostRobot;
+    int indexClosestOtherRobot;
+    double timeDiffClosest;
+
+    // Try to add each relative measurement
+    for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
+      RelativeMeas relativeMeas = feasible_relative_meas_for_factors[i];
+
+      // Make sure that the robot ID is not the same as the host robot
+      if (relativeMeas.robotIndex == hostRobotID) { 
+        feasRelMeasVectorMtx_.unlock();
+        throw std::runtime_error("robotIndex should not be the same as hostRobotID");
+      }
+
+      // Make sure that onlyUseOdom is not true
+      if (relativeMeas.onlyUseOdom) { 
+        feasRelMeasVectorMtx_.unlock();
+        throw std::runtime_error("onlyUseOdom measurements shouldn't get to this function");
+      }
+
+      // Iterate through the other robot's poses, and make sure one exists in the factor graph
+      // that is close enough in time to our measurement
+      size_t pose_counter_other = pose_counter_robot_[relativeMeas.robotIndex];
+      std::deque<PoseMstPair> poseMstPacketOther = robotDataDict_.at(relativeMeas.robotIndex).poseMstPacket;
+      GetIndexClosestPoseMstPair(poseMstPacketOther, relativeMeas.stamp, indexClosestOtherRobot, timeDiffClosest);
+      if (indexClosestOtherRobot == -1 || timeDiffClosest > maxTimeDiff ||
+          indexClosestOtherRobot >= pose_counter_other) { 
+            continue; 
+      }
+
+      // Iterate through our own poses, and make sure one exists in the factor graph thats close 
+      // enough in time to our measurement
+      size_t pose_counter_host = pose_counter_robot_[hostRobotID];
+      GetIndexClosestPoseMstPair(poseMstPacketHost, relativeMeas.stamp, indexClosestHostRobot, timeDiffClosest);
+      if (indexClosestHostRobot == -1 || timeDiffClosest > maxTimeDiff ||
+          indexClosestHostRobot >= pose_counter_host) { 
+            continue; 
+      }
+
+      // We found a match
+      matches.push_back(RelativeMeasMatch(relativeMeas, i, indexClosestHostRobot, indexClosestOtherRobot));
+
+      // Remove this measurement from vector, so we don't use it again
+      feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);
+      i--;
+    }
+
+    // Check which measurements are no longer feasible so we can remove them
+    for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
+
+      // Get pose_counters (tracks number of poses added to factor graph)
+      RelativeMeas relativeMeas = feasible_relative_meas_for_factors[i];
+      size_t pose_counter_observed = pose_counter_robot_[relativeMeas.robotIndex];
+      size_t pose_counter_host = pose_counter_robot_[hostRobotID];
+
+      // Get stamp of last poses if factor graphs aren't empty
+      ros::Time stamp_observed(0.0);
+      ros::Time stamp_host(0.0);
+      if (pose_counter_observed > 0) { 
+        stamp_observed = robotDataDict_.at(relativeMeas.robotIndex).poseMstPacket[pose_counter_observed - 1].stamp;
+      } if (pose_counter_host > 0) { 
+        stamp_host = poseMstPacketHost[pose_counter_host - 1].stamp;
+      }
+
+      // If relative measurement stamp is earlier than both, then it can no longer be added
+      if (stamp_observed > relativeMeas.stamp && stamp_host > relativeMeas.stamp) {
+        feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);
+        i--;
+      }
+    }
+  } 
+
+  // Unlock mutexes
+  feasRelMeasVectorMtx_.unlock();
+}
+
+/**
+ * @brief This function searches through the deque of 
+ * PoseMstPair and finds the message with the 
+ * closest timestamp. It returns the corresponding
+ * index. If two entries have the same time difference, 
+ * then the first index in deque is returned.
+ * 
+ * @param std::deque<PoseMstPair> &poseMstPacket : The queue to search.
+ * @param ros::Time stamp : The stamp we compare to.
+ * @param[out] int &indexClosets : Index in postMstPacket that is closest in time.
+ *            Returns -1 if empty.
+ * @param[out] double &timeDiffClosest : The difference in time between stamp and
+ *            the closest PoseMstPair (in seconds).
+ */
+void sloam::GetIndexClosestPoseMstPair(std::deque<PoseMstPair> &poseMstPacket, 
+                  ros::Time stamp, int &indexClosest, double &timeDiffClosest) {
+  indexClosest = -1;
+  timeDiffClosest = std::numeric_limits<double>::max();
+
+  for(int i = 0; i < poseMstPacket.size(); i++) {
+    double currTimeDiff = abs((poseMstPacket[i].stamp - stamp).toSec());
+    if (currTimeDiff < timeDiffClosest) {
+      indexClosest = i;
+      timeDiffClosest = currTimeDiff;
+    }
+  }
+}
 
 } // namespace sloam

@@ -16,6 +16,9 @@ protected:
     std::queue<Observation> robotObservationQueue_10;
     std::deque<RelativeMeas> robotRelativeMeasQueue_10;
     std::deque<StampedSE3> robotOdomQueue_Large;
+    std::deque<StampedSE3> robotOdomQueueFirstToPop_;
+    std::queue<Observation> robotObservationQueueFirstToPop_;
+    std::deque<RelativeMeas> robotRelativeMeasQueueFirstToPop_;
 
     // StampedSE3s
     StampedSE3 robotLatestOdom;
@@ -26,6 +29,7 @@ protected:
 
     InputTest() {
         // Create various ROS times
+        ros::Time time_0(0.0);
         ros::Time time_1(1.0);
         ros::Time time_10(10.0);
         ros::Time time_100(100.0);
@@ -37,6 +41,7 @@ protected:
         oneMeter.translation() = Eigen::Vector3d(1.0, 0.0, 0.0);
         oneMeter_1 = StampedSE3(oneMeter, time_1);
         oneMeter_10 = StampedSE3(oneMeter, time_10);
+        robotLatestOdom.stamp = time_0;
 
         // 1 Queues all have stamps of timestep 1
         robotOdomQueue_1.push_back(oneMeter_1);
@@ -63,6 +68,17 @@ protected:
         // Add a large number of odometry measurements to the queue
         for (int i = 0; i < 100; i++) {
             robotOdomQueue_Large.push_back(StampedSE3(oneMeter, ros::Time(i)));
+        }
+
+        // Add values to be popped
+        for (int i = 0; i < 12; i++) {
+            robotOdomQueueFirstToPop_.push_back(StampedSE3(oneMeter, ros::Time(i)));
+            Observation obs;
+            obs.stampedPose = StampedSE3(oneMeter, ros::Time(i));
+            robotObservationQueueFirstToPop_.push(obs);
+            RelativeMeas relMeas;
+            relMeas.stamp = ros::Time(i);
+            robotRelativeMeasQueueFirstToPop_.push_back(relMeas);
         }
     }
 };
@@ -121,6 +137,15 @@ TEST_F(InputTest, PickNextMeasurementToAdd) {
     input.PickNextMeasurementToAdd(robotOdomQueue_1, robotObservationQueue_10, robotRelativeMeasQueue_1, 
                                    robotLatestOdom, 10.0, 8.0, 0.5, meas_to_add);
     EXPECT_EQ(meas_to_add, 3);
+
+    // Make sure measurements before the most recent graph factor are popped
+    input.PickNextMeasurementToAdd(robotOdomQueueFirstToPop_, robotObservationQueueFirstToPop_, robotRelativeMeasQueueFirstToPop_, 
+                                   identity_10, 12.0, 3.0, 0.5, meas_to_add);
+    EXPECT_EQ(meas_to_add, 0);
+    EXPECT_EQ(robotOdomQueueFirstToPop_.size(), 2);
+    EXPECT_EQ(robotObservationQueueFirstToPop_.size(), 2);
+    EXPECT_EQ(robotRelativeMeasQueueFirstToPop_.size(), 2);
+    EXPECT_EQ(robotOdomQueueFirstToPop_.front().stamp.toSec(), 10.0);
 }
 
 int main(int argc, char **argv) {

@@ -135,7 +135,7 @@ class MultiUGVPub:
 
         # Create the header for the messages
         header = Header()
-        header.stamp = rospy.Time.now()
+        header.stamp = rospy.Time.now() # Assume recieve time is close to publish time
         header.seq = self.sequence_number
         header.frame_id = "jackal0/base_link"
 

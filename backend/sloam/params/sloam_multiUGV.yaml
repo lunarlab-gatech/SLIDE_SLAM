@@ -12,7 +12,8 @@ sloam:
   main_node_rate: 5.0 # rate at which the main node runs, should not be less than the desired keyframe rate (e.g. 1-5 Hz is usually good)
   place_recognition_attempt_time_offset: 7.0 # (keep default unless you know what you are doing) time offset for place recognition attempts for different robot's nodes to avoid extra compute
   #-----------------------------------------------
-  intra_robot_place_recognition_frequency: 0.05 # [intra-robot place recog is default turned off] frequency at which place recognition is run within a robot 
+  intra_robot_place_recognition_frequency: 0.05 # frequency at which place recognition is run within a robot 
+  rel_inter_robot_factor_frequency: 1.0 # frequency at which relative inter-robot factors are attempted to be added
   number_of_robots: 2
   robot_ns_prefix: /robot # robot_namespace will be robot_prefix + ROBOT_ID (e.g. /quadrotor1, /quadrotor2)
   debug_mode: true
@@ -61,7 +62,6 @@ sloam:
     # VERY IMPORTANT: For Pose3 Noise models, ordering is RPYXYZ.
     # Values are standard deviation of the noise in radians and meters respectively
     noise_model_prior_first_pose_vec: [0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001] 
-    use_odom_cov_in_nav_msg: false # If true, ignore noise_model_odom_vec and use the covariance included in the nav_msgs/Odometry message
-    noise_model_odom_vec: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
-    noise_model_cube_vec: [0.017, 0.017, 0.017, 0.05, 0.05, 0.05, 0.01, 0.01, 0.01]
-    noise_model_rel_meas_vec: [0.001, 0.001, 0.001, 0.03, 0.03, 0.03]
+    noise_model_odom_vec: [0.01, 0.01, 0.01, 0.02, 0.02, 0.02] # Assume 2% m drift and 0.5 degrees per dist traveled
+    noise_model_cube_vec: [0.017, 0.017, 0.017, 0.05, 0.05, 0.05, 0.01, 0.01, 0.01] # 0.01 m scale, 0.05 m pos, and 1 degree per unit distance
+    noise_model_rel_meas_vec: [0.001, 0.001, 0.001, 0.03, 0.03, 0.03] # 0.03 m and 0.06 degree per unit distance

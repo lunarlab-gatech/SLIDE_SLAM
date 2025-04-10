@@ -2,8 +2,17 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from geometry_msgs.msg import Pose
 
-# This method calculates the pose of "pose2" in the frame of "pose1"
 def calculate_relative_pose(pose1: Pose, pose2: Pose) -> Pose:
+    """
+    This method calculates the pose of "pose2" in the frame of "pose1"
+
+    Args:
+        pose1 (Pose): The first pose.
+        pose2 (Pose): The second pose.
+    
+    Returns:
+        Pose: The relative pose of pose2 in the frame of pose1.
+    """
     p1 = np.array([pose1.position.x, pose1.position.y, pose1.position.z])
     p2 = np.array([pose2.position.x, pose2.position.y, pose2.position.z])
 

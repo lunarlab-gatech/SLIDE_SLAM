@@ -113,9 +113,6 @@ void databaseManager::poseMstCb_(const sloam_msgs::PoseMstBundle &msgs) {
       // construct a PoseMstPair struct
       poseMst.keyPose = pose;
       poseMst.relativeRawOdomMotion = relativeOdom;
-      for (int i = 0; i < 6; i++) {
-        poseMst.relativeRawOdomMotionCov[i] = singleMsg.relativeRawOdomCov[i];
-      }
       poseMst.stamp = singleMsg.stamp;
       // convert msg to object
       for (int j = 0; j < singleMsg.cylinders.size(); j++) {
@@ -200,7 +197,6 @@ void databaseManager::measureReceivedCommMsgSize(const sloam_msgs::PoseMstBundle
   for (int i = 0; i < msgs.poseMstPair.size(); i++) {
     cur_received_msg_size_bytes += 56;
     cur_received_msg_size_bytes += 56;
-    cur_received_msg_size_bytes += 48; // From covariance
     cur_received_msg_size_bytes +=  8; // For the time stamp (theorized, not proven)
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].ellipsoids.size();
     cur_received_msg_size_bytes += 69*msgs.poseMstPair[i].cubes.size();
@@ -241,9 +237,6 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
         pmMsg.pose = ToRosPoseMsg(pmp.keyPose);
         pmMsg.stamp = pmp.stamp;
         pmMsg.relativeRawOdom = ToRosPoseMsg(pmp.relativeRawOdomMotion);
-        for (int i = 0; i < 6; i++) {
-          pmMsg.relativeRawOdomCov[i] = pmp.relativeRawOdomMotionCov[i];
-        }
         pmMsg.cylinders = obj2RosObjMsg(pmp.cylinderMsts);
         pmMsg.cubes = obj2RosObjMsg(pmp.cubeMsts);
         pmMsg.ellipsoids = obj2RosObjMsg(pmp.ellipsoidMsts);
@@ -254,7 +247,6 @@ void databaseManager::runCommunication_(const ros::TimerEvent &e) {
         cur_publish_msg_size_bytes += 56;
         cur_publish_msg_size_bytes += 56;
         cur_publish_msg_size_bytes += 8; // From time stamp (not proven)
-        cur_publish_msg_size_bytes += 48; // From covariance
       }
 
       for (int i = 0; i < robotMapDict_[curRobotID].size(); i++) {
