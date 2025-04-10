@@ -19,27 +19,6 @@ SemanticFactorGraph::SemanticFactorGraph() {
 
   // Get the start time
   start_time_ = ros::Time::now();
-
-    // For all Pose3 Noise models note that the first three values 
-  // correspond to RPY and the last three corresponds to XYZ. 
-  // Proof from Frank Daellart here: 
-  // https://github.com/borglab/gtsam/issues/205?utm_source=chatgpt.com
-
-  // ================ First Pose Noise models ================
-  noise_model_prior_first_pose = noiseModel::Diagonal::Sigmas(noise_model_prior_first_pose_vec);
-
-  // ================= Loop Closure models =================
-  // It is assumed to have 0.01 of the noise of the odometry
-  noise_model_closure = noiseModel::Diagonal::Sigmas(noise_model_odom_vec * 0.01);
-
-  // ================ Landmark Noise models ================ 
-
-  // TODO: update the cylinder measurement noise
-  noise_model_cylinder = noiseModel::Diagonal::Sigmas(100 * Vector7::Ones() * 4);
-
-  // For range and bearing (ellipsoid objects) measurements
-  double bearing_noise_std_temp = 1;
-  noise_model_bearing = noiseModel::Isotropic::Sigma(3, bearing_noise_std_temp);
 }
 
 void SemanticFactorGraph::setPriors(const Pose3 &pose_prior,
@@ -74,7 +53,6 @@ void SemanticFactorGraph::addKeyPoseAndBetween(
   // Scale covariance by travel distance 
   double relative_dist = std::max(relativeMotion.translation().norm(), noise_floor);
   noise_vec = noise_model_odom_vec * relative_dist;
-  ROS_DEBUG_STREAM("Relative distance: " << relative_dist);
 
   // noiseModel::Diagonal::Sigmas() takes in standard deviation, not variance
   fgraph.add(BetweenFactor<Pose3>(

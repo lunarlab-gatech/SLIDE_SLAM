@@ -122,12 +122,10 @@ class SemanticFactorGraph {
 
  protected:
   // Noise models (per unit of relative distance)
-  double noise_floor = 0.1; // Clipping noises prevents numerical issues
+  double noise_floor = 0.01; // Clipping noises prevents numerical issues
   boost::shared_ptr<noiseModel::Diagonal> noise_model_prior_first_pose;
   Vector6 noise_model_prior_first_pose_vec;
  
-  // If true, ignore noise_model_odom_vec and use the cov from the nav message instead
-  bool use_odom_cov_in_nav_msg_; 
   Vector6 noise_model_odom_vec;
 
   boost::shared_ptr<noiseModel::Diagonal> noise_model_closure;

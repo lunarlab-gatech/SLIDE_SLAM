@@ -29,7 +29,6 @@ SemanticFactorGraphWrapper::SemanticFactorGraphWrapper(const ros::NodeHandle &nh
   std::vector<double> noise_model_rel_meas_temp;
 
   nh_.param("factor_graph/noise_model_prior_first_pose_vec", noise_model_prior_first_pose_temp, std::vector<double>(6, 0.000001));
-  nh_.param("factor_graph/use_odom_cov_in_nav_msg", use_odom_cov_in_nav_msg_, true);
   nh_.param("factor_graph/noise_model_odom_vec", noise_model_odom_temp, std::vector<double>(6, 0.1));
   nh_.param("factor_graph/noise_model_cube_vec", noise_model_cube_temp, std::vector<double>(9, 0.1));
   nh_.param("factor_graph/noise_model_rel_meas_vec", noise_model_rel_meas_temp, std::vector<double>(6, 0.1));
@@ -42,6 +41,27 @@ SemanticFactorGraphWrapper::SemanticFactorGraphWrapper(const ros::NodeHandle &nh
   for(int i = 0; i < 9; i++) {
     noise_model_cube_vec(i) = noise_model_cube_temp[i];
   }
+
+  // For all Pose3 Noise models note that the first three values 
+  // correspond to RPY and the last three corresponds to XYZ. 
+  // Proof from Frank Daellart here: 
+  // https://github.com/borglab/gtsam/issues/205?utm_source=chatgpt.com
+
+  // ================ First Pose Noise models ================
+  noise_model_prior_first_pose = noiseModel::Diagonal::Sigmas(noise_model_prior_first_pose_vec);
+
+  // ================= Loop Closure models =================
+  // It is assumed to have 0.01 of the noise of the odometry
+  noise_model_closure = noiseModel::Diagonal::Sigmas(noise_model_odom_vec * 0.01);
+
+  // ================ Landmark Noise models ================ 
+
+  // TODO: update the cylinder measurement noise
+  noise_model_cylinder = noiseModel::Diagonal::Sigmas(100 * Vector7::Ones() * 4);
+
+  // For range and bearing (ellipsoid objects) measurements
+  double bearing_noise_std_temp = 1;
+  noise_model_bearing = noiseModel::Isotropic::Sigma(3, bearing_noise_std_temp);
 }
 
 // for active team localization
