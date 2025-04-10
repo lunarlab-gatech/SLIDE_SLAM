@@ -798,6 +798,7 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
   pmp.cubeMsts = cubesBodyIn;
   pmp.ellipsoidMsts = ellipsoidBodyIn;
   dbManager.getHostRobotData().poseMstPacket.push_back(pmp);
+ 
   std::vector<Cylinder> cylindersBody;
   std::vector<Cube> cubesBody;
   std::vector<Ellipsoid> ellipsoidBody;

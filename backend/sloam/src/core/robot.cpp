@@ -210,6 +210,6 @@ std::vector<Ellipsoid> Robot::rosEllipsoid2EllipObj(
 }
 
 void Robot::PrintLateMsgWarning(const std::string &msg_type) {
-  ROS_WARN_STREAM_THROTTLE(10, msg_type << " message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
-  ROS_WARN_STREAM_THROTTLE(10, "Please increase `msg_delay_tolerance` to account for lag in your system");
+  ROS_WARN_STREAM_ONCE(msg_type << " message arrived after " << msg_delay_tolerance << " seconds, dicarding...");
+  ROS_WARN_STREAM_ONCE("To avoid this, increase `msg_delay_tolerance` to account for lag in your system");
 }

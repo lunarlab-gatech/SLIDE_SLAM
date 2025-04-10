@@ -382,7 +382,7 @@ void sloam::FindRelativeMeasurementMatch(std::vector<size_t>& pose_counter_robot
       i--;
     }
 
-    // Check which factors are no longer feasible so we can remove them
+    // Check which measurements are no longer feasible so we can remove them
     for(int i = 0; i < feasible_relative_meas_for_factors.size(); i++) {
 
       // Get pose_counters (tracks number of poses added to factor graph)

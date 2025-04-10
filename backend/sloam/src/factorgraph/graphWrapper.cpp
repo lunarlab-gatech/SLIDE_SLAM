@@ -111,9 +111,6 @@ bool SemanticFactorGraphWrapper::addSLOAMObservation(
   gtsam::Pose3 relativeMotion(relativeMotionSE3.matrix());
 
   pose_counter = pose_counter_robot_[robotID];
-  // ROS_INFO_STREAM("################ ROBOT " << robotID << " pose counter: "
-  //                                           << "################");
-  
   if (pose_counter == 0) {
     // set priors for the first pose
     setPriors(curr_pose, robotID);
