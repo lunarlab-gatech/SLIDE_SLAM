@@ -178,7 +178,7 @@ Eigen::Matrix4d ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4
                                     Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag) {
     // Calculate transformation from bot_to_tag
     Eigen::Matrix4d H_bot_to_tag = H_hostBot_to_cam * H_cam_to_tag;
-
+    
     // Invert to get tag to observedBot
     Eigen::Matrix4d T_tag_to_observedBot = H_observedBot_to_tag.inverse();
 

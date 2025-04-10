@@ -36,8 +36,8 @@ jobs:
       run: |
         cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
         export WS_PATH="$(pwd)"
-        chmod +x run_container.sh
-        ./run_container.sh
+        chmod +x run_container_github.sh
+        ./run_container_github.sh
 
     - name: Build SLIDE_SLAM inside Container and run tests
       run: |

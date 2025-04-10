@@ -2,25 +2,7 @@ SlideSlamWs="$WS_PATH" # point to your workspace directory
 SlideSlamCodeDir="$WS_PATH/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
 BAGS_DIR="$WS_PATH/src/SLIDE_SLAM/bags" # point to your bags / data directory
 
-DOCKER_RUN_FLAGS="-d"
-
-# If not running in CI, add -it
-if [ -z "$CI" ]; then
-  DOCKER_RUN_FLAGS="-it"
-fi
-
-EXTRA_VOLUMES=""
-if [ -z "$CI" ]; then
-  EXTRA_VOLUMES+=" --gpus=\"all\""
-  EXTRA_VOLUMES+=" --env=\"DISPLAY=$DISPLAY\""
-  EXTRA_VOLUMES+=" --env=\"QT_X11_NO_MITSHM=1\""
-  EXTRA_VOLUMES+=" --env=\"XAUTHORITY=/root/.Xauthority\""
-  EXTRA_VOLUMES+=" --volume=\"/tmp/.X11-unix:/tmp/.X11-unix:rw\""
-  EXTRA_VOLUMES+=" --volume=\"/home/$USER/.bash_aliases:/root/.bash_aliases\""
-  EXTRA_VOLUMES+=" --volume=\"$XAUTHORITY:/root/.Xauthority:ro\""
-fi
-
-docker run $DOCKER_RUN_FLAGS \
+docker run -d \
     --name="slideslam_ros" \
     --net="host" \
     --privileged \
