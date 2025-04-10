@@ -724,7 +724,7 @@ void SLOAMNode::relInterRobotFactorThread_() {
     for (int i = 0; i < matches.size(); i++) {
 
       // Extract the relative measurement associated with this match
-      RelativeMeas relativeMeas = feasible_relative_meas_for_factors[matches[i].index];
+      RelativeMeas relativeMeas = matches[i].meas;
       
       // Add to the factor graph
       factorGraphMtx_.lock();
@@ -777,7 +777,6 @@ bool SLOAMNode::runSLOAMNode(const SE3 &relativeRawOdomMotion,
     ros::Time last_stamp = dbManager.getHostRobotData().poseMstPacket.back().stamp;
     if (stamp < last_stamp) {
       // Print out all available information on this data
-      ROS_ERROR_STREAM("Current stamp: " << stamp << " Last stamp: " << last_stamp);
       ROS_ERROR_STREAM("Adding a factor with a timestamp earlier than the last "
                         "one in the factor graph! This should never happen.");
     }               

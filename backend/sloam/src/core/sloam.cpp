@@ -375,7 +375,7 @@ void sloam::FindRelativeMeasurementMatch(std::vector<size_t>& pose_counter_robot
       }
 
       // We found a match
-      matches.push_back(RelativeMeasMatch(i, indexClosestHostRobot, indexClosestOtherRobot));
+      matches.push_back(RelativeMeasMatch(relativeMeas, i, indexClosestHostRobot, indexClosestOtherRobot));
 
       // Remove this measurement from vector, so we don't use it again
       feasible_relative_meas_for_factors.erase(feasible_relative_meas_for_factors.begin() + i);

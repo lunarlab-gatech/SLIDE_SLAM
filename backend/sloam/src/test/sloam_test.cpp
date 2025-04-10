@@ -115,6 +115,7 @@ TEST_F(SloamTest, FindRelativeMeasurementMatch) {
     EXPECT_EQ(matches.size(), 1);
     EXPECT_EQ(matches[0].indexClosestHostRobot, 0);
     EXPECT_EQ(matches[0].indexClosestOtherRobot, 0);
+    EXPECT_EQ(matches[0].meas.stamp.toSec(), meas.stamp.toSec());
     EXPECT_EQ(sloamInstance.feasible_relative_meas_for_factors.size(), 0);
 
     // Test with multiple measurements
@@ -122,7 +123,7 @@ TEST_F(SloamTest, FindRelativeMeasurementMatch) {
     sloamInstance.feasible_relative_meas_for_factors.clear();
 
     RelativeMeas meas2;
-    meas2.stamp = ros::Time(7, 0);
+    meas2.stamp = ros::Time(7, 1000);
     meas2.robotIndex = 1;
     meas2.onlyUseOdom = false;
     sloamInstance.feasible_relative_meas_for_factors.push_back(meas);
@@ -145,8 +146,10 @@ TEST_F(SloamTest, FindRelativeMeasurementMatch) {
     EXPECT_EQ(matches.size(), 2);
     EXPECT_EQ(matches[0].indexClosestHostRobot, 0);
     EXPECT_EQ(matches[0].indexClosestOtherRobot, 0);
+    EXPECT_EQ(matches[0].meas.stamp.toSec(), meas.stamp.toSec());
     EXPECT_EQ(matches[1].indexClosestHostRobot, 1);
     EXPECT_EQ(matches[1].indexClosestOtherRobot, 1);
+    EXPECT_EQ(matches[1].meas.stamp.toSec(), meas2.stamp.toSec());
     EXPECT_EQ(sloamInstance.feasible_relative_meas_for_factors.size(), 0);
 
     // Test not adding measurement exceeding time threshold (1ms)

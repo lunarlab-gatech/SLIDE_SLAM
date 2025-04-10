@@ -64,8 +64,10 @@ struct SloamOutput {
 
 // Holds results from FindRelativeMeasurementMatch()
 struct RelativeMeasMatch {
-  RelativeMeasMatch(int i, int h, int o) : index(i),
-        indexClosestHostRobot(h), indexClosestOtherRobot(o) {}
+  RelativeMeasMatch(RelativeMeas m, int i, int h, int o) : 
+        meas(m), index(i), indexClosestHostRobot(h), 
+        indexClosestOtherRobot(o) {}
+  RelativeMeas meas;
   int index;
   int indexClosestHostRobot;
   int indexClosestOtherRobot;
