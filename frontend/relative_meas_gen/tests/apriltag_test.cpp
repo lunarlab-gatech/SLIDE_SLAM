@@ -23,11 +23,7 @@ TEST(apriltag_test, Detect) {
 
     std::vector<apriltag_wrapper> tags = ExtractAprilTags(image, intrinsics, tagsize);
     apriltag_wrapper test_tag = tags[0];
-    std::cout << "Detected tag: " << test_tag.id << std::endl;
-    std::cout << "Expected tag: 6" << std::endl;
-
     EXPECT_EQ(6, test_tag.id);
-
 }
 
 int main(int argc, char **argv) {

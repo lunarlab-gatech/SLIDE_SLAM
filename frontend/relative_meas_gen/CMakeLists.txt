@@ -193,24 +193,15 @@ target_link_libraries(apriltag_meas_gen ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apr
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_relative_meas_gen.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
 if (CATKIN_ENABLE_TESTING)
   find_package(catkin REQUIRED COMPONENTS roscpp rostest)
+  find_package(rostest REQUIRED)
 
+  # Add C++ tests
   catkin_add_gtest(apriltag_test tests/apriltag_test.cpp src/apriltag_wrapper.cpp)
   target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
   target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES} ${roslib_LIBRARIES})
-endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
-
-if(CATKIN_ENABLE_TESTING)
-  find_package(rostest REQUIRED)
-  add_rostest(launch/testCases.launch)
+  # Add Python tests
+  add_rostest(tests/python_tests.launch)
 endif()
