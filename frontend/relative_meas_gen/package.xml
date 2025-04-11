@@ -54,19 +54,24 @@
   <build_depend>rospy</build_depend>
   <build_depend>sloam_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>tf</build_depend>
   <build_depend>gazebo_msgs</build_depend>
   <build_depend>yaml-cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>roslib</build_depend>
   <build_export_depend>apriltag</build_export_depend>
   <build_export_depend>gtest</build_export_depend>
   <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>sloam_msgs</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>gazebo_msgs</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>yaml-cpp</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>roslib</build_export_depend>
   <exec_depend>apriltag</exec_depend>
   <exec_depend>gtest</exec_depend>
   <exec_depend>message_runtime</exec_depend>
@@ -74,6 +79,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>sloam_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>gazebo_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>yaml-cpp</exec_depend>
@@ -81,6 +87,12 @@
   <exec_depend>python-pyproj</exec_depend>
   <exec_depend>message_filters</exec_depend>
   <exec_depend>python-numpy</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>roslib</exec_depend>
+
+
+  <test_depend>rostest</test_depend>
+  <test_depend>gtest</test_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

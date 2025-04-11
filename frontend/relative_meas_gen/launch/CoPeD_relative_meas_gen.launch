@@ -1,0 +1,15 @@
+<launch>
+
+    <!--Set params and launch relative measurement generator-->
+    <include file="$(find relative_meas_gen)/launch/relative_measurement_generator.launch">
+        <arg name="robot_ID" value="0"/>
+        <arg name="host_robot" value="robot0"/>
+        <arg name="camera_ID" value="camera0"/>
+        <arg name="tagsize" value=".17"/>
+        <arg name="measurement_topic" value="/relative_inter_robot_meas"/>
+        <arg name="images_topic" value="/wilbur/stereo_left/image_rect_color/compressed"/>
+        <arg name="config_file" value="$(find relative_meas_gen)/params/CoPeD.yaml"/>
+        <arg name="base_link" value="wilbur/imu_link"/>
+        <arg name="camera_link" value="wilbur/stereo_left_optical_frame"/>
+    </include>
+</launch>

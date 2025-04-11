@@ -1,6 +1,6 @@
-SlideSlamWs="/home/dbutterfield3/slideslam_docker_ws" # point to your workspace directory
-SlideSlamCodeDir="/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
-BAGS_DIR='/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM/bags' # point to your bags / data directory
+SlideSlamWs="/home/cam/Documents/slideslam_docker_ws" # point to your workspace directory
+SlideSlamCodeDir="/home/cam/Documents/slideslam_docker_ws/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
+BAGS_DIR='/home/cam/Documents/slideslam_docker_ws/src/SLIDE_SLAM/bags' # point to your bags / data directory
 
 docker run -it \
     --name="slideslam_ros" \
@@ -17,7 +17,7 @@ docker run -it \
     --volume="/home/$USER/.bash_aliases:/root/.bash_aliases" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
-    --volume="$XAUTHORITY:/root/.Xauthority:ro"
+    --volume="$XAUTHORITY:/root/.Xauthority:ro" \
     slideslam_ros_image \
     bash
 

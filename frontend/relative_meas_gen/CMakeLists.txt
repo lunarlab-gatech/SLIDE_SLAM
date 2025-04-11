@@ -15,15 +15,28 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   rospy
+  roslib
+  rostest
   sloam_msgs
   std_msgs
   sensor_msgs
+  tf
+)
+
+catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS roscpp sloam_msgs roslib
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(apriltag)
+find_package(PkgConfig)
+pkg_search_module(apriltag REQUIRED apriltag)
+find_package(OpenCV REQUIRED)
 find_package(yaml-cpp)
+find_package(Eigen3 REQUIRED)
+
+set(apriltag_INCLUDE_DIRS "${apriltag_INCLUDE_DIRS}/apriltag")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -33,33 +46,6 @@ catkin_python_setup()
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a exec_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a exec_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -110,12 +96,14 @@ catkin_python_setup()
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#  catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES relative_meas_gen
+#  LIBRARIES relative_measdd_executable(apriltag_measurer src/apriltag_meas_gen.cpp)
+#target_link_libraries(apriltag_measurer ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+#_gen
 #  CATKIN_DEPENDS apriltag gtest message_generation message_runtime nav_msgs roscpp rospy sloam_msgs std_msgs std_msgs yaml-cpp
 #  DEPENDS system_lib
-)
+#)
 
 ###########
 ## Build ##
@@ -126,8 +114,17 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
   ${apriltag_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIR}
+  ${roscpp_INCLUDE_DIRS}
+  include
 )
+
+add_executable(apriltag_meas_gen src/apriltag_meas_gen.cpp src/apriltag_wrapper.cpp)
+add_dependencies(apriltag_meas_gen ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+set_target_properties(apriltag_meas_gen PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/lib/${PROJECT_NAME})
+target_link_libraries(apriltag_meas_gen ${catkin_LIBRARIES} ${OpenCV_LIBS} ${apriltag_LIBRARIES} yaml-cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -181,16 +178,7 @@ include_directories(
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
+# install(TARGEstd::string package_path = ros::package::getPath("relative_meas_gen");TCHING PATTERN "*.h"
 #   PATTERN ".svn" EXCLUDE
 # )
 
@@ -205,16 +193,15 @@ include_directories(
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_relative_meas_gen.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
-
-if(CATKIN_ENABLE_TESTING)
+if (CATKIN_ENABLE_TESTING)
+  find_package(catkin REQUIRED COMPONENTS roscpp rostest)
   find_package(rostest REQUIRED)
-  add_rostest(launch/testCases.launch)
+
+  # Add C++ tests
+  catkin_add_gtest(apriltag_test tests/apriltag_test.cpp src/apriltag_wrapper.cpp)
+  target_link_libraries(apriltag_test ${catkin_LIBRARIES} GTest::GTest GTest::Main)
+  target_link_libraries(apriltag_test ${OpenCV_LIBS} ${apriltag_LIBRARIES} ${roslib_LIBRARIES})
+
+  # Add Python tests
+  add_rostest(tests/python_tests.launch)
 endif()
