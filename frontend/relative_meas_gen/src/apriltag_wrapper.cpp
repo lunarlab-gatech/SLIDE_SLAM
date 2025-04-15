@@ -84,11 +84,19 @@ std::vector<apriltag_wrapper> ExtractAprilTags(cv::Mat img, double intrinsics[4]
     return tags;
 }
 
-cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg) {
-    //Undistort Image
+cv::Mat MatFromImage(const sensor_msgs::CompressedImage msg, double intrinsics[4], double dist_coefficients[4]) {
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 
+                             intrinsics[0], 0, intrinsics[1],
+                             0, intrinsics[2], intrinsics[3],
+                             0, 0, 1);
+    
+    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5) << 
+    dist_coefficients[0], dist_coefficients[1], dist_coefficients[2], dist_coefficients[3], 0.0);
     cv::Mat raw_data(1, msg.data.size(), CV_8UC1, (void*)msg.data.data());
     cv::Mat image = cv::imdecode(raw_data, cv::IMREAD_COLOR);
     cv::Mat gray;
     cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-    return gray;
+    cv::Mat undistorted;
+    cv::undistort(gray, undistorted, cameraMatrix, distCoeffs);
+    return undistorted;
 }

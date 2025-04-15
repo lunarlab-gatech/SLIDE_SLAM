@@ -3,7 +3,7 @@
 void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
       
     // Extract image
-    cv::Mat img = MatFromImage(msg);
+    cv::Mat img = MatFromImage(msg, this->intrinsics, this->dist_coefficients);
     if (img.empty()) {
         std::cerr << "Error: Decoded image is empty!" << std::endl;
         return;
@@ -106,33 +106,45 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     // Load config file
     config = YAML::LoadFile(config_file);
 
-    std::string base_link;
-    std::string camera_link;
-    nh_.param<std::string>("apriltag_node/base_link", base_link, "/default_base_link");
-    nh_.param<std::string>("apriltag_node/camera_link", camera_link, "/default_cam_link");
+    std::string dataset = config["dataset"].as<std::string>();
+    if (dataset == "CoPeD") {
+        if (robot_ID == 0 || robot_ID ==1) {
+            std::string base_link;
+            std::string camera_link;
+            nh_.param<std::string>("apriltag_node/base_link", base_link, "/default_base_link");
+            nh_.param<std::string>("apriltag_node/camera_link", camera_link, "/default_cam_link");
 
-    // Get bot to cam transformation from tf tree
-    tf::TransformListener listener;
-    tf::StampedTransform transformStamped;
+            // Get bot to cam transformation from tf tree
+            tf::TransformListener listener;
+            tf::StampedTransform transformStamped;
 
-    listener.waitForTransform(camera_link, base_link, ros::Time::now(), ros::Duration(5.0));
-    listener.lookupTransform(camera_link, base_link, ros::Time::now(), transformStamped);
+            listener.waitForTransform(camera_link, base_link, ros::Time::now(), ros::Duration(5.0));
+            listener.lookupTransform(camera_link, base_link, ros::Time::now(), transformStamped);
 
-    double x, y, z, qw, qx, qy, qz;
-    x = transformStamped.getOrigin().x();
-    y = transformStamped.getOrigin().y();
-    z = transformStamped.getOrigin().z();
-    qw = transformStamped.getRotation().w();
-    qx = transformStamped.getRotation().x();
-    qy = transformStamped.getRotation().y();
-    qz = transformStamped.getRotation().z();
+            double x, y, z, qw, qx, qy, qz;
+            x = transformStamped.getOrigin().x();
+            y = transformStamped.getOrigin().y();
+            z = transformStamped.getOrigin().z();
+            qw = transformStamped.getRotation().w();
+            qx = transformStamped.getRotation().x();
+            qy = transformStamped.getRotation().y();
+            qz = transformStamped.getRotation().z();
 
-    Eigen::Vector3d translation = Eigen::Vector3d(x, y, z);
-    Eigen::Quaterniond q = Eigen::Quaterniond(qw, qx, qy, qz);
+            Eigen::Vector3d translation = Eigen::Vector3d(x, y, z);
+            Eigen::Quaterniond q = Eigen::Quaterniond(qw, qx, qy, qz);
 
-    bot_to_cam = Eigen::Matrix4d::Identity();
-    bot_to_cam.block<3,1>(0,3) = translation;
-    bot_to_cam.block<3,3>(0,0) = q.toRotationMatrix();
+            bot_to_cam = Eigen::Matrix4d::Identity();
+            bot_to_cam.block<3,1>(0,3) = translation;
+            bot_to_cam.block<3,3>(0,0) = q.toRotationMatrix();
+        } else {
+            bot_to_cam = Eigen::Matrix4d::Identity();
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    bot_to_cam(i, j) = config[host_robot][camera_ID]["T_cam_imu"][i][j].as<double>();
+                }
+            }
+        }
+    }
 
     // Load host_robot properties
     double fx = config[host_robot][camera_ID]["fx"].as<double>();
@@ -144,6 +156,10 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
     intrinsics[1] = cx;
     intrinsics[2] = fy;
     intrinsics[3] = cy;
+
+    for (int i = 0; i < 4; i++) {
+        dist_coefficients[i] = config[host_robot][camera_ID]["distortion_coeffs"][i].as<double>();
+    }
 
     // Instantiate sub and pub
     robot_images_sub = nh_.subscribe(image_topic, 1, &ApriltagMeasurer::imageCallback, this);

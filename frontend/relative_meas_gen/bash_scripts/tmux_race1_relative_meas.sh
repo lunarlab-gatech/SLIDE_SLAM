@@ -43,7 +43,7 @@ tmux split-window -h -t $SESSION_NAME
 #tmux select-pane -t $SESSION_NAME:1.0
 #tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch sloam decentralized_sloam.launch enable_rviz:=false" Enter
 tmux select-pane -t $SESSION_NAME:1.1
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock -r $BAG_PLAY_RATE -s 0 --topics /wilbur/lidar_points /tf /tf_static /race1/main_camera/image_raw/compressed /wilbur/imu/data /wilbur/stereo_left/image_rect_color/compressed /wilbur/lidar_points:=/robot0/lidar_points /wilbur/imu/data:=/robot0/imu/data" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock -r $BAG_PLAY_RATE -s 150" Enter
 tmux select-layout -t $SESSION_NAME tiled
 
 # Add window for roscore
