@@ -1,9 +1,11 @@
 #include <place_recognition.h>
+#include <ros/package.h>
 
 // Either use randomly generated objects or load objects from your own test data
 bool use_generated_objects = false;
-std::string file_path_robot0 = "/home/sam/slideslam_ws/src/SLIDE_SLAM/backend/sloam/clipper_semantic_object/examples/data/robot0Map_indoor.txt";
-std::string file_path_robot1 = "/home/sam/slideslam_ws/src/SLIDE_SLAM/backend/sloam/clipper_semantic_object/examples/data/robot1Map_indoor.txt";
+std::string package_path = ros::package::getPath("sloam");
+std::string file_path_robot0 = package_path + "/clipper_semantic_object/examples/data/robot0Map_indoor.txt";
+std::string file_path_robot1 = package_path + "/clipper_semantic_object/examples/data/robot1Map_indoor.txt";
 bool visualize_matching_results = true;
 
 // generate a set of 50 objects of various classes and span over a 100 m by 100

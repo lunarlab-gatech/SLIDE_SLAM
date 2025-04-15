@@ -1,0 +1,48 @@
+name: SLIDE SLAM Tests
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build-and-test:
+    name: "SLIDE_SLAM build-and-test"
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Pull Prebuilt Docker Image
+      run: |
+        docker pull xurobotics/slide-slam:latest
+
+    - name: Set Up Workspace and Clone Repo
+      run: |
+        mkdir -p ~/slideslam_docker_ws/src
+        cd ~/slideslam_docker_ws/src
+        git clone https://github.com/lunarlab-gatech/SLIDE_SLAM.git
+
+    - name: Build Docker Image
+      run: |
+        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
+        git checkout apriltag
+        ./build_image.sh
+
+    - name: Run Docker Container
+      run: |
+        cd ~/slideslam_docker_ws/src/SLIDE_SLAM/docker
+        export WS_PATH="$(pwd)"
+        chmod +x run_container_github.sh
+        ./run_container_github.sh
+
+    - name: Build SLIDE_SLAM inside Container and run tests
+      run: |
+        docker start slideslam_ros
+        docker cp ~/slideslam_docker_ws/src/SLIDE_SLAM/backend slideslam_ros:/opt/slideslam_docker_ws/src/SLIDE_SLAM
+        docker cp ~/slideslam_docker_ws/src/SLIDE_SLAM/frontend slideslam_ros:/opt/slideslam_docker_ws/src/SLIDE_SLAM
+        docker exec slideslam_ros bash -c "source /opt/ros/noetic/setup.bash && cd /opt/slideslam_docker_ws && catkin_make && source devel/setup.bash"
+        docker exec slideslam_ros bash -c "source /opt/ros/noetic/setup.bash && source /opt/slideslam_docker_ws/devel/setup.bash && cd /opt/slideslam_docker_ws && catkin_make run_tests && catkin_test_results --verbose"

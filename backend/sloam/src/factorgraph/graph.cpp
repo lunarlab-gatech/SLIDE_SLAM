@@ -17,36 +17,7 @@ SemanticFactorGraph::SemanticFactorGraph() {
   isam_params.relinearizeThreshold = 0.1;
   isam = new ISAM2(isam_params);
 
-  // VERY IMPORTANT: the first three corresponds to Rotation and the last three
-  // corresponds to Translation
-  Vector6 noise_vec_prior_first_pose;
-  noise_vec_prior_first_pose << 0.000001, 0.000001, 0.000001, 0.00001, 0.00001,
-      0.00001;
-  noise_model_prior_first_pose =
-      noiseModel::Diagonal::Sigmas(noise_vec_prior_first_pose);
-
-  // Landmark Noise model
-  // TODO(xu:) update the cylinder measurement noise
-  noise_model_cylinder =
-      noiseModel::Diagonal::Sigmas(100 * Vector7::Ones() * 4);
-
-  // TODO(xu:) update the cuboid measurement noise
-  double stddev_angle = 5 * (3.14 / 180);  // 120.0 * (3.14 / 180);
-  double stddev_pos = 1.0;                 // 3.0;
-  Vector9 noise_vec;
-  noise_vec << stddev_angle, stddev_angle, stddev_angle, stddev_pos, stddev_pos,
-      stddev_pos, stddev_pos, stddev_pos, stddev_pos;
-  noise_model_cube = noiseModel::Diagonal::Sigmas(noise_vec);
-
-  // For range and bearing (ellipsoid objects) measurements
-  double bearing_noise_std_temp = 1;
-  noise_model_bearing = noiseModel::Isotropic::Sigma(3, bearing_noise_std_temp);
-
-  Vector6 noise_model_pose_vec = Vector6::Ones() * 0.00001;
-  noise_model_pose = noiseModel::Diagonal::Sigmas(noise_model_pose_vec);
-  noise_model_closure =
-      noiseModel::Diagonal::Sigmas(noise_model_pose_vec * 0.01);
-      
+  // Get the start time
   start_time_ = ros::Time::now();
 }
 
@@ -70,87 +41,23 @@ void SemanticFactorGraph::setPriors(const Pose3 &pose_prior,
   // --------------------------------
 }
 
-// No longer used - GPS factor
-// void SemanticFactorGraph::addGPSFactor(const Point3 &gps_measurement) {
-//   size_t pose_counter_GPS = 0;  // TODO: make this counter correct
-//   auto current_pose_key = X(pose_counter_GPS);
-//   GPSFactor gps_factor(current_pose_key,
-//                        gps_measurement,  // N,E,D
-//                        noise_model_gps);
-//   fgraph.add(gps_factor);
-// }
-
 void SemanticFactorGraph::addKeyPoseAndBetween(
     const size_t prevIdx, const size_t curIdx, const Pose3 &relativeMotion,
-    const Pose3 &poseEstimate, const int &robotID,
-    boost::optional<boost::array<double, 36>> cov, const bool &loopClosureFound,
+    const Pose3 &poseEstimate, const int &robotID, const bool &loopClosureFound,
     const SE3 &loop_closure_relative_pose,
     const size_t &closure_matched_pose_idx) {
-  // bool use_msckf_cov = false;
-  // Pose3 poseRelative = poseFrom.between(poseEstimate);
+  
+  // Calculate the covariance for the relative motion
+  Vector6 noise_vec;
 
-  // No longer used, getting cov from VIO
-  // --------------------------------
-  ////if (cov) {
-  ////  Matrix6 M =
-  ////      Eigen::Map<Eigen::Matrix<double, 6, 6,
-  ///Eigen::RowMajor>>(cov->data()); /  boost::shared_ptr<noiseModel::Gaussian>
-  ///noise_model_odom = /      noiseModel::Gaussian::Covariance(M); /
-  ///fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID, prevIdx), /
-  ///getSymbol(robotID, curIdx), poseRelative, / noise_model_odom));
-  ////} else {
-  ////  fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID, prevIdx),
-  ////                                  getSymbol(robotID, curIdx),
-  ///poseRelative, /                                  noise_model_pose));
-  ////}
-  ////// here the insert also set the initial estimate for the optimization
-  //// fvalues.insert(getSymbol(robotID, curIdx), poseTo);
-  // double mins_elapsed;
-  // if (start_timestamp == 0.0) {
-  //   mins_elapsed = 0.0;
-  // } else {
-  //   mins_elapsed = (ros::Time::now().toSec() - start_timestamp) / 60.0;
-  // }
-  // if (noise_model_pose_inflation > 0) {
-  //   printf(
-  //       "+++++++ inflating covariance with time, if you are playing a bag, "
-  //       "make sure that /use_sim_time is set as true and play bag with "
-  //       "--clock flag \n");
-
-  //   printf("odom_factor_noise_std_inflation_per_min is set as: \n");
-  //   std::cout << noise_model_pose_inflation << std::endl;
-  //   printf(
-  //       "number of mins since the first "
-  //       "odometry factor: \n");
-  //   std::cout << mins_elapsed << std::endl;
-  // }
-  // --------------------------------
-
-  Vector6 cur_noise_vec;
-
-  // disable the inflation of covariance
-  // cur_noise_vec = noise_model_pose->sigmas() *
-  //                 (1.0 + noise_model_pose_inflation * mins_elapsed);
-
-  // ROS_INFO_STREAM_THROTTLE(
-  //     1,
-  //     "Using predefined between-factor covariance instead of "
-  //     "VIO estimated covariance (due to its inaccuracy)");
-
-  // scale covariance by travel distance so that motion uncertainty is properly
-  // accounted for
-  cur_noise_vec = noise_model_pose->sigmas();
-  double relative_dist = relativeMotion.translation().norm();
-  // clip the relative dist to avoid numerical issues when optimizing
-  if (relative_dist < 0.1) {
-    relative_dist = 0.1;
-  }
-  Vector6 noise_vec_scaled_by_travel_dist = cur_noise_vec * relative_dist;
+  // Scale covariance by travel distance 
+  double relative_dist = std::max(relativeMotion.translation().norm(), noise_floor);
+  noise_vec = noise_model_odom_vec * relative_dist;
 
   // noiseModel::Diagonal::Sigmas() takes in standard deviation, not variance
   fgraph.add(BetweenFactor<Pose3>(
       getSymbol(robotID, prevIdx), getSymbol(robotID, curIdx), relativeMotion,
-      noiseModel::Diagonal::Sigmas(noise_vec_scaled_by_travel_dist)));
+      noiseModel::Diagonal::Sigmas(noise_vec)));
 
   // Only for active SLAM
   // fgraph_loop.add(BetweenFactor<Pose3>(
@@ -180,7 +87,6 @@ void SemanticFactorGraph::addKeyPoseAndBetween(
           "ERROR: get closure_matched_pose_idx fail to fetch pose for pose_idx "
           ": "
           << closure_matched_pose_idx);
-      auto odom_pose_prior_factor_noise = cur_noise_vec * 1.0;
       // here the insert also set the initial estimate for the optimization
       fvalues.insert(getSymbol(robotID, curIdx), poseEstimate);
       // Only for active SLAM
@@ -236,7 +142,6 @@ void SemanticFactorGraph::addKeyPoseAndBetween(
     ROS_INFO_STREAM("loop_closure_relative_pose being added");
     // current_pose_global_ = est_loop_closure_pose;
   } else {
-    auto odom_pose_prior_factor_noise = cur_noise_vec * 1.0;
     // here the insert also set the initial estimate for the optimization
     fvalues.insert(getSymbol(robotID, curIdx), poseEstimate);
     // Only for active SLAM
@@ -304,8 +209,13 @@ void SemanticFactorGraph::addCubeFactor(
   // Update: removed this since our process node can handle this properly
 
   CubeMeasurement cube_local_meas = cube_global_meas.project(pose.inverse());
+
+  // Calculate noise based on distance from the robot to the cube
+  double relative_dist = std::max(cube_local_meas.pose.translation().norm(), 0.1);
+  Vector9 noise_vec_scaled = noise_model_cube_vec * relative_dist;
+
   fgraph.add(CubeFactor(getSymbol(robotID, poseIdx), C(cubeIdx),
-                        cube_local_meas, noise_model_cube));
+                        cube_local_meas, noiseModel::Diagonal::Sigmas(noise_vec_scaled)));
 
   if (cube_local_meas.pose.translation().norm() > 50) {
     ROS_WARN_THROTTLE(1, "cube_local_meas.pose.translation().norm() is larger "
@@ -332,6 +242,19 @@ void SemanticFactorGraph::addLoopClosureFactor(const Pose3 poseRelative,
   fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID1, prevIdx),
                                   getSymbol(robotID2, curIdx), poseRelative,
                                   noise_model_closure));
+}
+
+void SemanticFactorGraph::addRelativeMeasFactor(const Pose3 poseRelative, const size_t prevIdx, 
+                             const size_t robotID1, const size_t curIdx, const size_t robotID2) {
+
+  // Scale noise by distance of the relative measurement
+  double relative_dist = std::max(poseRelative.translation().norm(), noise_floor);
+  Vector6 noise_vec_scaled = noise_model_rel_meas_vec * relative_dist;
+
+  // Add the factor
+  fgraph.add(BetweenFactor<Pose3>(getSymbol(robotID1, prevIdx),
+                                  getSymbol(robotID2, curIdx), poseRelative,
+                                  noiseModel::Diagonal::Sigmas(noise_vec_scaled)));
 }
 
 void SemanticFactorGraph::solve() {
