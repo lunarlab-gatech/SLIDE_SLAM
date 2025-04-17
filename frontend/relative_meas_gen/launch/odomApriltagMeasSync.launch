@@ -1,0 +1,20 @@
+<launch>
+    <!-- Setup arguments for node name -->
+    <arg name="odom_apriltag_meas_sync_node_name" default="odom_apriltag_meas_sync"/>
+    <arg name="relative_meas_topic" default="/relative_inter_robot_meas"/>
+    <arg name="odom_topic_observer" default="/race1/mavros/imu/data"/>
+    <arg name="odom_topic_observed" default="/wilbur/odom"/>
+    <arg name="observer_ID" default="2"/>
+    <arg name="observed_ID" default="0"/>
+    
+    <!-- Launch the node -->
+    <node pkg="relative_meas_gen" type="odomApriltagMeasSync.py" name="$(arg odom_apriltag_meas_sync_node_name)" output="screen">
+        <param name="odom_apriltag_meas_sync_node_name" value="$(arg odom_apriltag_meas_sync_node_name)"/>
+        <param name="relative_meas_topic" value="$(arg relative_meas_topic)"/>
+        <param name="odom_topic_observer" value="$(arg odom_topic_observer)"/>
+        <param name="odom_topic_observed" value="$(arg odom_topic_observed)"/>
+        <param name="observer_ID" value="$(arg observer_ID)"/>
+        <param name="observed_ID" value="$(arg observed_ID)"/>
+    </node>
+
+</launch>
