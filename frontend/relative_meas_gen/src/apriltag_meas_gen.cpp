@@ -163,7 +163,7 @@ ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
 
     // Instantiate sub and pub
     robot_images_sub = nh_.subscribe(image_topic, 1, &ApriltagMeasurer::imageCallback, this);
-    relative_meas_pub = nh_.advertise<geometry_msgs::Pose>(return_topic, 10);
+    relative_meas_pub = nh_.advertise<sloam_msgs::RelativeInterRobotMeasurement>(return_topic, 10);
     std::cout << "Subscribed to topic: " << image_topic << std::endl;
 }
 
@@ -192,7 +192,11 @@ int main(int argc, char** argv) {
  */
 Eigen::Matrix4d ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
                                     Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag) {
-    // Calculate transformation from bot_to_tag
+    
+    std::cout << "Bot to cam\n" << H_hostBot_to_cam << std::endl;
+    std::cout << "Cam to tag\n" << H_cam_to_tag << std::endl;
+    std::cout << "Tag to bot\n" << H_observedBot_to_tag << std::endl;
+                                        // Calculate transformation from bot_to_tag
     Eigen::Matrix4d H_bot_to_tag = H_hostBot_to_cam * H_cam_to_tag;
     
     // Invert to get tag to observedBot
@@ -223,6 +227,9 @@ void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d
     orientation.z = (float) quat.z();
     orientation.w = (float) quat.w();
 
+    pose_msg.position = position;
+    pose_msg.orientation = orientation;
+
     msg.header.stamp = ros::Time::now();
     msg.relativePose = pose_msg;
     msg.robotIdObserved = bot_id;
@@ -233,5 +240,5 @@ void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d
     std::cout << "Transformation magnitude: " << mag << std::endl;
     std::cout << "Publishing pose from robot " << robot_ID << " to robot " << bot_id << std::endl;
 
-    relative_meas_pub.publish(pose_msg);
+    relative_meas_pub.publish(msg);
 }
