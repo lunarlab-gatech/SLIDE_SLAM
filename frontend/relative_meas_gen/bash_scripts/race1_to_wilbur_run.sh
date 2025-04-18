@@ -50,7 +50,7 @@ tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_
 tmux select-pane -t $SESSION_NAME:1.1
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock -r $BAG_PLAY_RATE -s 0" Enter
 tmux select-pane -t $SESSION_NAME:1.2
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock -r $BAG_PLAY_RATE -s 0" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock -r $BAG_PLAY_RATE -s 150" Enter
 tmux select-pane -t $SESSION_NAME:1.3
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 12; roslaunch relative_meas_gen race1_relative_meas_gen.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.4

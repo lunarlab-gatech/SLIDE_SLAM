@@ -6,7 +6,7 @@ import nav_msgs.msg
 from sloam_msgs.msg import RelativeInterRobotMeasurement, RelativeInterRobotMeasurementOdom, StampedRvizMarkerArray
 import message_filters
 
-class OdomRelativeMeasSync:
+class OdomApriltagMeasSync:
     def __init__(self):
 
         measurement_topic = rospy.get_param("/relative_meas_topic", default="default_relative_meas_topic")
@@ -17,7 +17,7 @@ class OdomRelativeMeasSync:
         sub_relative_meas = message_filters.Subscriber(measurement_topic, RelativeInterRobotMeasurement)
         sub_odom_observer = message_filters.Subscriber(odom_topic_observer, nav_msgs.msg.Odometry)
         sub_odom_observed = message_filters.Subscriber(odom_topic_observed, nav_msgs.msg.Odometry)
-        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, odom_topic_observer, odom_topic_observed], queue_size=100, slop=0.0125)
+        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, sub_odom_observer, sub_odom_observed], queue_size=100, slop=0.0125)
         self.ts.registerCallback(self.publish_sync)
 
         # Publisher
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # Initialize the node with given name
     node_name = rospy.get_param("/odom_apriltag_meas_sync_node_name", default="odom_apriltag_meas_sync_node_name")
     rospy.init_node(node_name)
-    sync = OdomRelativeMeasSync()
+    sync = OdomApriltagMeasSync()
 
     # Run until shutdown
     while not rospy.is_shutdown():
