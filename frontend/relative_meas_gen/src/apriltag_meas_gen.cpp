@@ -9,6 +9,8 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
         return;
     }
 
+    ros::Time timestamp = msg.header.stamp;
+
     std::vector<apriltag_wrapper> tags = ExtractAprilTags(img, this->intrinsics, this->tagsize);\
 
     // Publish transformation for each detected apriltag
@@ -33,12 +35,12 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
         bot_id = std::get<0>(loaded_transformations);
         
         if (bot_id == -1) {
-            ROS_ERROR("Transformations not loaded for apriltag id: " + t.id);
+            ROS_ERROR("Transformations not loaded for apriltag");
             continue;
         }
 
         Eigen::Matrix4d total_transformation = CalculateRelativeTransformation(bot_to_cam, cam_to_tag, tag_to_bot);
-        PublishRelativeMeasurement(bot_id, total_transformation);
+        PublishRelativeMeasurement(bot_id, total_transformation, timestamp);
     }
 
 }
@@ -88,6 +90,7 @@ std::tuple<int8_t, Eigen::Matrix4d> ApriltagMeasurer::LoadTransformations(aprilt
     } else {
         ROS_INFO("Loading from config for requested dataset not supported.");
     }
+    return std::make_tuple(-1, Eigen::Matrix4d::Identity());;
 }
 
 ApriltagMeasurer::ApriltagMeasurer(ros::NodeHandle nh): nh_(nh) {
@@ -206,7 +209,7 @@ Eigen::Matrix4d ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4
     return T_bot_to_observedBot;
 }
 
-void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d transformation) {
+void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d transformation, ros::Time timestamp) {
     
     geometry_msgs::Pose pose_msg;
     sloam_msgs::RelativeInterRobotMeasurement msg;
@@ -229,7 +232,7 @@ void ApriltagMeasurer::PublishRelativeMeasurement(int8_t bot_id, Eigen::Matrix4d
     pose_msg.position = position;
     pose_msg.orientation = orientation;
 
-    msg.header.stamp = ros::Time::now();
+    msg.header.stamp = timestamp;
     msg.relativePose = pose_msg;
     msg.robotIdObserved = bot_id;
     msg.robotIdObserver = robot_ID;

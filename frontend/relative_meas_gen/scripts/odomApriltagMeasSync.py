@@ -9,15 +9,15 @@ import message_filters
 class OdomApriltagMeasSync:
     def __init__(self):
 
-        measurement_topic = rospy.get_param("/relative_meas_topic", default="default_relative_meas_topic")
-        odom_topic_observer = rospy.get_param("/odom_topic_observer", default="default_odom_topic_observer")
-        odom_topic_observed = rospy.get_param("/odom_topic_observed", default="default_odom_topic_observed")
+        measurement_topic = rospy.get_param("~relative_meas_topic", default="default_relative_meas_topic")
+        odom_topic_observer = rospy.get_param("~odom_topic_observer", default="default_odom_topic_observer")
+        odom_topic_observed = rospy.get_param("~odom_topic_observed", default="default_odom_topic_observed")
 
         # Synchronize the odometry and RelativeInterRobotMeasurement
         sub_relative_meas = message_filters.Subscriber(measurement_topic, RelativeInterRobotMeasurement)
         sub_odom_observer = message_filters.Subscriber(odom_topic_observer, nav_msgs.msg.Odometry)
         sub_odom_observed = message_filters.Subscriber(odom_topic_observed, nav_msgs.msg.Odometry)
-        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, sub_odom_observer, sub_odom_observed], queue_size=100, slop=1000.0125)
+        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, sub_odom_observer, sub_odom_observed], queue_size=100, slop=100.0125)
         self.ts.registerCallback(self.publish_sync)
 
         # Publisher
@@ -40,8 +40,6 @@ class OdomApriltagMeasSync:
         msg.odometryObserver = msg_observer
         msg.odometryObserved = msg_observed
         self.pub.publish(msg)
-
-        print("callback!")
 
         # Output the difference in timestamps
         rospy.loginfo_throttle(10, "Time difference from observer Odom to Relative Measurement: {}".format(msg_observer.header.stamp.to_sec() - msg_relative.header.stamp.to_sec()))
