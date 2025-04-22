@@ -23,7 +23,9 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
                 cam_to_tag(i, j) = t.rotation.data[i + j];
             }
             cam_to_tag(i, 3) = t.translation.data[i];
+            cam_to_tag(3, i) = 0.0;
         }
+        cam_to_tag(3, 3) = 1.0;
         std::cout << "Tag ID: " << t.id << std::endl;
 
         std::tuple<int8_t, Eigen::Matrix4d> loaded_transformations = LoadTransformations(t);
@@ -193,10 +195,7 @@ int main(int argc, char** argv) {
 Eigen::Matrix4d ApriltagMeasurer::CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
                                     Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag) {
     
-    std::cout << "Bot to cam\n" << H_hostBot_to_cam << std::endl;
-    std::cout << "Cam to tag\n" << H_cam_to_tag << std::endl;
-    std::cout << "Tag to bot\n" << H_observedBot_to_tag << std::endl;
-                                        // Calculate transformation from bot_to_tag
+    // Calculate transformation from bot_to_tag
     Eigen::Matrix4d H_bot_to_tag = H_hostBot_to_cam * H_cam_to_tag;
     
     // Invert to get tag to observedBot
