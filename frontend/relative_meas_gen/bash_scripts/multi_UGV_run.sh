@@ -46,7 +46,7 @@ tmux split-window -h -t $SESSION_NAME
 
 # Setup commands for main window
 tmux select-pane -t $SESSION_NAME:1.0
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_meas_gen odomRelativeMeasSync.launch" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_meas_gen multiUGV_odomRelativeMeasSync.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.1
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 18; cd $BAG_DIR && rosbag play stuff_world-two_jackal_amcl.bag --clock -r $BAG_PLAY_RATE -s 0 --topic /jackal0/odometry/local_filtered /jackal1/odometry/local_filtered /gazebo/model_states /jackal0/odometry/local_filtered:=/robot0/odometry/local_filtered /jackal1/odometry/local_filtered:=/robot1/odometry/local_filtered" Enter
 tmux select-pane -t $SESSION_NAME:1.2

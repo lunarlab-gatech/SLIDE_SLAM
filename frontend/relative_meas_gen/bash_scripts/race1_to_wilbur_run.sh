@@ -46,7 +46,7 @@ tmux split-window -h -t $SESSION_NAME
 
 # Setup commands for main window
 tmux select-pane -t $SESSION_NAME:1.0
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_meas_gen odomApriltagMeasSync.launch" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_meas_gen race1_wilbur_RelativeMeasSync.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.1
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock --pause -r $BAG_PLAY_RATE -s 0" Enter
 tmux select-pane -t $SESSION_NAME:1.2
