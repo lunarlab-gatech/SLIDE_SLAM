@@ -19,5 +19,19 @@ RUN git clone https://github.com/AprilRobotics/apriltag.git && \
 # Install pyproj into the python environment
 RUN pip install pyproj==3.5.0
 
-# Set working directory back to default
+# Install miniconda (take care NOT to add to PATH or will break build)
+ENV CONDA_DIR=/opt/conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh && \
+    bash miniconda.sh -b -p $CONDA_DIR && \
+    rm miniconda.sh && \
+    $CONDA_DIR/bin/conda clean -afy
+RUN $CONDA_DIR/bin/conda  create -n ros310 python=3.10 -y && \
+    $CONDA_DIR/bin/conda  clean -afy
+RUN $CONDA_DIR/bin/conda config --set auto_activate_base false
+
+# Create a new Conda environment with Python 3.10 for ROMAN
+RUN $CONDA_DIR/bin/conda  create -n ros310 python=3.10 -y && \
+    $CONDA_DIR/bin/conda  clean -afy
+
+# RSet working directory back to default
 WORKDIR /app

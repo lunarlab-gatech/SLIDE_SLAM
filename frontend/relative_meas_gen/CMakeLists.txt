@@ -116,7 +116,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${apriltag_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIR}
   ${roscpp_INCLUDE_DIRS}
   include
 )
