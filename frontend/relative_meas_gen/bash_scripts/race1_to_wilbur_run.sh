@@ -48,9 +48,9 @@ tmux split-window -h -t $SESSION_NAME
 tmux select-pane -t $SESSION_NAME:1.0
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch relative_meas_gen race1_wilbur_RelativeMeasSync.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.1
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock --pause -r $BAG_PLAY_RATE -s 0" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_wilbur_arl_outdoor_2023_05_19_06_2023-05-19-16-27-47.bag --clock --pause -r $BAG_PLAY_RATE -s 251.4" Enter
 tmux select-pane -t $SESSION_NAME:1.2
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock --pause -r $BAG_PLAY_RATE -s 0" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 10; cd $BAG_DIR && rosbag play FOREST_race1_2023_05_19_04_29_PM_1.bag --clock --pause -r $BAG_PLAY_RATE /clock:=/race1_clock -s 150" Enter
 tmux select-pane -t $SESSION_NAME:1.3
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 12; roslaunch relative_meas_gen race1_relative_meas_gen.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.4
@@ -76,7 +76,7 @@ tmux select-pane -t $SESSION_NAME:2.3
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam decentralized_sloam.launch hostRobot_ID:=2 odom_topic:=/race1/mavros/local_position/odom turn_off_rel_inter_robot_factor:=false param_file:=sloam_multiUGV.yaml" Enter
 
 tmux new-window -t $SESSION_NAME -n "Sync"
-tmux send-keys -t $SESSION_NAME "sleep 12; tmux send-keys -t $SESSION_NAME:1.1 ' '; sleep 101.94; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux set-window-option -t $SESSION_NAME:1 synchronize-panes on; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux set-window-option -t $SESSION_NAME:1 synchronize-panes off" Enter
+tmux send-keys -t $SESSION_NAME "sleep 20; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux send-keys -t $SESSION_NAME:1.2 ' '" Enter
 
 # Add window to easily kill all processes
 tmux new-window -t $SESSION_NAME -n "Kill"
