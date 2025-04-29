@@ -17,7 +17,7 @@ class OdomApriltagMeasSync:
         sub_relative_meas = message_filters.Subscriber(measurement_topic, RelativeInterRobotMeasurement)
         sub_odom_observer = message_filters.Subscriber(odom_topic_observer, nav_msgs.msg.Odometry)
         sub_odom_observed = message_filters.Subscriber(odom_topic_observed, nav_msgs.msg.Odometry)
-        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, sub_odom_observer, sub_odom_observed], queue_size=100, slop=.125)
+        self.ts = message_filters.ApproximateTimeSynchronizer([sub_relative_meas, sub_odom_observer, sub_odom_observed], queue_size=100, slop=.0125)
         self.ts.registerCallback(self.publish_sync)
 
         # Publisher
