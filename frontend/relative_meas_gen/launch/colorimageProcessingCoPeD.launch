@@ -1,0 +1,25 @@
+<launch>
+  <!-- Start a nodelet manager -->
+  <node pkg="nodelet" type="nodelet" name="stereo_nodelet_manager" args="manager" output="screen" />
+
+  <!-- Load the disparity nodelet into the manager -->
+  <node pkg="nodelet" type="nodelet" name="disparity_nodelet" args="load stereo_image_proc/disparity stereo_nodelet_manager" output="screen">
+    <!-- You can set parameters here if needed -->
+    <!-- <param name="max_disparity" value="64" />
+    <param name="disparity_range" value="64" />
+    <param name="speckle_filter" value="True" />
+    <param name="speckle_size" value="100" />
+    <param name="speckle_range" value="2" />
+    <param name="uniqueness_ratio" value="15" /> -->
+    <param name="min_disparity" value="-1" />
+    <param name="stereo_algorithm" value="1" />
+    <param name="approximate_sync" value="True" />
+
+    <!-- Remap input and output topics -->
+    <remap from="left/image_rect" to="/wanda/stereo/left/image_rect_mono" />
+    <remap from="right/image_rect" to="/wanda/stereo/right/image_rect_mono" />
+    <remap from="disparity" to="/wanda/stereo/disparity" />
+    <remap from="left/camera_info" to="/wanda/stereo/left/camera_info" />
+    <remap from="right/camera_info" to="/wanda/stereo/right/camera_info" />
+  </node>
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+  <param name="video_file" value="/opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/CoPeD/FOREST/FOREST_wanda_depth_k.mp4"/>
+  <param name="camera_topic" value="/wanda/forward/color/image_rect_color/compressed"/>
+
+  <node pkg="relative_meas_gen" type="depthVideoPub.py" name="depthVideoPub" output="screen">
+  </node>
+</launch>

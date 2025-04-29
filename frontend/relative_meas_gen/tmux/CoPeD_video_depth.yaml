@@ -1,0 +1,46 @@
+session_name: coped
+suppress_history: false
+
+environment:
+  BAG_DIR: '/opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/CoPeD/FOREST/'
+  BAG_PLAY_RATE: '1'
+  ROS_WS: '/opt/slideslam_docker_ws'
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: rosbag
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  focus: true
+  panes:
+  - roscore
+  - shell_command: 
+    - sleep 5
+    - roslaunch relative_meas_gen depthVideoPub.launch
+  - shell_command: 
+    - 
+  - shell_command:
+    - cd ${BAG_DIR}
+    - sleep 8
+    - rosbag play FOREST_wanda_arl_outtdoor_2023_05_19_06_2023-05-19-16-27-46.bag --clock -r $BAG_PLAY_RATE /wanda/forward/aligned_depth_to_color/image_raw/compressed:=/wanda/forward/aligned_depth_to_color/image_raw/compressedDepth
+
+- window_name: debug
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  -
+  -
+  -
+
+- window_name: exit
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - shell_command:
+    - cmd: tmux kill-session -t coped
+      enter: false

@@ -35,7 +35,7 @@ void ApriltagMeasurer::imageCallback(const sensor_msgs::CompressedImage msg) {
         bot_id = std::get<0>(loaded_transformations);
         
         if (bot_id == -1) {
-            ROS_ERROR("Transformations not loaded for apriltag");
+            ROS_ERROR_STREAM("Transformations not loaded for apriltag id: " << t.id);
             continue;
         }
 
