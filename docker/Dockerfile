@@ -16,8 +16,9 @@ RUN git clone https://github.com/AprilRobotics/apriltag.git && \
     cmake --build build --target install && \
     ldconfig
 
-# Install pyproj into the python environment
+# Install dependencies into python
 RUN pip install pyproj==3.5.0
+RUN pip install tmuxp
 
 # Install miniconda (take care NOT to add to PATH or will break build)
 ENV CONDA_DIR=/opt/conda
