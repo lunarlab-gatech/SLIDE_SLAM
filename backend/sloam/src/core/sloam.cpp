@@ -358,6 +358,7 @@ void sloam::FindRelativeMeasurementMatch(std::vector<size_t>& pose_counter_robot
       // Iterate through the other robot's poses, and make sure one exists in the factor graph
       // that is close enough in time to our measurement
       size_t pose_counter_other = pose_counter_robot_[relativeMeas.robotIndex];
+      if (robotDataDict_.find(relativeMeas.robotIndex) == robotDataDict_.end()) continue;
       std::deque<PoseMstPair> poseMstPacketOther = robotDataDict_.at(relativeMeas.robotIndex).poseMstPacket;
       GetIndexClosestPoseMstPair(poseMstPacketOther, relativeMeas.stamp, indexClosestOtherRobot, timeDiffClosest);
       if (indexClosestOtherRobot == -1 || timeDiffClosest > maxTimeDiff ||
