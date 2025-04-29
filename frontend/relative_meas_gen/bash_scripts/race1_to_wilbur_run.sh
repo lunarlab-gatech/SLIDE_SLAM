@@ -69,14 +69,14 @@ tmux split-window -v -t $SESSION_NAME
 tmux select-pane -t $SESSION_NAME:2.0
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; roscore" Enter
 tmux select-pane -t $SESSION_NAME:2.1
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam decentralized_sloam.launch hostRobot_ID:=0 odom_topic:=/wilbur/odom enable_rviz:=true turn_off_rel_inter_robot_factor:=false param_file:=sloam_multiUGV.yaml" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam decentralized_sloam.launch hostRobot_ID:=0 odom_topic:=/wilbur/odom turn_off_rel_inter_robot_factor:=false param_file:=sloam_CoPeD.yaml" Enter
 tmux select-pane -t $SESSION_NAME:2.2
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 1; rosparam set /use_sim_time true" Enter
 tmux select-pane -t $SESSION_NAME:2.3
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam decentralized_sloam.launch hostRobot_ID:=2 odom_topic:=/race1/mavros/local_position/odom turn_off_rel_inter_robot_factor:=false param_file:=sloam_multiUGV.yaml" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam decentralized_sloam.launch hostRobot_ID:=2 odom_topic:=/race1/mavros/local_position/odom enable_rviz:=true turn_off_rel_inter_robot_factor:=false param_file:=sloam_CoPeD.yaml" Enter
 
-tmux new-window -t $SESSION_NAME -n "Sync"
-tmux send-keys -t $SESSION_NAME "sleep 20; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux send-keys -t $SESSION_NAME:1.2 ' '" Enter
+# tmux new-window -t $SESSION_NAME -n "Sync"
+# tmux send-keys -t $SESSION_NAME "sleep 30; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux send-keys -t $SESSION_NAME:1.2 ' '" Enter
 
 # Add window to easily kill all processes
 tmux new-window -t $SESSION_NAME -n "Kill"
