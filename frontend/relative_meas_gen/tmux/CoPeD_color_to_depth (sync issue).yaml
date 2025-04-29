@@ -1,0 +1,55 @@
+session_name: coped
+suppress_history: false
+
+environment:
+  BAG_DIR: '/opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/CoPeD/FOREST/'
+  BAG_PLAY_RATE: '1'
+  ROS_WS: '/opt/slideslam_docker_ws'
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: rosbag
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - shell_command:
+    - cd ${BAG_DIR}
+    - rosbag play FOREST_wanda_arl_outtdoor_2023_05_19_06_2023-05-19-16-27-46.bag --clock -r $BAG_PLAY_RATE
+      /wanda/stereo_left/camera_info:=/wanda/stereo/left/camera_info
+      /wanda/stereo_right/camera_info:=/wanda/stereo/right/camera_info
+  - roscore
+  - 
+  -
+
+- window_name: debug
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  focus: true
+  panes:
+  - rosrun image_transport republish compressed in:=/wanda/stereo_left/image_rect_color  raw out:=/wanda/stereo/left/image_rect_color
+  - rosrun image_transport republish compressed in:=/wanda/stereo_right/image_rect_color raw out:=/wanda/stereo/right/image_rect_color
+  - rosrun nodelet nodelet manager __name:=image_proc_manager
+  - rosrun nodelet nodelet load image_proc/debayer image_proc_manager __name:=image_proc_debayer_left _queue_size:=5 image_raw:=/wanda/stereo/left/image_rect_color image_mono:=/wanda/stereo/left/image_rect_mono image_color:=/wanda/stereo/left/image_rect_color/color_again
+  - rosrun nodelet nodelet load image_proc/debayer image_proc_manager __name:=image_proc_debayer_right _queue_size:=5 image_raw:=/wanda/stereo/right/image_rect_color image_mono:=/wanda/stereo/right/image_rect_mono image_color:=/wanda/stereo/right/image_rect_color/color_again
+  - shell_command:
+    - cmd: roslaunch relative_meas_gen colorimageProcessingCoPeD.launch
+      sleep_before: 2
+  - rosrun rqt_reconfigure rqt_reconfigure
+  #- rosrun image_view disparity_view image:=/wanda/stereo/disparity _autosize:=False _approximate_sync:=True
+  - rosrun image_view stereo_view image:=image_rect_color stereo:=/wanda/stereo _autosize:=False _approximate_sync:=True _queue_size:=500
+  - rostopic echo -n 1 /wanda/stereo/left/image_rect_color >> left.txt
+  - rostopic echo -n 1 /wanda/stereo/right/image_rect_color >> right.txt
+
+
+- window_name: exit
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - shell_command:
+    - cmd: tmux kill-session -t coped
+      enter: false

@@ -1,0 +1,6 @@
+<launch>
+  <param name="compressed_depth_topic" value="/wanda/forward/aligned_depth_to_color/image_raw/compressedDepth"/>
+
+  <node pkg="relative_meas_gen" type="compressedDepthToDepth.py" name="CompressedDepthToDepth" output="screen">
+  </node>
+</launch>

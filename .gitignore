@@ -15,4 +15,4 @@ scan2shape/script/max_scale.pkl
 *.npy
 .vscode
 *.png
-bags/
+
