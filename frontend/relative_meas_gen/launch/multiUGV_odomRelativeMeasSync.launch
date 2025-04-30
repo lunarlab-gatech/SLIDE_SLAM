@@ -1,0 +1,12 @@
+<launch>
+    
+    <include file="$(find relative_meas_gen)/launch/odomRelativeMeasSync.launch">
+        <arg name="odom_relative_meas_sync_node_name" value="odom_relative_meas_sync"/>
+        <arg name="relative_meas_topic" value="/relative_inter_robot_meas"/>
+        <arg name="odom_topic_observer" value="/robot0/odometry/local_filtered"/>
+        <arg name="odom_topic_observed" value="/robot1/odometry/local_filtered"/>
+        <arg name="observer_ID" value="0"/>
+        <arg name="observed_ID" value="1"/>
+    </include>
+    
+</launch>

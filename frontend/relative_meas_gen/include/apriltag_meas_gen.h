@@ -22,12 +22,13 @@ class ApriltagMeasurer {
         int robot_ID;
         std::string camera_ID;
         double intrinsics[4];
+        double dist_coefficients[4];
         double tagsize;
         YAML::Node config;
         Eigen::Matrix4d bot_to_cam;
 
         void imageCallback(const sensor_msgs::CompressedImage msg);
-        void PublishRelativeMeasurement(int8_t, Eigen::Matrix4d transformation);
+        void PublishRelativeMeasurement(int8_t, Eigen::Matrix4d transformation, ros::Time timestamp);
         Eigen::Matrix4d CalculateRelativeTransformation(Eigen::Matrix4d H_hostBot_to_cam, 
                       Eigen::Matrix4d H_cam_to_tag, Eigen::Matrix4d H_observedBot_to_tag);
         std::tuple<int8_t, Eigen::Matrix4d> LoadTransformations(apriltag_wrapper tag);
