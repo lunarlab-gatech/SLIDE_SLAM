@@ -14,7 +14,7 @@ sloam:
   #-----------------------------------------------
   intra_robot_place_recognition_frequency: 0.05 # frequency at which place recognition is run within a robot 
   rel_inter_robot_factor_frequency: 1.0 # frequency at which relative inter-robot factors are attempted to be added
-  number_of_robots: 4
+  number_of_robots: 1
   robot_ns_prefix: /robot # robot_namespace will be robot_prefix + ROBOT_ID (e.g. /quadrotor1, /quadrotor2)
   debug_mode: true
   odom_freq_filter: 10  # Add every odom_freq_filter odom messages to the queue. Target same freq. as lidar. odom_freq = raw_odom_freq / odom_freq_filter, if you want to use all odometry messages, set this to 1

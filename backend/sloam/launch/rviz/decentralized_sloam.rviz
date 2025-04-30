@@ -25,7 +25,9 @@ Panels:
         - /robot11/MarkerArray3
         - /robot11/MarkerArray4
         - /robot11/CubeMap1
+        - /robot21
         - /robot21/MarkerArray1
+        - /robot21/MarkerArray1/Status1
         - /robot21/MarkerArray2
         - /robot21/CylinderMap1
         - /robot21/EllipMap1
@@ -62,6 +64,7 @@ Panels:
         - /robot61/MarkerArray7
         - /robot61/MarkerArray8
         - /robot61/MarkerArray9
+        - /Axes1
       Splitter Ratio: 0.39753738045692444
     Tree Height: 1226
   - Class: rviz/Selection
@@ -166,7 +169,7 @@ Visualization Manager:
           Marker Topic: /sloam0/robot0/trajectory
           Name: MarkerArray
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -396,7 +399,7 @@ Visualization Manager:
             Shaft Length: 1
             Shaft Radius: 0.05000000074505806
             Value: Axes
-          Topic: /robot2/odom
+          Topic: /robot2/sync_odom_high_freq
           Unreliable: false
           Value: true
         - Class: rviz/MarkerArray
@@ -407,7 +410,7 @@ Visualization Manager:
             {}
           Queue Size: 100
           Value: true
-      Enabled: false
+      Enabled: true
       Name: robot2
     - Class: rviz/Group
       Displays:
@@ -1133,7 +1136,7 @@ Visualization Manager:
   Global Options:
     Background Color: 255; 255; 255
     Default Light: true
-    Fixed Frame: wilbur/base
+    Fixed Frame: wilbur/map
     Frame Rate: 30
   Name: rootquadrotor/map
   Tools:
@@ -1157,7 +1160,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 18.432209014892578
+      Distance: 208.9368438720703
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1165,9 +1168,9 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 1.7884167432785034
-        Y: -3.7740259170532227
-        Z: 0
+        X: -11.229167938232422
+        Y: -122.41302490234375
+        Z: -2.1185012883506715e-05
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
