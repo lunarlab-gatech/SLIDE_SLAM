@@ -34,5 +34,11 @@ RUN $CONDA_DIR/bin/conda config --set auto_activate_base false
 RUN $CONDA_DIR/bin/conda  create -n ros310 python=3.10 -y && \
     $CONDA_DIR/bin/conda  clean -afy
 
+# Activate conda environment temporarily and install ROS dependencies
+RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
+    conda activate ros310 && \
+    pip install rospkg && \
+    conda clean -afy
+
 # RSet working directory back to default
 WORKDIR /app

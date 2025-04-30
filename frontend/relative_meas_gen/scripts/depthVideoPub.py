@@ -14,7 +14,7 @@ class DepthVideoPub:
         self.camera_sub = rospy.Subscriber(self.camera_topic, CompressedImage, self.publish_depth_frame)
 
         # Publishers
-        self.pub_depth = rospy.Publisher("/wanda/forward/color/image_rect_color/depth", Image, queue_size=10)
+        self.pub_depth = rospy.Publisher("/wanda/forward/depth/image_rect_raw", Image, queue_size=10)
 
         # CV Bridge
         self.bridge = CvBridge()

@@ -3,8 +3,12 @@ suppress_history: false
 
 environment:
   BAG_DIR: '/opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/CoPeD/FOREST/'
+  WEIGHTS_PATH: '/home/dbutterfield3/slideslam_docker_ws/src/SLIDE_SLAM/bags/ROMAN/FastSAM-x.pt'
   BAG_PLAY_RATE: '1'
   ROS_WS: '/opt/slideslam_docker_ws'
+  ROBOT: 'wanda'
+  CAMERA: 'forward'
+  
 
 options:
   default-command: /bin/bash
@@ -20,21 +24,27 @@ windows:
   - shell_command: 
     - sleep 5
     - roslaunch relative_meas_gen depthVideoPub.launch
-  - shell_command: 
-    - 
   - shell_command:
     - cd ${BAG_DIR}
     - sleep 8
     - rosbag play FOREST_wanda_arl_outtdoor_2023_05_19_06_2023-05-19-16-27-46.bag --clock -r $BAG_PLAY_RATE /wanda/forward/aligned_depth_to_color/image_raw/compressed:=/wanda/forward/aligned_depth_to_color/image_raw/compressedDepth
+  - shell_command: 
+    - 
 
-- window_name: debug
+- window_name: roman_map
   layout: tiled
   shell_command_before:
-  - source ${ROS_WS}/devel/setup.bash
+  - source $ROMAN_WS/devel/setup.bash
+  - source /opt/conda/etc/profile.d/conda.sh
+  - conda activate ros310
   panes:
+  - rosrun image_transport republish compressed in:=/wanda/forward/color/image_rect_color raw out:=/wanda/forward/color/image_rect_color
+  - shell_command:
+    - export FASTSAM_WEIGHTS_PATH=$WEIGHTS_PATH
+    - roslaunch roman_ros fastsam_node_CoPeD.launch robot:=$ROBOT camera:=$CAMERA --wait
+  - roslaunch roman_ros roman_map_node.launch robot:=$ROBOT camera:=$CAMERA --wait
   -
-  -
-  -
+
 
 - window_name: exit
   layout: tiled
