@@ -1,6 +1,6 @@
 SlideSlamWs="$WS_PATH" # point to your workspace directory
 SlideSlamCodeDir="$WS_PATH/src/SLIDE_SLAM" # point to code dir with SLIDE_SLAM
-BAGS_DIR="$WS_PATH/src/SLIDE_SLAM/bags" # point to your bags / data directory
+BAGS_DIR="/media/dbutterfield3/T7" # point to your bags / data directory
 
 docker run -d \
     --name="slideslam_ros" \
