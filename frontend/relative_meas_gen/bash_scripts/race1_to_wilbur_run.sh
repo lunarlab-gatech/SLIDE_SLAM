@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# This script runs the backend of SlideSLAM (sloam) on simulated jackal 
-# robots from the multi-UGV-gazebo-sim. In order to bypass SlideSLAM's
-# frontend, we spawn a publisher to convert GT information into fake 
-# frontend measurements.
+# This script runs the backend of SlideSLAM (sloam) on the CoPeD dataset
+# for a drone and ground robot, using inter-robot measurements created 
+# by the drone looking at apriltags on the ground robot
 
 # Set parameters
 SESSION_NAME=race1_to_wilbur
@@ -77,6 +76,9 @@ tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 8; roslaunch sloam dec
 
 # tmux new-window -t $SESSION_NAME -n "Sync"
 # tmux send-keys -t $SESSION_NAME "sleep 30; tmux send-keys -t $SESSION_NAME:1.1 ' '; tmux send-keys -t $SESSION_NAME:1.2 ' '" Enter
+
+# To manually start the bags after they have both loaded, run this below
+# tmux send-keys -t race1_to_wilbur:1.1 ' '; tmux send-keys -t race1_to_wilbur:1.2 ' '
 
 # Add window to easily kill all processes
 tmux new-window -t $SESSION_NAME -n "Kill"
