@@ -89,7 +89,6 @@
   <exec_depend>python-numpy</exec_depend>
   <exec_depend>tf</exec_depend>
   <exec_depend>roslib</exec_depend>
-  <exec_depend>python-rosbags</exec_depend>
 
 
   <test_depend>rostest</test_depend>
