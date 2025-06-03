@@ -1,0 +1,50 @@
+session_name: hercules
+suppress_history: false
+
+environment:
+  BAG_DIR: '/opt/bags/hercules_test_datasets/'
+  BAG_PLAY_RATE: '0.05'
+  ROS_WS: '/opt/slideslam_docker_ws'
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: rosbag
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  focus: true
+  panes:
+  - roscore
+  - shell_command:
+    - cd ${BAG_DIR}
+    - sleep 10
+    - rosbag play ausenv_test1_CSLAM_2UAVUGV.bag --clock -r $BAG_PLAY_RATE 
+  - shell_command: 
+    - 
+  - shell_command: 
+    - 
+
+- window_name: roman_map
+  layout: tiled
+  focus: true
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  - source /opt/conda/etc/profile.d/conda.sh
+  - conda activate ros310
+  panes:
+  - shell_command:
+    - export FASTSAM_WEIGHTS_PATH=/opt/slideslam_docker_ws/src/SLIDE_SLAM/bags/ROMAN/FastSAM-x.pt
+    - roslaunch roman_ros fastsam_node_Hercules.launch robot:=Drone2 --wait
+  - rostopic echo /hercules_node/Drone2/front_center_DepthPerspective/camera_info
+  #- roslaunch roman_ros roman_map_node.launch robot:=Drone2 camera:=$CAMERA --wait
+
+- window_name: exit
+  layout: tiled
+  shell_command_before:
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - shell_command:
+    - cmd: tmux kill-session -t hercules
+      enter: false
