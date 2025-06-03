@@ -1,12 +1,8 @@
 #!/bin/bash
 
-
 SESSION_NAME=slide_slam_nodes
-BAG_PLAY_RATE=0.5
-#BAG_DIR='/home/sam/bags/vems-slam-bags/all_slide_slam_public_demos/forests'
-# BAG_DIR='/opt/bags/vems-slam-bags/all_slide_slam_public_demos/forests'
-# BAG_DIR='/home/sam/bags/vems-slam-bags/all_slide_slam_public_demos/indoor'
-BAG_DIR='/opt/bags/vems-slam-bags/all_slide_slam_public_demos/indoor'
+BAG_PLAY_RATE=1.0
+BAG_DIR='/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/data/raw_data/indoor'
 
 CURRENT_DISPLAY=${DISPLAY}
 if [ -z ${DISPLAY} ];
@@ -29,7 +25,7 @@ SETUP_ROS_STRING="export ROS_MASTER_URI=http://localhost:11311"
 # Make mouse useful in copy mode
 tmux setw -g mouse on
 
-
+# PANE CREATION
 tmux new-window -t $SESSION_NAME -n "Main"
 tmux split-window -h -t $SESSION_NAME
 tmux select-pane -t $SESSION_NAME:1.0
@@ -38,20 +34,14 @@ tmux select-pane -t $SESSION_NAME:1.3
 tmux split-window -v -t $SESSION_NAME
 tmux select-pane -t $SESSION_NAME:1.0
 tmux split-window -h -t $SESSION_NAME
-# tmux select-pane -t $SESSION_NAME:1.3
-# tmux split-window -h -t $SESSION_NAME
-# tmux select-pane -t $SESSION_NAME:1.2
-# tmux split-window -h -t $SESSION_NAME
-# tmux select-pane -t $SESSION_NAME:1.6
-# tmux split-window -h -t $SESSION_NAME
-# tmux select-pane -t $SESSION_NAME:1.6
-# tmux split-window -h -t $SESSION_NAME
+
+# COMMANDS
 tmux select-pane -t $SESSION_NAME:1.0
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch object_modeller rgb_segmentation_f250.launch" Enter
 tmux select-pane -t $SESSION_NAME:1.1
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch object_modeller sync_semantic_measurements.launch robot_name:=robot0 odom_topic:=/dragonfly67/quadrotor_ukf/control_odom" Enter
 tmux select-pane -t $SESSION_NAME:1.2
-tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch sloam single_robot_sloam_test_f250.launch enable_rviz:=true" Enter
+tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch sloam single_robot_sloam_test.launch enable_rviz:=true" Enter
 tmux select-pane -t $SESSION_NAME:1.3
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; roslaunch scan2shape_launch process_cloud_node_rgbd_indoor_with_ns.launch odom_topic:=/dragonfly67/quadrotor_ukf/control_odom robot_name:=robot0" Enter
 tmux select-pane -t $SESSION_NAME:1.4
@@ -67,7 +57,6 @@ tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 2; cd $BAG_DIR && rosb
 # tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING;" Enter
 tmux select-layout -t $SESSION_NAME tiled
 
-
 # Add window for roscore
 tmux new-window -t $SESSION_NAME -n "roscore"
 tmux split-window -h -t $SESSION_NAME
@@ -76,11 +65,8 @@ tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; roscore" Enter
 tmux select-pane -t $SESSION_NAME:2.1
 tmux send-keys -t $SESSION_NAME "$SETUP_ROS_STRING; sleep 1; rosparam set /use_sim_time true" Enter
 
-
 # Add window to easily kill all processes
 tmux new-window -t $SESSION_NAME -n "Kill"
 tmux send-keys -t $SESSION_NAME "tmux kill-session -t ${SESSION_NAME}"
-
-
 tmux select-window -t $SESSION_NAME:1
 tmux -2 attach-session -t $SESSION_NAME
