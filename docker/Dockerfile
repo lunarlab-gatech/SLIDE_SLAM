@@ -18,3 +18,6 @@ RUN echo 'export PS1="\\[\\e[1;31m\\]\\u@slideslam_baseline\\[\\e[0m\\]:\\[\\e[2
 # Set default user
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
+
+# Install tmuxp
+RUN sudo apt install tmuxp lsof -y

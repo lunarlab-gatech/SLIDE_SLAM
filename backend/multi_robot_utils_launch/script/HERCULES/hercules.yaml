@@ -1,0 +1,56 @@
+session_name: hercules
+suppress_history: false
+
+environment:
+  BAG_DIR: '~/data/hercules_test_datasets_V1.1'
+  BAG_PLAY_RATE: '1'
+  ROS_WS: '~/slideslam_original_ws'
+
+options:
+  default-command: /bin/bash
+
+windows:
+- window_name: Main
+  layout: tiled
+  focus: true
+  shell_command_before:
+  - export ROS_MASTER_URI=http://localhost:11311
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - shell_command:
+    - sleep 2
+    - roslaunch object_modeller rgb_segmentation_f250.launch
+  - shell_command: 
+    - sleep 2
+    - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=robot0 odom_topic:=/dragonfly67/quadrotor_ukf/control_odom
+  - shell_command: 
+    - sleep 2
+    - roslaunch sloam single_robot_sloam_test.launch enable_rviz:=true
+  - shell_command:
+    - sleep 2
+    - roslaunch scan2shape_launch process_cloud_node_rgbd_indoor_with_ns.launch odom_topic:=/dragonfly67/quadrotor_ukf/control_odom robot_name:=robot0
+  - shell_command:
+    - sleep 2 
+    - cd $BAG_DIR && rosbag play indoor-f250-*.bag --clock -r $BAG_PLAY_RATE -s 0 --topics /dragonfly67/quadrotor_ukf/control_odom /camera/aligned_depth_to_color/image_raw /camera/color/image_raw /camera/depth/image_rect_raw /camera/aligned_depth_to_color/image_raw:=/robot0/camera/aligned_depth_to_color/image_raw /camera/color/image_raw:=/robot0/camera/color/image_raw /camera/depth/image_rect_raw:=/robot0/camera/depth/image_rect_raw
+  -
+
+- window_name: roscore
+  layout: tiled
+  shell_command_before:
+  - export ROS_MASTER_URI=http://localhost:11311
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - roscore
+  - shell_command:
+    - sleep 1
+    - rosparam set /use_sim_time true
+  -
+  -
+
+- window_name: exit
+  layout: tiled
+  shell_command_before:
+  - export ROS_MASTER_URI=http://localhost:11311
+  - source ${ROS_WS}/devel/setup.bash
+  panes:
+  - echo "tmux kill-session -t hercules"
