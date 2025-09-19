@@ -1,5 +1,7 @@
-REPO_DIR="/home/dbutterfield3/Research/ros_workspaces/slideslam_original_ws"
-DATA_DIR="/media/dbutterfield3/T73"
+REPO_DIR="/mnt/c/Users/camer/Documents/LunarLab/slide_slam_ws"
+DATA_DIR="/mnt/d/Hercules/V1.4.1/data/bags"
+
+export XAUTHORITY=$HOME/.Xauthority
 
 docker run -it \
     --name="slideslam_baseline" \
