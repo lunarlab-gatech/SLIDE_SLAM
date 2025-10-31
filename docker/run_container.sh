@@ -1,8 +1,10 @@
-REPO_DIR="/home/dbutterfield3/Research/ros_workspaces/slideslam_original_ws"
-DATA_DIR="/media/dbutterfield3/T73"
+REPO_DIR="/mnt/c/Users/camer/Documents/LunarLab/slide_slam_mk2"
+DATA_DIR="/mnt/d/Hercules/V1.4.1/data/bags"
+
+export XAUTHORITY=$HOME/.Xauthority
 
 docker run -it \
-    --name="slideslam_baseline" \
+    --name="slideslam_scorched_earth" \
     --net="host" \
     --privileged \
     --gpus="all" \
@@ -19,6 +21,5 @@ docker run -it \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
     --volume="$XAUTHORITY:/tmp/.Xauthority:ro" \
-    slideslam_baseline \
+    slideslam_scorched_earth \
     bash
-

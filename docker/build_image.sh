@@ -1,1 +1,1 @@
-docker build -t slideslam_baseline .
+docker build -t slideslam_scorched_earth .

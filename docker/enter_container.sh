@@ -1,1 +1,1 @@
-docker start slideslam_baseline && docker exec -it slideslam_baseline /bin/bash
+docker start slideslam_scorched_earth && docker exec -it slideslam_scorched_earth /bin/bash

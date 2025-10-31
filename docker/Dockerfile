@@ -1,9 +1,9 @@
 FROM xurobotics/slide-slam:latest
 
 # Set user arguments (being username, echo $UID, and id -g)
-ARG USERNAME=dbutterfield3
-ARG USER_UID=3332128
-ARG USER_GID=2626
+ARG USERNAME=cam
+ARG USER_UID=1000
+ARG USER_GID=1000
 
 # Create a non-root user with matching UID/GID
 RUN groupadd --gid ${USER_GID} ${USERNAME} && \

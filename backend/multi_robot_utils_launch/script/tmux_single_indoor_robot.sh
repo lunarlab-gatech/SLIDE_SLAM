@@ -2,7 +2,7 @@
 
 SESSION_NAME=slide_slam_nodes
 BAG_PLAY_RATE=1.0
-BAG_DIR='/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/data/raw_data/indoor'
+BAG_DIR='~/data'
 
 CURRENT_DISPLAY=${DISPLAY}
 if [ -z ${DISPLAY} ];

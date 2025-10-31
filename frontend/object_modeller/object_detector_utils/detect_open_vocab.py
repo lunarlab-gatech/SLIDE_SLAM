@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 
 import rospy
 import rospkg
@@ -71,15 +71,19 @@ class sem_detection:
         print("cy: ", self.color_cy)
 
         # Subscriber topics names
-        self.rgb_topic = self.robot_name + '/camera/color/image_raw'
-        self.depth_topic = self.robot_name + '/camera/depth/image_rect_raw'
-        self.aligned_depth_topic = self.robot_name + \
+        self.rgb_topic = '/' + self.robot_name + '/camera/color/image_raw'
+        self.depth_topic = '/' + self.robot_name + '/camera/depth/image_rect_raw'
+        self.aligned_depth_topic = '/' + self.robot_name + \
             '/camera/aligned_depth_to_color/image_raw'
         self.sync_odom_measurements = True
 
         # Publisher topics names
-        self.sync_pc_odom_topic = self.robot_name + '/sem_detection/sync_pc_odom'
-        self.pc_topic = self.robot_name + '/sem_detection/pointcloud'
+        self.sync_pc_odom_topic = '/' + self.robot_name + '/sem_detection/sync_pc_odom'
+        self.pc_topic = '/' + self.robot_name + '/sem_detection/pointcloud'
+
+        print("Subscribing to rgb topic " + self.rgb_topic)
+        print("Subscribing to depth topic " + self.depth_topic)
+        print("Publishing to pc topic " + self.pc_topic)
 
         # Subscriber and publisher
         self.rgb_sub = message_filters.Subscriber(self.rgb_topic, Image)
