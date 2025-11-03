@@ -1,0 +1,23 @@
+sim: false
+desired_rate: 2
+confidence_threshold: 0.4
+rgb_topic: "camera/color/image_raw/"
+depth_topic: "camera/depth/image_rect_raw"
+aligned_depth_topic: "camera/aligned_depth_to_color/image_raw"
+odom_topic: "$(arg odom_topic)"
+sync_odom_measurements: true
+sync_pc_odom_topic: "/robot$(arg robot_ID)/sem_detection/sync_pc_odom"
+pc_topic: "/robot$(arg robot_ID)/sem_detection/pointcloud"
+
+# For scarab
+# fx: 390.97088623046875
+# fy: 390.970886230468
+# cx: 324.1226806640625
+# cy: 243.95254516601562
+
+# For f250 435i
+fx: 603.7166748046875
+fy: 603.9064331054688
+cx: 314.62518310546875
+cy: 244.9166717529297
+k_depth_scaling_factor: 1000.0

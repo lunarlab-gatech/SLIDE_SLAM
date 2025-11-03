@@ -1,0 +1,90 @@
+# Classes used by YOLO World open vocabulary object detector
+# Background class is 0 so start class list from 1
+# Each class has the following attributes and new classes must be added in the same format:
+# id: Unique ID for the class
+# color: RGB color of the class
+# length_cutoff: Min and max length of the object to consider it as valid detection and fit model
+# height_cutoff: Min and max height of the object to consider it as valid detection and fit model
+# mesh_model_path: Path to the mesh model of the object. If it doesn't exist, leave the value as empty and don't write anything. An Ellipsoid model will be used in that case.
+# mesh_model_scale: Scale of the mesh model. This value will be multiplied by a fixed dimension which is 0.6m for all dimensions. Can be left blank if mesh model doesn't exist.
+# class_assignment_thresh: Distance threshold in meters for Hungarian Assignment to consider two object tracks as the same object. If two object model centroids are closer than this value, they will be considered as the same object.
+chair:
+  id: 1
+  color: [1.0, 0.0, 0.0] # Red Chair
+  length_cutoff: [0.2, 1.5]
+  height_cutoff: [0.2, 1.5]
+  mesh_model_path: "package://sloam/resource/chair.stl"
+  mesh_model_scale: 0.85
+  class_assignment_thresh: 0.75
+table:
+  id: 2
+  color: [0.0, 1.0, 0.0] # Green Table
+  length_cutoff: [0.5, 5.0]
+  height_cutoff: [0.2, 2.0]
+  mesh_model_path: "package://sloam/resource/table2.stl"
+  mesh_model_scale: 0.5
+  class_assignment_thresh: 1.5
+tv:
+  id: 3
+  color: [0.0, 0.0, 1.0] # Blue TV
+  length_cutoff: [0.1, 2.0]
+  height_cutoff: [0.1, 2.0]
+  mesh_model_path: "package://sloam/resource/monitor.stl"
+  mesh_model_scale: 0.3
+  class_assignment_thresh: 1.5
+trash bin:
+  id: 4
+  color: [0.0, 0.0, 0.5] # Dark Blue Trash Bin
+  length_cutoff: [0.2, 1.5]
+  height_cutoff: [0.1, 1.5]
+  mesh_model_path: "package://sloam/resource/trash_can.stl"
+  mesh_model_scale: 0.03
+  class_assignment_thresh: 1.0
+door:
+  id: 5
+  color: [1.0, 0.0, 1.0] # Magenta Door
+  length_cutoff: [0.5, 5.0]
+  height_cutoff: [1.5, 3.0]
+  mesh_model_path: "package://sloam/resource/door.stl"
+  mesh_model_scale: 0.03
+  class_assignment_thresh: 1.5
+plant:
+  id: 6
+  color: [0.0, 1.0, 0.0] # Green Plant
+  length_cutoff: [0.1, 2.0]
+  height_cutoff: [0.1, 2.0]
+  mesh_model_path: "package://sloam/resource/plant.stl"
+  mesh_model_scale: 0.03
+  class_assignment_thresh: 1.0
+refrigerator:
+  id: 7
+  color: [0.75, 0.75, 0.75] # Silver Refrigerator
+  length_cutoff: [0.5, 3.0]
+  height_cutoff: [1.0, 4.0]
+  mesh_model_path: "package://sloam/resource/fridge.stl"
+  mesh_model_scale: 0.05
+  class_assignment_thresh: 2.0
+microwave:
+  id: 8
+  color: [0.75, 0.75, 0.75] # Teal Microwave
+  length_cutoff: [0.2, 1.5]
+  height_cutoff: [0.2, 1.5]
+  mesh_model_path: "package://sloam/resource/microwave.stl"
+  mesh_model_scale: 0.03
+  class_assignment_thresh: 2.0
+cabinet:
+  id: 9
+  color: [0.5, 0.25, 0.0] # Yellow Cabinet
+  length_cutoff: [0.2, 3.0]
+  height_cutoff: [0.25, 3.0]
+  mesh_model_path: "package://sloam/resource/cabinet.stl"
+  mesh_model_scale: 0.04
+  class_assignment_thresh: 2.5
+robot:
+  id: 10
+  color: [1.0, 0.5, 0.0] # Black Robot
+  length_cutoff: [0.25, 2.0]
+  height_cutoff: [0.2, 2.0]
+  mesh_model_path: "package://sloam/resource/robot.stl"
+  mesh_model_scale: 0.05
+  class_assignment_thresh: 1.5
