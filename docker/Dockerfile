@@ -21,3 +21,6 @@ WORKDIR /home/${USERNAME}
 
 # Install tmuxp
 RUN sudo apt install tmuxp lsof -y
+
+# Install ultralytics
+RUN sudo pip install ultralytics==8.2.0

@@ -1,0 +1,88 @@
+###########################################################
+#
+# fastsam_params.py
+#
+# Parameter class for FastSAM wrapper
+#
+# Authors: Mason Peterson
+#
+# Dec. 21, 2024
+#
+###########################################################
+
+from dataclasses import dataclass
+import yaml
+
+from typing import Tuple, List
+
+@dataclass
+class FastSAMParams:
+    
+    """
+    FastSAM wrapper parameters.
+    
+    Args:
+        weights_path (str): path to FastSAM weights
+        imgsz (Tuple[int, int]): size of the input image
+        device (str): device to run FastSAM on
+        min_mask_len_div (int): minimum mask length division. The larger this parameter is the
+            more smaller masks will be kept.
+        max_mask_len_div (int): maximum mask length division. The smaller this parameter is the
+            more larger masks will be kept.
+        ignore_people (bool): whether to ignore people
+        erosion_size (int): size of the erosion kernel
+        voxel_size (float): voxel size of observations.
+        ignore_labels (list): list of labels to ignore
+        use_keep_labels (bool): whether to use keep labels
+        keep_labels (list): list of labels to keep
+        keep_labels_option (dict): options for keep labels
+        plane_filter_params (tuple): parameters for plane filtering
+        rotate_img (str): how to rotate the image ('CW', 'CCW', '180')
+        clip (bool): whether to compute clip embeddings for observations
+        yolo_imgsz (Tuple[int, int]): size of the YOLO image
+        depth_scale (float): depth scale factor for processing depth images
+        max_depth (float): maximum depth before rejecting observation points
+        triangle_ignore_masks (List[Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]]): 
+            list of triangles to ignore. Given as a list of triples where each element of the 
+            triple is a pixel coordinates of a triangle corner. Coordinates are (x,y) in the 
+            rotated image.
+
+
+    Returns:
+        _type_: _description_
+    """
+    
+    enable_scene_flow_dynamic_obj_removal: bool
+    imgsz: list[int]
+    yolo_imgsz: list[int]
+    plane_filter_params: list[float]
+    within_depth_frac: float
+    downsample_point_cloud: bool
+    optimized_clip_embedding_calculation: bool
+    optimized_fastsam_inference: bool
+    weights_path: str = "$ROMAN_WEIGHTS/FastSAM-x.pt"
+    yolo_weights_path: str = "$ROMAN_WEIGHTS/yolov7.pt"
+    device: str = 'cpu'
+    mask_downsample_factor: int = 8
+    min_mask_len_div: int = 30
+    max_mask_len_div: int = 3
+    ignore_people: bool = False
+    erosion_size: int = 3
+    voxel_size: float = 0.05
+    ignore_labels: list = tuple(['person'])
+    use_keep_labels: bool = False
+    keep_labels: list = tuple([])
+    keep_labels_option: dict = None
+    rotate_img: str = None
+    clip: bool = True
+    depth_scale: float = 1e3
+    depth_data_type: str = "uint16"
+    max_depth: float = 7.5
+    triangle_ignore_masks: List[Tuple[Tuple[int,int], Tuple[int,int], Tuple[int,int]]] = None
+    
+    @classmethod
+    def from_yaml(cls, yaml_path: str):
+        with open(yaml_path) as f:
+            data = yaml.safe_load(f)
+        return cls(**data)
+    

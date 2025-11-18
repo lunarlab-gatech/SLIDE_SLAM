@@ -34,10 +34,10 @@ class ProcessCloudNode:
 
         if self.detect_no_seg:
             self.cls_config_path = rospack.get_path(
-                'scan2shape_launch') + '/config/process_cloud_node_indoor_open_vocab_cls_info.yaml'
+                'scan2shape_launch') + '/config/hercules_process_cloud_node_indoor_open_vocab_cls_info.yaml'
         else:
             self.cls_config_path = rospack.get_path(
-                'scan2shape_launch') + '/config/process_cloud_node_indoor_cls_info.yaml'
+                'scan2shape_launch') + '/config/hercules_process_cloud_node_indoor_cls_info.yaml'
 
         with open(self.cls_config_path, 'r') as file:
             self.cls_data_all = yaml.load(file, Loader=yaml.FullLoader)
@@ -87,7 +87,7 @@ class ProcessCloudNode:
         self.visualize = rospy.get_param(
             param_name_prefix+"visualize_DBSCAN_results", default=False)
         self.valid_range_threshold = rospy.get_param(
-            param_name_prefix+"valid_range_threshold", default=40.0)
+            param_name_prefix+"valid_range_threshold", default=500.0)
         self.fit_cuboid_length_thresh = rospy.get_param(
             param_name_prefix+"fit_cuboid_dim_thresh", default=0.2)
 
@@ -160,11 +160,10 @@ class ProcessCloudNode:
 
         # frame ids
         if self.use_sim == False:
-            # range image frame
-            self.range_image_frame = "body"
-            self.reference_frame = "dragonfly67/odom"
-            # undistorted point cloud frame
-            self.undistorted_cloud_frame = "camera"
+            # Minimal static frames for your new dataset
+            self.range_image_frame = "lidar"       # raw sensor data frame
+            self.reference_frame = "world"         # global reference frame
+            self.undistorted_cloud_frame = "base_link"  # processed point cloud published in robot frame
         else:
             self.range_image_frame = "body"
             self.reference_frame = "world"
@@ -254,6 +253,37 @@ class ProcessCloudNode:
                 "If you are replying bags, try setting /use_sim_time to true and add --clock flag to rosbag play")
             rospy.logwarn(
                 "It may also be caused by excessive CPU load, play bag with slower rate")
+            
+        # Get all detected labels
+        detected_labels = np.unique(points_world_xyzi_id_conf_depth[:, 3])
+        detected_labels = detected_labels[detected_labels != 0]
+
+        # Create a mapping of all labels to process
+        labels_to_process = {}
+        for label in detected_labels:
+            # Check if it's a known class
+            found = False
+            for cls_name, cls_id in self.cls.items():
+                if cls_id == label and cls_name != "background":
+                    labels_to_process[label] = {
+                        'name': cls_name,
+                        'length_cutoff': self.length_cutoffs[cls_name],
+                        'height_cutoff': self.height_cutoffs[cls_name],
+                        'color': self.class_color[cls_name]
+                    }
+                    found = True
+                    break
+            
+            # If unknown, add with defaults
+            if not found:
+                labels_to_process[label] = {
+                    'name': f"detected_obj_{int(label)}",
+                    'length_cutoff': (0.1, 5.0),
+                    'height_cutoff': (0.1, 3.0),
+                    'color': (0.7, 0.7, 0.7)
+                }
+                rospy.loginfo_throttle(10, f"Processing unknown class with label {label}")
+
 
         else:
             for cur_object_class in self.cls.keys():
@@ -267,6 +297,26 @@ class ProcessCloudNode:
                 # find object instances
                 if pc_world_cur_class.shape[0] == 0:
                     continue
+
+                if pc_world_cur_class.shape[0] > 0:
+                    # Convert class-specific points to PointCloud2
+                    pc_msg = ros_numpy.point_cloud2.array_to_pointcloud2(
+                        np.array(
+                            [(x, y, z, intensity) for x, y, z, intensity in pc_world_cur_class[:, :4]],
+                            dtype=[('x', np.float32), ('y', np.float32), ('z', np.float32), ('intensity', np.float32)]
+                        ),
+                        stamp=current_raw_timestamp,
+                        frame_id=self.reference_frame
+                    )
+
+                    self.tree_cloud_pub.publish(pc_msg)
+                    self.ground_cloud_pub.publish(pc_msg)
+
+                    # Publish to the corresponding topic if available
+                    # if cur_object_class == "tree":
+                    #     self.tree_cloud_pub.publish(pc_msg)
+                    # elif cur_object_class == "ground":
+                    #     self.ground_cloud_pub.publish(pc_msg)
 
                 # Fit cuboids to the semantic instances to start the tracking process
                 xcs, ycs, lengths, widths, raw_points = fit_cuboid_indoor(

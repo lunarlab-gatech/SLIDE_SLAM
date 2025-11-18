@@ -88,3 +88,11 @@ robot:
   mesh_model_path: "package://sloam/resource/robot.stl"
   mesh_model_scale: 0.05
   class_assignment_thresh: 1.5
+tree:
+  id: 12
+  color: [0.2, 0.5, 0.1] # Dark Green Tree (different from plant)
+  length_cutoff: [0.0, 15.0]  # Min 30cm, max 15m trunk diameter
+  height_cutoff: [0.0, 50.0]  # Min 1m, max 50m height
+  mesh_model_path: ""  # Leave empty to use ellipsoid model
+  mesh_model_scale: 
+  class_assignment_thresh: 3.0  # Larger threshold for tree-sized objects

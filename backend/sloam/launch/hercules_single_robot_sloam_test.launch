@@ -31,7 +31,7 @@
             <remap from="/robot$(arg hostRobot_ID)/semantic_meas_sync_odom"     to="/robot0/semantic_meas_sync_odom"/>
             <!-- <remap from="/sloam/odom"         to="/quadrotor/lidar_odom"/> -->
             <!-- <remap from="/sloam/odom"         to="/robot_0/vio_odom"/> -->
-            <remap from="/sloam/odom"         to="/dragonfly67/quadrotor_ukf/control_odom"/>
+            <remap from="/sloam/odom"         to="/odom_gt"/>
             <!-- <remap from="/sloam/odom"         to="/scarab41/odom_laser"/> -->
             <!-- <remap from="/sloam/odom"         to="/scarab45/odom_laser"/> -->
     </node>

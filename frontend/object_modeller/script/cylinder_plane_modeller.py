@@ -74,7 +74,7 @@ class CylinderPlaneModeller:
         self.radius_cutoff = rospy.get_param(
             params_name_prefix + "radius_cutoff", (0.05, 0.5))
         self.min_points_per_tree = rospy.get_param(
-            params_name_prefix + "min_points_per_tree", 15)
+            params_name_prefix + "min_points_per_tree", 10)
         self.min_points_for_radius = rospy.get_param(
             params_name_prefix + "min_points_for_radius", 5)
         self.min_points_per_ground_patch = rospy.get_param(
@@ -231,7 +231,9 @@ class CylinderPlaneModeller:
 
             rospy.loginfo_throttle(
                 5, "Successfully published tree instance cloud")
-
+            
+        print(len(cylinders))
+        
         # visualize the cylinders in rviz
         if len(cylinders) > 0:
             self.visualize_cylinders(cylinders, tree_cloud_header)
@@ -412,8 +414,8 @@ class CylinderPlaneModeller:
             elif ground_plane_coeff is not None:
                 # visualize the ground plane
                 ground_centroid = np.median(local_ground_points, axis=0)
-                self.visualize_ground_plane(
-                    ground_plane_coeff, ground_centroid, tree_cloud_header, cylinder_id)
+                # self.visualize_ground_plane(
+                #     ground_plane_coeff, ground_centroid, tree_cloud_header, cylinder_id)
                 # add this to the latest ground plane models
                 self.latest_ground_plane_models.append(ground_plane_coeff)
                 self.latest_ground_plane_models_centroids.append(
