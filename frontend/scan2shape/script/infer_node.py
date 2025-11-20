@@ -147,7 +147,19 @@ class Inference:
         #     points_xyz.shape[0], -1)[:, 1].astype(np.float32)
         # ----------------------------------------------------------
 
+        def fix_pointcloud2_order(msg: PointCloud2) -> PointCloud2:
+            """Reorders the fields of a PointCloud2 message by offset."""
+
+            msg.fields = sorted(msg.fields, key=lambda f: f.offset)
+            return msg
+
+        # faster-lio doesn't return fields in order of offset, so reorder 
+        # for ros_numpy.numpify()
+        msg = fix_pointcloud2_order(msg)
+
         undistorted_pc = ros_numpy.numpify(msg)
+        rospy.logwarn("----------------------------------------------------")
+        rospy.logwarn("Undistorted PC: " +  str(undistorted_pc['x'].shape))
         self.pc_width = undistorted_pc['x'].flatten().shape[0]
         self.pc_height = 1
         points_xyz = np.zeros((undistorted_pc['x'].flatten().shape[0], 3))
@@ -223,8 +235,9 @@ class Inference:
             if self.gpu_:
                 torch.cuda.synchronize()
 
-            # Output probability instead of hard classification
+            # RangeNet++ outputs probability instead of hard classification, so convert to labels
             proj_argmax = proj_output[0].argmax(dim=0)
+            rospy.logwarn("Output prediction shape: " + str(proj_argmax.shape))
 
             # threshold out of range points
             points_xyz[np.linalg.norm(
@@ -255,25 +268,34 @@ class Inference:
 
             pred_np_range_image = proj_argmax.cpu().numpy()
             pred_np_range_image = pred_np_range_image.reshape((-1))
+            rospy.logwarn("pred_np_range shape: " + str(pred_np_range_image.shape))
             proj_xyz_range_image = proj_xyz.cpu().numpy()
             proj_xyz_range_image = proj_xyz_range_image.reshape((-1, 3))
+            rospy.logwarn("proj_xyz_range shape: " + str(proj_xyz_range_image.shape))
             # threshold out of points
             pred_np_range_image[np.linalg.norm(
                 proj_xyz_range_image, axis=1) > self.range_threshold] = 0
             # make sure that points do not exist in the originial input PC are labeled as 0
             pred_np_range_image[proj_xyz_range_image[:, 0] == -1] = 0
-            # print(f"number of points that do not have data: ", np.sum(proj_xyz_range_image[:,0] == -1))
-            # print(f"number of points that DO have data: ", np.sum(proj_xyz_range_image[:,0] != -1))
+            rospy.logwarn("number of points that do not have data: " + str(np.sum(proj_xyz_range_image[:,0] == -1)))
+            rospy.logwarn("number of points that DO have data: " + str(np.sum(proj_xyz_range_image[:,0] != -1)))
             proj_xyz_range_image[proj_xyz_range_image[:, 0] == -1] = np.NaN
             full_data_range_image = np.hstack(
                 (proj_xyz_range_image, pred_np_range_image[:, None])).astype(np.float32)
+            rospy.logwarn("Final shape: " + str(full_data_range_image.shape))
+            rospy.logwarn("pc_width: " + str(self.pc_width))
 
             pc_msg = PointCloud2()
             pc_msg.header = header
             pc_msg.header.frame_id = "body"
             rospy.logwarn_throttle(
                 30, "Segmented point cloud is currently hardcoded to be published in \"body\" frame. Please change it to the correct frame if needed.")
-            pc_msg.width = self.pc_width
+            
+            # Although only self.pc_width points are valid, invalid ones are filled with NaNs, which are then 
+            # filtered out by the process_cloud_node. So, update this to reflect that 65536 points are sent
+            # each time, even if only self.pc_width points have anything meaningful.
+            pc_msg.width = 65536 
+            
             pc_msg.height = self.pc_height
             pc_msg.point_step = self.pc_point_step
             pc_msg.row_step = pc_msg.width * pc_msg.point_step
