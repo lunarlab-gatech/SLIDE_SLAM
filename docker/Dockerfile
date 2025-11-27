@@ -21,3 +21,5 @@ WORKDIR /home/${USERNAME}
 
 # Install tmuxp
 RUN sudo apt install tmuxp lsof -y
+RUN echo "set-option -g default-shell /bin/bash" >> /home/${USERNAME}/.tmux.conf
+RUN echo "set -g mouse on" >> /home/${USERNAME}/.tmux.conf

@@ -139,18 +139,9 @@ source ~/slideslam_original_ws/devel/setup.bash
 roscd multi_robot_utils_launch/script
 ```
 
-Modify `tmux_single_indoor_robot.sh` to set the `BAG_DIR` to where you downloaded the bags
-
-Modify `BAG_PLAY_RATE` to your desired play rate (lower than 1.0 if you have a low-specification CPU)
-
-Then make it executable if needed
+Modify `tmux_single_indoor_robot.sh` to set the `BAG_DIR` to where you downloaded the bags. Then run the following:
 ```
-chmod +x tmux_single_indoor_robot.sh
-```
-
-Finally, if you want to use Yolo-v8, execute this script
-```
-./tmux_single_indoor_robot.sh
+tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/tmux_single_indoor_robot.yaml
 ```
 
 

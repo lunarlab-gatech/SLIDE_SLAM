@@ -1,0 +1,22 @@
+# Each class has the following attributes and new classes must be added in the same format:
+# length_cutoff: Min and max length of the object to consider it as valid detection and fit model
+# height_cutoff: Min and max height of the object to consider it as valid detection and fit model
+# mesh_model_scale: Scale of the mesh model. This value will be multiplied by a fixed dimension which is 0.6m for all dimensions. Can be left blank if mesh model doesn't exist.
+# class_assignment_thresh: Distance threshold in meters for Hungarian Assignment to consider two object tracks as the same object. If two object model centroids are closer than this value, they will be considered as the same object.
+
+Tree:
+  id: 1
+  color: [0.0, 1.0, 0.0] # Green
+  length_cutoff: [0.2, 2.0]
+  height_cutoff: [0.2, 2.0]
+  mesh_model_path: "package://sloam/resource/Threednd Tree/threednd_tree_v1.stl"
+  mesh_model_scale: 0.85
+  class_assignment_thresh: 0.75
+Boulder:
+  id: 2
+  color: [0.58, 0.271, 0.165] # Brown
+  length_cutoff: [0.5, 5.0]
+  height_cutoff: [0.2, 3.0]
+  mesh_model_path: "package://sloam/resource/Boulders for Gloomhaven - Sculpted (1, 2, 3 Hex)/Gloomhaven_Boulder_1Hex_6.stl"
+  mesh_model_scale: 0.5
+  class_assignment_thresh: 2.0
