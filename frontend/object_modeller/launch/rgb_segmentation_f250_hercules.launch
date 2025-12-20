@@ -7,6 +7,7 @@
     <node name="semantic_detector_from_sem_labels" pkg="object_modeller" type="detect_sem_via_gt_sem_labels.py" output="screen" ns="$(arg robot_name)">
 
         <param name="~desired_rate" value="2"/>
+        <param name="~robot_name" value="$(arg robot_name)"/>
         <param name="~seg_topic" value="/$(arg robot_name)/cam0/seg"/>
         <param name="~label_color_map_path" value="$(arg label_color_map_path)"/>
         <param name="~cls_config_path" value="$(find object_modeller)/config/hercules_cls_config.yaml"/>

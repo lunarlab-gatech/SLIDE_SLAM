@@ -88,9 +88,7 @@ vizAllCentroidLandmarks(const std::vector<SE3> &allLandmarks,
   int cylinderId = 0;
   
   // TODO(ankit): Add a flag to read yaml file from open_vocab or closed_vocab
-  YAML::Node cls_yaml_data = YAML::LoadFile(ros::package::getPath("object_modeller") + "/config/open_vocab_cls_all.yaml");
-
-  
+  YAML::Node cls_yaml_data = YAML::LoadFile(ros::package::getPath("object_modeller") + "/config/hercules_cls_config.yaml");
 
   std::map<int, std::string> label_to_cls_name;
   std::map<int, std::vector<double>> label_to_cls_color;

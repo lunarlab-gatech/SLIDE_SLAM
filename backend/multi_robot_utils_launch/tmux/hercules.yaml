@@ -1,9 +1,9 @@
 session_name: slide_slam_nodes
 environment:
   BAG_PLAY_RATE: "1.0"
-  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V1.6'
-  BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V1.6/extract/bags_for_slideslam'
-  ROBOT_NAME: 'Drone1'
+  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.0.0'
+  BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.0.0/extract/bags_for_slideslam'
+  ROBOT_NAME: 'Husky1'
 start_directory: "~/slideslam_original_ws"
 windows:
   - window_name: Main
@@ -16,16 +16,17 @@ windows:
       - shell_command:
           - roslaunch object_modeller rgb_segmentation_f250_hercules.launch odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME} label_color_map_path:=${DATA_DIR}/data/label_color_map.csv
       - shell_command:
-          - 
+          - roslaunch scan2shape_launch process_cloud_node_hercules.launch odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME} camera_frame_wrt_odom_frame_T:=[0.0,0.055,0.35] camera_frame_wrt_odom_frame_R_quat:=[0.5,-0.5,0.5,-0.5]
       - shell_command:
-          - 
+          - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME} odom_topic:=/${ROBOT_NAME}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
       - shell_command:
-          - 
+          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME}
 
   - window_name: roscore
     layout: tiled
     shell_command_before:
       - export ROS_MASTER_URI=http://localhost:11311
+      - source ~/slideslam_original_ws/devel/setup.bash
     panes:
       - shell_command:
           - roscore
@@ -35,7 +36,7 @@ windows:
       - shell_command:
           - sleep 2
           - cd ${BAG_DIR}
-          - rosbag play ${ROBOT_NAME}.bag --clock -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME}/cam0/seg /odom:=/${ROBOT_NAME}/odom /cam0/depth:=/${ROBOT_NAME}/cam0/depth
+          - rosbag play ${ROBOT_NAME}.bag --clock -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME}/cam0/seg /odom_gt:=/${ROBOT_NAME}/odom /cam0/depth:=/${ROBOT_NAME}/cam0/depth /odom_gt/path:=/${ROBOT_NAME}/odom_gt/path
       - shell_command:
           - 
   
