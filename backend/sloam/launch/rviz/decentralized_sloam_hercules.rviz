@@ -5,31 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /robot01/centroid map1
-        - /robot01/Odometry1
-        - /robot01/MarkerArray1
-        - /robot01/cylinder map1
-        - /robot01/MarkerArray2
-        - /robot01/MarkerArray3
-        - /robot01/MarkerArray4
-        - /robot01/MarkerArray5
-        - /robot01/CubeMap1
-        - /robot01/raw_detections1
-        - /robot11/Odometry1
-        - /robot11/Cylinders Map1
-        - /robot11/MarkerArray1
-        - /robot11/MarkerArray2
-        - /robot11/MarkerArray3
-        - /robot11/MarkerArray4
-        - /robot11/CubeMap1
-        - /robot21/MarkerArray1
-        - /robot21/MarkerArray2
-        - /robot21/CylinderMap1
-        - /robot21/EllipMap1
-        - /robot21/MarkerArray3
-        - /robot21/Odometry1
-        - /robot21/CubeMap1
         - /Husky11
+        - /Drone11
       Splitter Ratio: 0.4602648913860321
     Tree Height: 1786
   - Class: rviz/Selection
@@ -49,14 +26,13 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Filtered Semantic Points
   - Class: rviz/Displays
     Help Height: 138
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Grid1
-        - /PointCloud22/Autocompute Value Bounds1
       Splitter Ratio: 0.5
     Tree Height: 275
 Preferences:
@@ -84,291 +60,6 @@ Visualization Manager:
       Plane Cell Count: 1000
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/Group
-      Displays:
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_0/sloam/optimized_point_landmarks
-          Name: centroid map
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Angle Tolerance: 1
-          Class: rviz/Odometry
-          Covariance:
-            Orientation:
-              Alpha: 0.5
-              Color: 255; 255; 127
-              Color Style: Unique
-              Frame: Local
-              Offset: 1
-              Scale: 1
-              Value: true
-            Position:
-              Alpha: 0.30000001192092896
-              Color: 204; 51; 204
-              Scale: 1
-              Value: true
-            Value: false
-          Enabled: true
-          Keep: 10
-          Name: Odometry
-          Position Tolerance: 0.10000000149011612
-          Queue Size: 10
-          Shape:
-            Alpha: 1
-            Axes Length: 1
-            Axes Radius: 0.10000000149011612
-            Color: 255; 25; 0
-            Head Length: 0.30000001192092896
-            Head Radius: 0.10000000149011612
-            Shaft Length: 1
-            Shaft Radius: 0.05000000074505806
-            Value: Axes
-          Topic: /robot0/sloam_odom_high_freq
-          Unreliable: false
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam0/robot0/trajectory
-          Name: MarkerArray
-          Namespaces:
-            points_and_lines: true
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_0/sloam/cylinders_map
-          Name: cylinder map
-          Namespaces:
-            {}
-          Queue Size: 1
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: false
-          Marker Topic: /sloam0/robot2/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: false
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam0/robot1/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam0/robot2/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam0/robot4/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_0/sloam/cubes_map
-          Name: CubeMap
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot0/car_cuboids
-          Name: raw_detections
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-      Enabled: true
-      Name: robot0
-    - Class: rviz/Group
-      Displays:
-        - Angle Tolerance: 0.10000000149011612
-          Class: rviz/Odometry
-          Covariance:
-            Orientation:
-              Alpha: 0.5
-              Color: 255; 255; 127
-              Color Style: Unique
-              Frame: Local
-              Offset: 1
-              Scale: 1
-              Value: true
-            Position:
-              Alpha: 0.30000001192092896
-              Color: 204; 51; 204
-              Scale: 1
-              Value: true
-            Value: true
-          Enabled: true
-          Keep: 1
-          Name: Odometry
-          Position Tolerance: 0.10000000149011612
-          Queue Size: 10
-          Shape:
-            Alpha: 1
-            Axes Length: 1
-            Axes Radius: 0.10000000149011612
-            Color: 255; 25; 0
-            Head Length: 0.30000001192092896
-            Head Radius: 0.10000000149011612
-            Shaft Length: 1
-            Shaft Radius: 0.05000000074505806
-            Value: Axes
-          Topic: /robot1/sloam_odom_high_freq
-          Unreliable: false
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_1/sloam/cylinders_map
-          Name: Cylinders Map
-          Namespaces:
-            {}
-          Queue Size: 1
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_1/sloam/optimized_point_landmarks
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam1/robot1/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam1/robot0/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam1/robot2/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_1/sloam/cubes_map
-          Name: CubeMap
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-      Enabled: false
-      Name: robot1
-    - Class: rviz/Group
-      Displays:
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam2/robot0/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam2/robot1/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_2/sloam/cylinders_map
-          Name: CylinderMap
-          Namespaces:
-            {}
-          Queue Size: 1
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_2/sloam/optimized_point_landmarks
-          Name: EllipMap
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /sloam2/robot2/trajectory
-          Name: MarkerArray
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-        - Angle Tolerance: 0.10000000149011612
-          Class: rviz/Odometry
-          Covariance:
-            Orientation:
-              Alpha: 0.5
-              Color: 255; 255; 127
-              Color Style: Unique
-              Frame: Local
-              Offset: 1
-              Scale: 1
-              Value: true
-            Position:
-              Alpha: 0.30000001192092896
-              Color: 204; 51; 204
-              Scale: 1
-              Value: true
-            Value: true
-          Enabled: true
-          Keep: 100
-          Name: Odometry
-          Position Tolerance: 0.10000000149011612
-          Queue Size: 10
-          Shape:
-            Alpha: 1
-            Axes Length: 2
-            Axes Radius: 0.20000000298023224
-            Color: 255; 25; 0
-            Head Length: 0.30000001192092896
-            Head Radius: 0.10000000149011612
-            Shaft Length: 1
-            Shaft Radius: 0.05000000074505806
-            Value: Axes
-          Topic: /robot2/odom
-          Unreliable: false
-          Value: true
-        - Class: rviz/MarkerArray
-          Enabled: true
-          Marker Topic: /robot_2/sloam/cubes_map
-          Name: CubeMap
-          Namespaces:
-            {}
-          Queue Size: 100
-          Value: true
-      Enabled: false
-      Name: robot2
     - Alpha: 1
       Class: rviz/Axes
       Enabled: true
@@ -378,138 +69,6 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Show Trail: false
       Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: Intensity
-      Decay Time: 0
-      Enabled: false
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 5
-      Size (m): 0.009999999776482582
-      Style: Points
-      Topic: /robot0/pc_instance_segmentation_accumulated
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: false
-    - Alpha: 0.10000000149011612
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 14.275662422180176
-        Min Value: -0.64055335521698
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 136; 138; 133
-      Color Transformer: AxisColor
-      Decay Time: 10
-      Enabled: false
-      Invert Rainbow: true
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 1
-      Size (m): 0.009999999776482582
-      Style: Points
-      Topic: /cloud_registered
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: false
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: Intensity
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: true
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 10
-      Size (m): 0.009999999776482582
-      Style: Points
-      Topic: /robot0/filtered_semantic_segmentation
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /robot0/camera/color/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /robot0/camera/color/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /robot0/camera/aligned_depth_to_color/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /robot0/camera/color/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
     - Class: rviz/Group
       Displays:
         - Alpha: 1
@@ -576,7 +135,7 @@ Visualization Manager:
           Color: 255; 255; 255
           Color Transformer: Intensity
           Decay Time: 0
-          Enabled: false
+          Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Min Color: 0; 0; 0
@@ -591,7 +150,7 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: false
+          Value: true
         - Class: rviz/MarkerArray
           Enabled: false
           Marker Topic: /Husky1/cuboid_centers
@@ -639,13 +198,209 @@ Visualization Manager:
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky1/sloam/optimized_point_landmarks
-          Name: MarkerArray
+          Name: "SLOAM: Opt Pt Landmarks"
+          Namespaces:
+            "": true
+            text: true
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky1/sloam/cubes_map
+          Name: "SLOAM: CubeMap"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky1/sloam/cylinders_map
+          Name: "SLOAM: CylinderMap"
+          Namespaces:
+            {}
+          Queue Size: 1
+          Value: true
+        - Angle Tolerance: 1
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: false
+          Enabled: true
+          Keep: 10
+          Name: "SLOAM: High Freq Odom"
+          Position Tolerance: 0.10000000149011612
+          Queue Size: 10
+          Shape:
+            Alpha: 1
+            Axes Length: 1
+            Axes Radius: 0.10000000149011612
+            Color: 255; 25; 0
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Axes
+          Topic: /Husky1/sloam/sloam_odom_high_freq
+          Unreliable: false
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky1/sloam/robot0/trajectory
+          Name: "SLOAM: Robot0 Traj"
+          Namespaces:
+            points_and_lines: true
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky1/sloam/robot1/trajectory
+          Name: "SLOAM: Robot1 Traj"
           Namespaces:
             {}
           Queue Size: 100
           Value: true
       Enabled: true
       Name: Husky1
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 25; 255; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.10000000149011612
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Queue Size: 10
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /Drone1/odom_gt/path
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10971.56640625
+            Min Value: -1.8166707754135132
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: Raw Semantic Points
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Drone1/sem_detection/pointcloud
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: Filtered Semantic Points
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Drone1/filtered_semantic_segmentation
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /Drone1/cuboid_centers
+          Name: ObjectTrackMarkers
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: PC Accumlated Obj Tracks
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Drone1/pc_instance_segmentation_accumulated
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /Drone1/chair_cuboids
+          Name: DetectedCuboids
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+      Enabled: false
+      Name: Drone1
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -674,7 +429,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 59.546844482421875
+      Distance: 141.93699645996094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -682,17 +437,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -16.713638305664062
-        Y: 6.468456745147705
-        Z: -1.0381851097918116e-05
+        X: -35.51482009887695
+        Y: 9.622337341308594
+        Z: -1.0402344742033165e-05
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5052042007446289
+      Pitch: 0.5602044463157654
       Target Frame: body
-      Yaw: 0.3626711964607239
+      Yaw: 0.03266467899084091
     Saved: ~
 Window Geometry:
   Displays:
@@ -700,9 +455,7 @@ Window Geometry:
   Height: 2032
   Hide Left Dock: false
   Hide Right Dock: true
-  Image:
-    collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000005870000075efc020000001cfb0000001200530065006c0065006300740069006f006e00000001e10000009b000000ab00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000b0fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000690000075e0000017800fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006500000006380000018f0000002100fffffffb000000100044006900730070006c00610079007300000002e0000000fb0000017800fffffffb0000000a0049006d00610067006500000002010000010a0000002100fffffffb0000000a0049006d0061006700650000000201000000ad0000002100fffffffb0000000a0049006d00610067006500000002a10000013a0000002100fffffffb0000000a0049006d00610067006500000001a3000000600000000000000000fb0000000a0049006d0061006700650200000000000001e300000280000001e0fb0000000a0049006d00610067006500000002f90000007e0000000000000000fb0000000a0049006d006100670065020000000000000323000002c00000010ffb0000000a0049006d00610067006500000001560000009d0000000000000000fb0000000a0049006d006100670065000000019a000001dd0000000000000000fb0000000a0049006d006100670065000000003d0000019f0000000000000000fb0000000a0049006d00610067006500000002b2000000c50000000000000000fb0000000a0049006d0061006700650000000181000000ba0000000000000000fb0000000a0049006d006100670065000000003d0000033a0000000000000000fb0000000a0049006d0061006700650100000244000001330000000000000000fb0000000a0049006d0061006700650100000232000001a90000000000000000fb0000000a0049006d00610067006501000002600000017b0000000000000000fb0000000a0049006d0061006700650000000310000000cb0000000000000000fb0000000a0049006d0061006700650100000216000001c50000000000000000000000010000015f0000039efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000039e0000012300fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007380000005efc0100000002fb0000000800540069006d00650000000000000007380000061c00fffffffb0000000800540069006d00650100000000000004500000000000000000000008e10000075e00000004000000040000000800000008fc00000002000000020000000000000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000055f0000075efc020000001cfb0000001200530065006c0065006300740069006f006e00000001e10000009b000000ab00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000b0fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000690000075e0000017800fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006500000006380000018f0000000000000000fb000000100044006900730070006c00610079007300000002e0000000fb0000017800fffffffb0000000a0049006d00610067006500000002010000010a0000000000000000fb0000000a0049006d0061006700650000000201000000ad0000000000000000fb0000000a0049006d00610067006500000002a10000013a0000000000000000fb0000000a0049006d00610067006500000001a3000000600000000000000000fb0000000a0049006d0061006700650200000000000001e300000280000001e0fb0000000a0049006d00610067006500000002f90000007e0000000000000000fb0000000a0049006d006100670065020000000000000323000002c00000010ffb0000000a0049006d00610067006500000001560000009d0000000000000000fb0000000a0049006d006100670065000000019a000001dd0000000000000000fb0000000a0049006d006100670065000000003d0000019f0000000000000000fb0000000a0049006d00610067006500000002b2000000c50000000000000000fb0000000a0049006d0061006700650000000181000000ba0000000000000000fb0000000a0049006d006100670065000000003d0000033a0000000000000000fb0000000a0049006d0061006700650100000244000001330000000000000000fb0000000a0049006d0061006700650100000232000001a90000000000000000fb0000000a0049006d00610067006501000002600000017b0000000000000000fb0000000a0049006d0061006700650000000310000000cb0000000000000000fb0000000a0049006d0061006700650100000216000001c50000000000000000000000010000015f0000039efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000039e0000012300fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007380000005efc0100000002fb0000000800540069006d00650000000000000007380000061c00fffffffb0000000800540069006d00650100000000000004500000000000000000000009090000075e00000004000000040000000800000008fc00000002000000020000000000000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:

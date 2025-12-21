@@ -1,12 +1,17 @@
 session_name: slide_slam_nodes
 environment:
   BAG_PLAY_RATE: "1.0"
-  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.0.0'
-  BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.0.0/extract/bags_for_slideslam'
-  ROBOT_NAME: 'Husky1'
+  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0'
+  BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0/extract/bags_for_slideslam'
+  ROBOT_NAME_0: 'Husky1'
+  ROBOT_0_T: "[0.0,0.055,0.35]"
+  ROBOT_0_R: "[0.5,-0.5,0.5,-0.5]"
+  ROBOT_NAME_1: 'Drone1'
+  ROBOT_1_T: "[0.35,0.055,-0.2]"
+  ROBOT_1_R: "[0.45451948,-0.45451948,0.54167522,-0.54167522]"
 start_directory: "~/slideslam_original_ws"
 windows:
-  - window_name: Main
+  - window_name: ROBOT_0
     layout: tiled
     shell_command_before:
       - export ROS_MASTER_URI=http://localhost:11311
@@ -14,13 +19,29 @@ windows:
       - sleep 2
     panes:
       - shell_command:
-          - roslaunch object_modeller rgb_segmentation_f250_hercules.launch odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME} label_color_map_path:=${DATA_DIR}/data/label_color_map.csv
+          - roslaunch object_modeller rgb_segmentation_f250_hercules.launch odom_topic:=/${ROBOT_NAME_0}/odom robot_name:=${ROBOT_NAME_0} label_color_map_path:=${DATA_DIR}/data/label_color_map.csv
       - shell_command:
-          - roslaunch scan2shape_launch process_cloud_node_hercules.launch odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME} camera_frame_wrt_odom_frame_T:=[0.0,0.055,0.35] camera_frame_wrt_odom_frame_R_quat:=[0.5,-0.5,0.5,-0.5]
+          - roslaunch scan2shape_launch process_cloud_node_hercules.launch odom_topic:=/${ROBOT_NAME_0}/odom robot_name:=${ROBOT_NAME_0} camera_frame_wrt_odom_frame_T:=${ROBOT_0_T} camera_frame_wrt_odom_frame_R_quat:=${ROBOT_0_R}
       - shell_command:
-          - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME} odom_topic:=/${ROBOT_NAME}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
+          - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_0} odom_topic:=/${ROBOT_NAME_0}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
       - shell_command:
-          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME}/odom robot_name:=${ROBOT_NAME}
+          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME_0}/odom robot_name:=${ROBOT_NAME_0}
+
+  - window_name: ROBOT_1
+    layout: tiled
+    shell_command_before:
+      - export ROS_MASTER_URI=http://localhost:11311
+      - source ~/slideslam_original_ws/devel/setup.bash
+      - sleep 2
+    panes:
+      - shell_command:
+          #- roslaunch object_modeller rgb_segmentation_f250_hercules.launch odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} label_color_map_path:=${DATA_DIR}/data/label_color_map.csv
+      - shell_command:
+          #- roslaunch scan2shape_launch process_cloud_node_hercules.launch odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} camera_frame_wrt_odom_frame_T:=${ROBOT_1_T} camera_frame_wrt_odom_frame_R_quat:=${ROBOT_1_R}
+      - shell_command:
+          #- roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_1} odom_topic:=/${ROBOT_NAME_1}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
+      - shell_command:
+          # - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1}
 
   - window_name: roscore
     layout: tiled
@@ -36,9 +57,11 @@ windows:
       - shell_command:
           - sleep 2
           - cd ${BAG_DIR}
-          - rosbag play ${ROBOT_NAME}.bag --clock -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME}/cam0/seg /odom_gt:=/${ROBOT_NAME}/odom /cam0/depth:=/${ROBOT_NAME}/cam0/depth /odom_gt/path:=/${ROBOT_NAME}/odom_gt/path
+          - rosbag play ${ROBOT_NAME_0}.bag --clock -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME_0}/cam0/seg /odom_gt:=/${ROBOT_NAME_0}/odom /cam0/depth:=/${ROBOT_NAME_0}/cam0/depth /odom_gt/path:=/${ROBOT_NAME_0}/odom_gt/path
       - shell_command:
-          - 
+          # - sleep 2
+          # - cd ${BAG_DIR}
+          # - rosbag play ${ROBOT_NAME_1}.bag -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME_1}/cam0/seg /odom_gt:=/${ROBOT_NAME_1}/odom /cam0/depth:=/${ROBOT_NAME_1}/cam0/depth /odom_gt/path:=/${ROBOT_NAME_1}/odom_gt/path
   
   - window_name: kill
     panes:

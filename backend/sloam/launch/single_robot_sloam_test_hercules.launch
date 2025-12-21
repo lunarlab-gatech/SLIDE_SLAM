@@ -32,16 +32,29 @@
             <param name="priorTF_y" value="0"/>
             <param name="priorTF_z" value="0"/>
 
-            <!-- for publish -->
-             <remap from="/sloam/cubes_map"                  to="$(arg robot_name)/sloam/cubes_map"/>
-            <remap from="/sloam/cubes_submap"                to="$(arg robot_name)/sloam/cubes_submap"/>
-            <remap from="/sloam/debug/robot0/trajectory"     to="$(arg robot_name)/sloam/debug/robot0/trajectory"/>
-            <remap from="/sloam/debug/robot1/trajectory"     to="$(arg robot_name)/sloam/debug/robot1/trajectory"/>
-            <remap from="/sloam/cylinders_map"                         to="$(arg robot_name)/sloam/cylinders_map"/>
-            <remap from="/sloam/submap_cylinder_models"         to="$(arg robot_name)/sloam/submap_cylinder_models"/>
-            <remap from="/sloam/map_pose"                    to="$(arg robot_name)/sloam/map_pose"/>
-            <remap from="/sloam/observation"                 to="$(arg robot_name)/sloam/observation"/>
-            <remap from="/sloam/optimized_point_landmarks"         to="$(arg robot_name)/sloam/optimized_point_landmarks"/>
+            <!-- Remappings... -->
+            <remap from="/sloam/debug/map_ground_model" to="$(arg robot_name)/sloam/debug/map_ground_model"/>
+            <remap from="/sloam/debug/obs_ground_model" to="$(arg robot_name)/sloam/debug/obs_ground_model"/>
+            <remap from="/sloam/debug/obs_tree_models" to="$(arg robot_name)/sloam/debug/obs_tree_models"/>
+
+            <remap from="/sloam$(arg hostRobot_ID)/robot0/trajectory" to="$(arg robot_name)/sloam/robot0/trajectory"/>
+            <remap from="/sloam$(arg hostRobot_ID)/robot1/trajectory" to="$(arg robot_name)/sloam/robot1/trajectory"/> 
+
+            <remap from="/sloam/place_recognition/matching_results" to="$(arg robot_name)/sloam/place_recognition/matching_results"/>
+            <remap from="/sloam/map_pose" to="$(arg robot_name)/sloam/map_pose"/>
+
+            <remap from="/sloam/submap_cylinder_models" to="$(arg robot_name)/sloam/submap_cylinder_models"/>
+
+            <remap from="/robot$(arg hostRobot_ID)/sloam_odom_high_freq" to="$(arg robot_name)/sloam/sloam_odom_high_freq"/>
+            <remap from="/robot$(arg hostRobot_ID)/sync_odom_high_freq" to="$(arg robot_name)/sloam/sync_odom_high_freq"/>
+            <remap from="/robot$(arg hostRobot_ID)/sloam_to_vio_odom" to="$(arg robot_name)/sloam/sloam_to_vio_odom"/>
+            <remap from="/robot$(arg hostRobot_ID)/pose_high_freq" to="$(arg robot_name)/sloam/pose_high_freq"/>
+
+            <remap from="/sloam/cubes_map" to="$(arg robot_name)/sloam/cubes_map"/>
+            <remap from="/sloam/cubes_submap" to="$(arg robot_name)/sloam/cubes_submap"/>
+            <remap from="/sloam/cylinders_map" to="$(arg robot_name)/sloam/cylinders_map"/>
+            <remap from="/sloam/observation" to="$(arg robot_name)/sloam/observation"/>
+            <remap from="/sloam/optimized_point_landmarks" to="$(arg robot_name)/sloam/optimized_point_landmarks"/>
 
             <!-- Input Odometry and Synced Objects w/Odometry -->
             <remap from="/robot$(arg hostRobot_ID)/semantic_meas_sync_odom"  to="$(arg robot_name)/semantic_meas_sync_odom"/>

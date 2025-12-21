@@ -216,7 +216,7 @@ If you want to terminate this program, go to the last terminal window and press 
 
 Run the following command:
 ```
-source ~/slideslam_ws/devel/setup.bash
+source ~/slideslam_original_ws/devel/setup.bash
 tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/hercules.yaml
 ```
 
