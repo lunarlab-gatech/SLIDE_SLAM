@@ -106,6 +106,11 @@ SE3 CylinderMapManager::getPose(const size_t idx, const int robotID) {
   return robotKeyFrames_[robotID].poses[idx];
 }
 
+/*
+ * @param inputPose: Input pose for checking the candidate loop closure region
+ * @param at_least_num_of_poses_old: At least how many poses away should be 
+ *            regarded as "revisiting" instead of "consecutive" poses
+ */
 bool CylinderMapManager::InLoopClosureRegion(
     const double &max_dist_xy, const double &max_dist_z, const SE3 &inputPose,
     const int robotID, const size_t &at_least_num_of_poses_old) {

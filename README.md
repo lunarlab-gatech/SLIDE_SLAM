@@ -101,6 +101,7 @@ docker rm slideslam_ros
 ``` 
 before you run the docker image again.
 
+
 **Troubleshoot**:
 - If you do not see your code or bags inside docker, double check `run_slide_slam_docker.sh` file to make sure you have your workspace and BAG folders mapped properly. 
 
@@ -371,6 +372,17 @@ Finally, execute this script
 ```
 
 If you want to terminate this program, go to the last terminal window and press `Enter` to kill all the tmux sessions.
+
+# Run Test Cases
+
+Use the following commands to run the test cases for this repository:
+
+```
+catkin build -DCMAKE_BUILD_TYPE=Debug --catkin-make-args tests
+catkin run_tests
+```
+
+Make sure to rebuild with `-DCMAKE_BUILD_TYPE=Release` when you want to run the algorithm as normal.
 
 # Troubleshoot
 **Rate of segmentation:**

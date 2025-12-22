@@ -1,0 +1,1 @@
+docker build -t slideslam_ros_image .

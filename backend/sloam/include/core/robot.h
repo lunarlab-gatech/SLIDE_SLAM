@@ -13,6 +13,7 @@
 #include <cylinder.h> 
 #include <ellipsoid.h> 
 #include <gtsam/geometry/Point3.h>
+#include <databaseManager.h>
 #include <definitions.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Point.h>
@@ -27,8 +28,8 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <sloam_msgs/SemanticMeasSyncOdom.h>
+#include <sloam_msgs/RelativeInterRobotMeasurementOdom.h>
 #include <sloam_msgs/ROSCylinder.h>
-#include <databaseManager.h>
 
 #include <deque>
 #include <queue>
@@ -56,50 +57,53 @@ class Robot {
   size_t maxQueueSize_;
   ros::NodeHandle nh_;
 
- public:
-  // how many seconds max to wait for semantic measurements to arrive
-  double semantic_meas_delay_tolerance_ = 3.0;
+ public: 
+  StampedSE3 robotLatestOdom_;
+  SE3 robotLastSLOAMKeyPose_ = SE3();
+  size_t robotOdomCounter_;
+  bool turn_off_rel_inter_robot_loop_closure;
+  
+  int robotId_; // ID (index) of this robot
+  std::string robot_ns_prefix_; // string before robotId_ in ros topics
+
+  // Initializer
+  Robot(const ros::NodeHandle &nh);
+
+  // Data structures for holding recieved data from this robot
   std::deque<StampedSE3> robotOdomQueue_;
-  std::queue<sensor_msgs::PointCloud2ConstPtr> robotTreePcQueue_;
-  std::queue<sensor_msgs::PointCloud2ConstPtr> robotGroundPcQueue_;
-  std::queue<std::pair<std::vector<Cube>, ros::Time>> robotCubesQueue_;
   std::queue<Observation> robotObservationQueue_;
+  std::deque<RelativeMeas> robotRelativeMeasQueue_;
+
+  // Used by inputNode.cpp to track if sloam has already updated a previous odometry
+  bool robotOdomReceived_ = false;
+
+  // Time to wait for all incoming messages to be recieved before processing
+  double msg_delay_tolerance = 3.0; // seconds
 
   // Publishers
   ros::Publisher pubRobotHighFreqSLOAMPose_;
   ros::Publisher pubRobotHighFreqSLOAMOdom_;
   ros::Publisher pubSloamToVioOdom_;
   ros::Publisher pubRobotHighFreqSyncOdom_;
-  //Subscribers
+
+  // Subscribers
   ros::Subscriber RobotOdomSub_;
-  ros::Subscriber RobotGroundPCSub_;
-  ros::Subscriber RobotTreePCSub_;
-  ros::Subscriber RobotCubeSub_;
   ros::Subscriber RobotObservationSub_;
+  ros::Subscriber RobotRelativeMeasSub_;
 
-  std::string robot_odom_topic_;
-  bool robotTreeCloudUpdated_ = false;
-  bool robotGroundCloudUpdated_ = false;
-  bool robotCubesUpdated_ = false;
-  bool robotOdomReceived_ = false;
-  bool robotOdomUpdated_ = false;
-  bool robotObservationUpdated_ = false;
-  // optimized key poses
+  // Optimized key poses
   std::vector<SE3> robotKeyPoses_;
-  StampedSE3 robotLatestOdom_;
-  SE3 robotLastSLOAMKeyPose_ = SE3();
-  bool robotFirstOdom_;
-  size_t robotOdomCounter_;
-  int robotId_;
-  std::string robot_ns_prefix_;
-  std::string odom_topic_;
 
+  // Callback functions for Subscribers
   void RobotOdomCb(const nav_msgs::OdometryConstPtr &odom_msg);
-  void RobotTreePCCb(const sensor_msgs::PointCloud2ConstPtr &cloudMsg);
-  void RobotGroundPCCb(const sensor_msgs::PointCloud2ConstPtr &cloudMsg);
-  void RobotCubeCb(const visualization_msgs::MarkerArray &cuboid_msg);
   void RobotObservationCb(const sloam_msgs::SemanticMeasSyncOdom &observation_msg);
+  void RobotRelativeMeasCb(const sloam_msgs::RelativeInterRobotMeasurementOdom &relativeMeas_msg);
+
+  // Helper methods for converting messages to objects
   std::vector<Ellipsoid> rosEllipsoid2EllipObj(const std::vector<sloam_msgs::ROSEllipsoid>& msgs);
   std::vector<Cylinder> rosCylinder2CylinderObj(const std::vector<sloam_msgs::ROSCylinder>& rosCylinders);
-  Robot(const ros::NodeHandle &nh);
+  // std::array<double, 6> ExtractCovarianceFromOdometry(nav_msgs::Odometry odom_msg);
+
+  // Logging methods
+  void PrintLateMsgWarning(const std::string &msg_type);
 };

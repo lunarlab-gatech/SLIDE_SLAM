@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot_ID" default="0"/>
+    <arg name="host_robot" default="robot0"/>
+    <arg name="camera_ID" default ="camera0"/>
+    <arg name="tagsize" default="0.17"/>
+    <arg name="base_link" default="wilbur/imu_link"/>
+    <arg name="camera_link" default="wilbur/stereo_left_optical_frame"/>
+    
+    <arg name="measurement_topic" default="default_meas_topic"/>
+    <arg name="images_topic" default="default_images_topic"/>
+    <arg name="config_file" default="default_config_file"/>
+    
+    <node pkg="relative_meas_gen" type="apriltag_meas_gen" name="apriltag_node" output="screen">
+        <param name="image_topic" value="$(arg images_topic)"/>
+        <param name="host_robot" value="$(arg host_robot)"/>
+        <param name="robot_ID" value="$(arg robot_ID)"/>
+        <param name="config_file" value="$(arg config_file)"/>
+        <param name="camera_ID" value="$(arg camera_ID)"/>
+        <param name="tagsize" value="$(arg tagsize)"/>
+        
+        <param name="base_link" value="$(arg base_link)"/>
+        <param name="camera_link" value="$(arg camera_link)"/>
+
+        <param name="relative_meas" value="$(arg measurement_topic)"/>
+    </node>
+
+</launch>
