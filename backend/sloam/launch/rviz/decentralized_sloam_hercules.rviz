@@ -26,7 +26,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: Filtered Semantic Points
+    SyncSource: ""
   - Class: rviz/Displays
     Help Height: 138
     Name: Displays
@@ -200,8 +200,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/optimized_point_landmarks
           Name: "SLOAM: Opt Pt Landmarks"
           Namespaces:
-            "": true
-            text: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -260,7 +259,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/robot0/trajectory
           Name: "SLOAM: Robot0 Traj"
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -399,7 +398,82 @@ Visualization Manager:
             {}
           Queue Size: 100
           Value: false
-      Enabled: false
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Drone1/sloam/optimized_point_landmarks
+          Name: "SLOAM: Opt Pt Landmarks"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Drone1/sloam/cubes_map
+          Name: "SLOAM: CubeMap"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Drone1/sloam/cylinders_map
+          Name: "SLOAM: CylinderMap"
+          Namespaces:
+            {}
+          Queue Size: 1
+          Value: true
+        - Angle Tolerance: 1
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: false
+          Enabled: true
+          Keep: 10
+          Name: "SLOAM: High Freq Odom"
+          Position Tolerance: 0.10000000149011612
+          Queue Size: 10
+          Shape:
+            Alpha: 1
+            Axes Length: 1
+            Axes Radius: 0.10000000149011612
+            Color: 255; 25; 0
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Axes
+          Topic: /Drone1/sloam/sloam_odom_high_freq
+          Unreliable: false
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Drone1/sloam/robot0/trajectory
+          Name: "SLOAM: Robot0 Traj"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Drone1/sloam/robot1/trajectory
+          Name: "SLOAM: Robot1 Traj"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+      Enabled: true
       Name: Drone1
   Enabled: true
   Global Options:
@@ -429,7 +503,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 141.93699645996094
+      Distance: 86.62014770507812
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -437,17 +511,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -35.51482009887695
-        Y: 9.622337341308594
+        X: -22.249042510986328
+        Y: 9.282933235168457
         Z: -1.0402344742033165e-05
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5602044463157654
+      Pitch: 0.6052045226097107
       Target Frame: body
-      Yaw: 0.03266467899084091
+      Yaw: 0.4626646935939789
     Saved: ~
 Window Geometry:
   Displays:

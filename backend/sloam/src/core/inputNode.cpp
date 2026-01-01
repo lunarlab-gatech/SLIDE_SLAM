@@ -11,6 +11,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <cube.h>
 #include <definitions.h>
+#include <filesystem>
 #include <geometry_msgs/PoseStamped.h>
 #include <graphWrapper.h>
 #include <gtsam/geometry/Point3.h>
@@ -345,7 +346,7 @@ void InputManager::PublishOdomAsTf(const nav_msgs::Odometry &odom_msg,
 
 void InputManager::saveRuntimeCommUsage() {
   // save the runtime communication usage variables to a txt file
-  ROS_DEBUG("Saving runtime communication usage to a txt file 1...");
+  std::filesystem::create_directories(sloam_->save_runtime_analysis_dir_);
   std::ofstream file(sloam_->runtime_analysis_file,
                      std::ios::out | std::ios::trunc);
   if (!file.is_open()) {

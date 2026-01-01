@@ -4,7 +4,10 @@
     <!-- Arguments -->
     <arg name="odom_topic" default="/odom"/>
     <arg name="robot_name" default="robot0"/>
-    <arg name="hostRobot_ID" value="0"/>
+    <arg name="hostRobot_ID" default="0"/>
+    <arg name="turn_off_intra_loop_closure" default="false"/>
+    <arg name="turn_off_inter_loop_closure" default="false"/>
+    <arg name="save_results_dir" default="/home/robot/sloam_results"/>
 
     <arg name="map_frame_id" default="world"/>
     <arg name="odom_frame_id" default="$(arg robot_name)/odom"/>
@@ -24,7 +27,9 @@
 
     <node pkg="sloam" type="sloam_node" name="sloam$(arg hostRobot_ID)" output="screen">
             <param name="hostRobotID" value="$(arg hostRobot_ID)" />
-            <param name="turn_off_intra_loop_closure" value="true"/>
+            <param name="turn_off_intra_loop_closure" value="$(arg turn_off_intra_loop_closure)"/>
+            <param name="turn_off_inter_loop_closure" value="$(arg turn_off_inter_loop_closure)"/>
+            <param name="save_results_dir" value="$(arg save_results_dir)"/>
 
             <!-- the TF here is from robot to world -->
             <param name="priorTFKnown" value="false"/>

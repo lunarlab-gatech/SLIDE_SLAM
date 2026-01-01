@@ -7,6 +7,7 @@
 *
 */
 
+#include <filesystem>
 #include <fstream>
 #include <pcl/common/io.h>
 #include <ros/console.h>
@@ -56,6 +57,9 @@ SLOAMNode::SLOAMNode(const ros::NodeHandle &nh)
 
   nh_.param<int>(idName, hostRobotID, 0);
 
+  // Load save directory from rosparams
+  nh_.param<std::string>(node_name + "/save_results_dir", save_results_dir_, "./");
+  save_runtime_analysis_dir_ = save_results_dir_ + "/runtime_analysis";
 
   // initialize last_intra_loop_closure_stamp_ as current time 
   // add offset the timestamp a bit to avoid all robots calling loop closure at the same time when running on the same machine
@@ -225,29 +229,39 @@ void SLOAMNode::publishResults_(const SloamInput &sloamIn,
       pubRobotTrajectory_[temp_id].publish(trajMarkers);
     }
 
-    std::vector<SE3> trajectory;
-    factorGraph_.getAllPoses(trajectory, pose_idx, robotID);
+    // Also save trajectoires for all robots
+    for (int temp_id = 0; temp_id < numRobots; temp_id++) {
+      
+      // Get the trajectory for this specific robot
+      std::vector<SE3> trajectory;
+      factorGraph_.getAllPoses(trajectory, pose_idx, temp_id);
 
-    // sanity check: the size of the stamped raw odometry pose should be exactly
-    // the same as pose_counter_robot_[robotID]
-    if (KeyPoseTimeStamps.size() != trajectory.size()) {
-      ROS_ERROR("Key pose time stamps and trajectory size do not match!!!");
-    } else if (save_robot_trajectory_as_csv_) {
-      // Save the trajectory of the robot and corresponding timestamps for
-      // each pose as a csv file save rotation as quaternion
-      std::ofstream myfile;
-      std::string fname = save_results_dir_ + "/trajectory.csv";
-      myfile.open(fname);
-      myfile << "x,y,z,qx,qy,qz,qw,timestamp\n";
-      for (size_t i = 0; i < trajectory.size(); i++) {
-        myfile << trajectory[i].translation()[0] << ","
-               << trajectory[i].translation()[1] << ","
-               << trajectory[i].translation()[2] << ","
-               << trajectory[i].so3().unit_quaternion().x() << ","
-               << trajectory[i].so3().unit_quaternion().y() << ","
-               << trajectory[i].so3().unit_quaternion().z() << ","
-               << trajectory[i].so3().unit_quaternion().w() << ","
-               << KeyPoseTimeStamps[i] << "\n";
+      // sanity check: the size of the stamped raw odometry pose should be exactly
+      // the same as pose_counter_robot_[robotID]
+      if (temp_id == robotID && KeyPoseTimeStamps.size() != trajectory.size()) {
+        ROS_ERROR("Key pose time stamps and trajectory size do not match for self trajectory!!!");
+      } else if (save_robot_trajectory_as_csv_) {
+        // Save the trajectory of the robot and corresponding timestamps for
+        // each pose as a csv file save rotation as quaternion
+        std::ofstream myfile;
+        std::string fname = save_results_dir_ + "/trajectory_" + std::to_string(temp_id) + ".csv";
+        std::filesystem::create_directories(save_results_dir_);
+        myfile.open(fname);
+        if (!myfile) {
+          ROS_ERROR("Unable to open file");
+        } else {
+          myfile << "x,y,z,qx,qy,qz,qw,timestamp\n";
+          for (size_t i = 0; i < trajectory.size(); i++) {
+            myfile << trajectory[i].translation()[0] << ","
+                  << trajectory[i].translation()[1] << ","
+                  << trajectory[i].translation()[2] << ","
+                  << trajectory[i].so3().unit_quaternion().x() << ","
+                  << trajectory[i].so3().unit_quaternion().y() << ","
+                  << trajectory[i].so3().unit_quaternion().z() << ","
+                  << trajectory[i].so3().unit_quaternion().w() << ","
+                  << KeyPoseTimeStamps[i] << "\n";
+          }
+        }
       }
     }
 
@@ -275,8 +289,7 @@ void SLOAMNode::intraLoopClosureThread_() {
     // if current stamp has passed more than 15 seconds, we continue to try loop
     // closure, otherwise we wait
     if ((ros::Time::now() - last_intra_loop_closure_stamp_).toSec() < desired_loop_closure_interval) {
-      ROS_INFO_STREAM_THROTTLE(3.0, "Just did intra loop closure or it's the beginning of the mission, waiting for "
-                      << desired_loop_closure_interval << " seconds before next loop closure");
+      // ROS_INFO_STREAM_THROTTLE(3.0, "Just did intra loop closure or it's the beginning of the mission, waiting for " << desired_loop_closure_interval << " seconds before next loop closure");
       ros::Duration(0.5).sleep();
       continue;
     }
@@ -495,7 +508,7 @@ void SLOAMNode::interLoopClosureThread_() {
   double desired_loop_closure_interval = 1.0 / inter_robot_place_recognition_frequency_;
   while (ros::ok()) {
     if ((ros::Time::now() - last_inter_loop_closure_stamp_).toSec() < desired_loop_closure_interval) {
-      ROS_INFO_STREAM_THROTTLE(3.0, "just did inter loop closure, or in the beginning of the mission, wait for " << desired_loop_closure_interval << " seconds before trying again...");
+      // ROS_INFO_STREAM_THROTTLE(3.0, "just did inter loop closure, or in the beginning of the mission, wait for " << desired_loop_closure_interval << " seconds before trying again...");
       ros::Duration(0.5).sleep();
       continue;
     }
@@ -513,8 +526,7 @@ void SLOAMNode::interLoopClosureThread_() {
     dbMutex.unlock();
     num_attempts_inter_loop_closure++;
     for (auto query_robot_id : robotIDLoopClosureToFind) {
-      ROS_INFO_STREAM("START TO FIND INTER LOOP CLOSURE BETWEEN ROBOTS: "
-                      << query_robot_id << " AND " << dbManager.getHostRobotID());
+      // ROS_INFO_STREAM("START TO FIND INTER LOOP CLOSURE BETWEEN ROBOTS: " << query_robot_id << " AND " << dbManager.getHostRobotID());
       dbMutex.lock();
       std::vector<Eigen::Vector7d> reference_map =
           dbManager.getRobotMap(dbManager.getHostRobotID());
@@ -533,24 +545,24 @@ void SLOAMNode::interLoopClosureThread_() {
       Eigen::Matrix4d tfFromQuery2Ref;
       // initialize it to identity matrix
       tfFromQuery2Ref.setIdentity();
-      ROS_INFO("Trying to do inter loop closure");
+      // ROS_INFO("Trying to do inter loop closure");
       ros::Time inter_loop_closure_start = ros::Time::now();
       bool found_inter_loop_closure = false;
       
       #if USE_CLIPPER
         if (use_slidematch_){
-          ROS_INFO("Using SlideMatch instead of SlideGraph for inter loop closure");
+          // ROS_INFO("Using SlideMatch instead of SlideGraph for inter loop closure");
           found_inter_loop_closure = inter_loopCloser_.findInterLoopClosure(
             reference_map, query_map, tfFromQuery2Ref);
         } else {
-          ROS_INFO("Using SlideGraph instead of SlideMatch for inter loop closure");
+          // ROS_INFO("Using SlideGraph instead of SlideMatch for inter loop closure");
           found_inter_loop_closure =
               inter_loopCloser_.findInterLoopClosureWithClipper(
                   reference_map, query_map, tfFromQuery2Ref);
         }
       #else
         if (use_slidematch_){
-          ROS_INFO("Using SlideMatch instead of SlideGraph for inter loop closure");
+          // ROS_INFO("Using SlideMatch instead of SlideGraph for inter loop closure");
           found_inter_loop_closure = inter_loopCloser_.findInterLoopClosure(
             reference_map, query_map, tfFromQuery2Ref);
         } else {

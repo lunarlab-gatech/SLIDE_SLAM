@@ -250,7 +250,7 @@ namespace semantic_clipper{
         // check if the number of matched points is greater than the minimum number of pairs
         if (clipper_matched_points_model.cols() < min_num_pairs) {
             // std::cout << "Number of matched points is less than the minimum number of pairs" << std::endl;
-            ROS_INFO_STREAM("Number of matched points is less than the minimum number of pairs, number of matched points: " << clipper_matched_points_model.cols());
+            ROS_INFO_STREAM("Number of matched points: " << clipper_matched_points_model.cols());
             return false;
         } else {
             ROS_INFO_STREAM("Number of matched points: " << clipper_matched_points_model.cols());

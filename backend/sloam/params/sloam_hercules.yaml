@@ -50,10 +50,10 @@ sloam:
   # parameters for place recognition (slide graph version)
   place_recognition_slidegraph:
     # ------- MOST IMPORTANT PARAMS TO TUNE: -------
-    num_inliners_threshold: 5
+    num_inliners_threshold: 4 # Changed to match lc_association_thresh in ROMAN baseline.
     descriptor_matching_threshold: 0.1
     min_num_map_objects_to_start: 30 # 30 for outdoor parking lot # 100 for forests # minimum number of objects in a map to start SlideGraph place recognition attempt
     #-----------------------------------------------
-    sigma: 0.1 # CLIPPER params, default 0.01, spread / "variance" of exponential kernel
-    epsilon: 0.3 # CLIPPER params, default 0.06, < bound on consistency score, determines if inlier/outlier, consistency matching threshold
+    sigma: 2.0 # CLIPPER params, set to match value used by ROMAN baseline. Spread / "variance" of exponential kernel
+    epsilon: 3.0 # CLIPPER params, set to match value used by ROMAN baseline. < bound on consistency score, determines if inlier/outlier, consistency matching threshold
 

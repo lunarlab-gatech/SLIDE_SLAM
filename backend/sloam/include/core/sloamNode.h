@@ -83,15 +83,15 @@ class SLOAMNode : public sloam {
   std::vector<double> inter_loop_closure_time;
   int num_attempts_inter_loop_closure = 0;
   int num_successful_inter_loop_closure = 0;
-  bool save_runtime_analysis = false;
+  bool save_runtime_analysis = true;
+  string save_runtime_analysis_dir_;
   std::string runtime_analysis_file;
 
  private:
   // TODO(xu): load the following four params from rosparam
   bool save_inter_robot_closure_results_ = true;
-  string save_results_dir_ = "/home/sam";
-  bool save_robot_trajectory_as_csv_ = false;
-  string save_runtime_analysis_dir_ = "/home/sam";
+  string save_results_dir_;
+  bool save_robot_trajectory_as_csv_ = true;
 
 
   double inter_robot_place_recognition_frequency_;
