@@ -6,7 +6,7 @@ sloam:
   inter_robot_place_recognition_frequency: 0.05 # frequency at which place recognition is run between robots
   cylinder_match_thresh: 3.0 # Deafult-1.0 cylinder data association threshold
   cuboid_match_thresh: 2.0 # Default-2.0 # cuboid data association threshold
-  ellipsoid_match_thresh: 0.75 # Default-0.75 ellipsoid data association threshold
+  ellipsoid_match_thresh: 5 # Ellipsoid data association threshold
   min_robot_altitude: -100 # minimum height for adding factors, should be set to negative if you want factors to be added always
   min_odom_distance: 0.5 # minimum distance between two odometry messages to be considered for processing
   main_node_rate: 5.0 # rate at which the main node runs, should not be less than the desired keyframe rate (e.g. 1-5 Hz is usually good)

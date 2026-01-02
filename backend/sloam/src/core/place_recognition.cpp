@@ -623,7 +623,7 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
     // get the inverse of the transformation matrix
     tfFromQueryToRef = tfFromQueryToRef.inverse();
   } else {
-    ROS_WARN_STREAM("[PlaceRecognition]: Not enough objects to start the place recognition,  slidegraph_min_num_map_objects_to_start_ is set as " << slidegraph_min_num_map_objects_to_start_ << " but the reference_objects_vector size is: " << reference_objects_vector.size() << " and query_objects_vector size is: " << query_objects_vector.size());
+    ROS_WARN_STREAM("[PlaceRecognition]: Not enough objects; [" << reference_objects_vector.size() << "," << query_objects_vector.size() << "]");
   }  
   return found;
 }
