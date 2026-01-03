@@ -1,5 +1,5 @@
 REPO_DIR="/home/dbutterfield3/Research/ros_workspaces/slideslam_original_ws"
-DATA_DIR="/home/dbutterfield3/Desktop/data"
+DATA_DIR="/media/dbutterfield3/T73/"
 
 docker run -it \
     --name="slideslam_baseline" \

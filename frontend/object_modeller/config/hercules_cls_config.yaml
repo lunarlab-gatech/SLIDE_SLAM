@@ -7,16 +7,20 @@
 Tree:
   id: 1
   color: [0.0, 1.0, 0.0] # Green
-  length_cutoff: [0.2, 2.0]
-  height_cutoff: [0.2, 2.0]
-  mesh_model_path: "package://sloam/resource/Threednd Tree/threednd_tree_v1.stl"
-  mesh_model_scale: 0.85
-  class_assignment_thresh: 0.75
+  length_cutoff: [3.0, 30.0]
+  height_cutoff: [3.0, 30.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  #mesh_model_path: "package://sloam/resource/Threednd Tree/threednd_tree_v1.stl"
+  #mesh_model_scale: 0.20
+  class_assignment_thresh: 15
 Boulder:
   id: 2
   color: [0.58, 0.271, 0.165] # Brown
   length_cutoff: [0.5, 5.0]
   height_cutoff: [0.2, 3.0]
-  mesh_model_path: "package://sloam/resource/Boulders for Gloomhaven - Sculpted (1, 2, 3 Hex)/Gloomhaven_Boulder_1Hex_6.stl"
-  mesh_model_scale: 0.5
+  mesh_model_path: null
+  mesh_model_scale: null
+  #mesh_model_path: "package://sloam/resource/Boulders for Gloomhaven - Sculpted (1, 2, 3 Hex)/Gloomhaven_Boulder_1Hex_6.stl"
+  #mesh_model_scale: 0.5
   class_assignment_thresh: 2.0

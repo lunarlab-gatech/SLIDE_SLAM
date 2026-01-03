@@ -1,34 +1,50 @@
 #!/usr/bin/env python3
 
+from typing import Optional
 import numpy as np
 import rospy
 import open3d as o3d
 
-
 class ObjectTrack(object):
-    def __init__(self, x, y, l, w, raw_points, last_update_scan_idx, track_idx, downsample_res=0.3, num_instance_point_lim=50000, cur_class_label=None):
-        # x, y position of objects in global frame
-        self.x = x
-        self.y = y
-        self.l = l
-        self.w = w
-        self.age = 1
+    def __init__(self, x: float, y: float, l: float, w: float, 
+                 raw_points: np.ndarray, last_update_scan_idx: int, track_idx: int, 
+                 downsample_res: float = 0.3, num_instance_point_lim: int = 50000, 
+                 cur_class_label: Optional[int] = None):
+        
+        # Store center of object
+        self.x: float = x
+        self.y: float = y
+        
+        # Store size of object
+        self.l: float = l
+        self.w: float = w
+
+        self.age: int = 1
         self.pos_update_rate = 0.1
-        self.last_update_scan_idx = last_update_scan_idx
-        self.track_idx = track_idx
+
+        # Remember idx of last scan when this object was seen and track idx
+        self.last_update_scan_idx: int = last_update_scan_idx
+        self.track_idx: int = track_idx
+
+        # Create Open3D point cloud
         self.o_pcd = o3d.geometry.PointCloud()
-        self.class_label = cur_class_label
+
+        # Class label of the object being tracked
+        self.class_label: Optional[int] = cur_class_label
+
         # Resolution to perform voxel downsampling for instance point cloud accumulation
-        self.downsample_res = downsample_res  # in meters, -1 means no downsample
-        # only keep the most recent num_points_limit_per_instance for any instance
-        self.num_points_limit_per_instance = num_instance_point_lim
+        self.downsample_res: float = downsample_res  # in meters, -1 means no downsample
+
+        # Only keep the most recent num_points_limit_per_instance for any instance
+        self.num_points_limit_per_instance: int = num_instance_point_lim
 
         # initial covariance and standard devation
-        self.xy_cov = 3*np.ones((2, 2))
+        self.xy_cov = 3 * np.ones((2, 2))
 
         # N*2 history positions of the object
         self.xy_hist = np.array([[x, y]])
 
+        # Downsample the raw points if requested
         if self.downsample_res > 0:
             self.all_raw_points = self.downsample_point_cloud(raw_points)
         else:

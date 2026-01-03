@@ -617,13 +617,13 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
   // make sure we have at least slidegraph_min_num_map_objects_to_start_ objects to do the matching in both the reference and query
   if (reference_objects_vector.size() >= slidegraph_min_num_map_objects_to_start_ && query_objects_vector.size() >= slidegraph_min_num_map_objects_to_start_) {
     // ROS_WARN_STREAM("[PlaceRecognition]: reference_objects_vector size is: " << reference_objects_vector.size() << " and query_objects_vector size is: " << query_objects_vector.size());
-    ROS_WARN("Calling CLIPPER for inter loop closure, if anything bad happens, look into that piece of code...");
+    // ROS_WARN("Calling CLIPPER for inter loop closure, if anything bad happens, look into that piece of code...");
     found = semantic_clipper::run_semantic_clipper(reference_objects_vector, query_objects_vector, tfFromQueryToRef, sigma, epsilon, min_num_pairs, matching_threshold);
-    ROS_DEBUG("EXIT CLIPPER SUCCESSFULLY");
+    // ROS_DEBUG("EXIT CLIPPER SUCCESSFULLY");
     // get the inverse of the transformation matrix
     tfFromQueryToRef = tfFromQueryToRef.inverse();
   } else {
-    ROS_WARN_STREAM("[PlaceRecognition]: Not enough objects to start the place recognition,  slidegraph_min_num_map_objects_to_start_ is set as " << slidegraph_min_num_map_objects_to_start_ << " but the reference_objects_vector size is: " << reference_objects_vector.size() << " and query_objects_vector size is: " << query_objects_vector.size());
+    ROS_WARN_STREAM("[PlaceRecognition]: Not enough objects; [" << reference_objects_vector.size() << "," << query_objects_vector.size() << "]");
   }  
   return found;
 }

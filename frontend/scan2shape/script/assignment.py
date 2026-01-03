@@ -28,13 +28,15 @@ def pad_cost_matrix(cost_matrix, unassigned_cost):
     return padded_cost_matrix
 
 
-def hungarian_assignment(cost_matrix, unassigned_cost=1.2):
+def hungarian_assignment(cost_matrix: np.ndarray, unassigned_cost: float = 1.2) -> tuple:
     """
     This is the equivalent of matlab's assignDetectionsToTracks
+
     :param cost_matrix: M x N matrix, M - tracks, N - detections
     :param unassigned_cost: cost of unassignment
     :return: matches, unassigned tracks, unassigned detections
     """
+    
     padded_cost_matrix = pad_cost_matrix(cost_matrix, unassigned_cost)
     assignment = skla(padded_cost_matrix)
 

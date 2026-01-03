@@ -168,9 +168,8 @@ void databaseManager::poseMstCb_(const sloam_msgs::PoseMstBundle &msgs) {
   size_t bundleSize = msgs.poseMstPair.size();
   size_t poolSize = robotDataDict_[robotID].poseMstPacket.size();
   if (bundleSize > poolSize && robotID != this->hostRobotID_) {
-    ROS_DEBUG_STREAM("New robot data received from robot:"
-                     << robotID << "by robot:" << this->hostRobotID_);
-    ROS_DEBUG_STREAM("New robot data received ");
+    ROS_DEBUG_STREAM("New robot data received from robot" << robotID << "by robot" << this->hostRobotID_);
+    // ROS_DEBUG_STREAM("New robot data received ");
     int startIdx = poolSize;
     for (int i = startIdx; i < bundleSize; i++) {
       struct PoseMstPair poseMst;

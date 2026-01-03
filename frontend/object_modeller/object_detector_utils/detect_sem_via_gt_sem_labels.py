@@ -41,6 +41,7 @@ class Semantic_Detector_From_Sem_Labels:
 
         # Load topic and other parameters
         self.desired_rate = rospy.get_param('~desired_rate')
+        self.robot_name = rospy.get_param('~robot_name')
         self.seg_topic = rospy.get_param('~seg_topic')
         self.label_color_map_path = rospy.get_param('~label_color_map_path')
         self.cls_config_path = rospy.get_param('~cls_config_path')
@@ -95,7 +96,7 @@ class Semantic_Detector_From_Sem_Labels:
         # Skip current frame if it is too soon
         if (rospy.Time.now() - self.prev_time).to_sec() < 1.0/self.desired_rate:
             rospy.loginfo_throttle(3, f"Time elapsed since last depth rgb callback is: {(rospy.Time.now() - self.prev_time).to_sec()}")
-            rospy.loginfo_throttle(3, f"Skipping current depth image to get desired rate of {self.desired_rate}")
+            rospy.loginfo_throttle(3, f"Skipping current depth image to get desired rate of {self.desired_rate} Hz")
             return
         else:
             self.prev_time = rospy.Time.now()
@@ -124,15 +125,20 @@ class Semantic_Detector_From_Sem_Labels:
                 seg_id = self.rgb_to_seg_id.get(rgb_tuple, -1)
 
                 # Convert segmentation label to class str by removing numbers
-                cls_str = ''.join([i for i in seg_label if not i.isdigit()])
+                # cls_str = ''.join([i for i in seg_label if not i.isdigit()])
+                # cls_str_without_SM = cls_str.replace("SM_", "")
+                # cls_str_without_Underscore = cls_str_without_SM.replace("_", "")
 
                 # Convert class str to class id
                 def cls_str_to_cls_id(cls_str):
-                    if cls_str in self.cls_str_to_cls_id.keys():
-                        return self.cls_str_to_cls_id[cls_str]
+                    desired_cls_strs: list[str] = self.cls_str_to_cls_id.keys()
+                    for desired_cls_str in desired_cls_strs:
+                        if desired_cls_str in cls_str:
+                            #print(f"Found cls_str {cls_str} in cls_str_to_cls_id as [{self.cls_str_to_cls_id[desired_cls_str]}]")
+                            return self.cls_str_to_cls_id[desired_cls_str]
                     else:
                         return 0
-                cls_id_array[i, j] = cls_str_to_cls_id(cls_str)
+                cls_id_array[i, j] = cls_str_to_cls_id(seg_label)
 
                 # Save seg id and confidence
                 seg_id_array[i, j] = seg_id
@@ -173,14 +179,13 @@ class Semantic_Detector_From_Sem_Labels:
         sync_pc_odom_msg = syncPcOdom()
         sync_pc_odom_msg.header = Header()
         sync_pc_odom_msg.header.stamp = odom.header.stamp # PC assumed to have same timestamp as odom
-        sync_pc_odom_msg.header.frame_id = "camera"
+        sync_pc_odom_msg.header.frame_id = self.robot_name + "/camera"
 
         # Create PointCloud2 message
         pc_msg = PointCloud2()
         pc_msg.header = Header()
         pc_msg.header.stamp = odom.header.stamp
-        pc_msg.header.frame_id = "camera" # Hard coding frame_id to camera for now
-        rospy.logwarn_throttle(5, 'Hard coding segmented point cloud frame_id to \"camera\"')
+        pc_msg.header.frame_id = self.robot_name + "/camera" 
         pc_msg.width = seg_img_rgb.shape[1]
         pc_msg.height = seg_img_rgb.shape[0]
         pc_msg.point_step = 24 # Hardcoding for now, 6 fields * 4 bytes each

@@ -95,6 +95,7 @@ namespace semantic_clipper{
             diff += std::pow(sorted_dist_model[i] - sorted_dist_data[i], 2);
         }
         diff = std::sqrt(diff);
+        std::cout << "Triangle difference: " << diff << std::endl;
 
         // if the difference is less than the threshold, add the matched points to the matched_points_model and matched_points_data
         if (diff < threshold) {
@@ -203,7 +204,7 @@ namespace semantic_clipper{
         }
         // create a clipper::Association object from the matched points
         int number_of_initial_matched_points = matched_points_model.size();
-        // std::cout << "Number of initial matched points: " << number_of_initial_matched_points << std::endl;
+        std::cout << "Number of initial matched points: " << number_of_initial_matched_points << std::endl;
         clipper::Association A = clipper::Association(number_of_initial_matched_points, 2);
         for (int i = 0; i < matched_points_model.size(); i++) {
             A(i, 0) = i;
@@ -250,7 +251,7 @@ namespace semantic_clipper{
         // check if the number of matched points is greater than the minimum number of pairs
         if (clipper_matched_points_model.cols() < min_num_pairs) {
             // std::cout << "Number of matched points is less than the minimum number of pairs" << std::endl;
-            ROS_INFO_STREAM("Number of matched points is less than the minimum number of pairs, number of matched points: " << clipper_matched_points_model.cols());
+            ROS_INFO_STREAM("Number of matched points: " << clipper_matched_points_model.cols());
             return false;
         } else {
             ROS_INFO_STREAM("Number of matched points: " << clipper_matched_points_model.cols());
