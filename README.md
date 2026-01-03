@@ -83,9 +83,3 @@ Run the following commands:
 source ~/slideslam_original_ws/devel/setup.bash
 tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/hercules.yaml
 ```
-
-## Troubleshoot
-**Rate of segmentation:**
-- When running on your own data, we recommend to throttle the segmentation topic (segmented point cloud or images) rate to 2-4 Hz to avoid computation delay in the front end, especially if you’re experiencing performance issues at higher rates. Please also update the `expected_segmentation_frequency` parameter in the corresponding `process_cloud_node_*_params.yaml` file as well as the `desired_frequency` in the `infer_node_params.yaml` to the actual rate of the topic. 
-
-
