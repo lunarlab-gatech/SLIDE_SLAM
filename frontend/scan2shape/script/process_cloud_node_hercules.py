@@ -117,9 +117,9 @@ class ProcessCloudNode:
         # Publishes accumulated instance point cloud from tracks over age threshold
         self.instance_cloud_pub = rospy.Publisher("pc_instance_segmentation_accumulated", PointCloud2, queue_size=1)
 
-        # Publish cuboids in reference frame and range_image_frame
-        self.cuboid_marker_pub = rospy.Publisher("chair_cuboids", MarkerArray, queue_size=5)
-        self.cuboid_marker_body_pub = rospy.Publisher("chair_cuboids_body", MarkerArray, queue_size=5)
+        # Publish cuboids in reference frame and range_image_frame (changed to car from chair so they are cuboids in the backend)
+        self.cuboid_marker_pub = rospy.Publisher("car_cuboids", MarkerArray, queue_size=5)
+        self.cuboid_marker_body_pub = rospy.Publisher("car_cuboids_body", MarkerArray, queue_size=5)
         # ===================================
 
         # Frame IDs (for publishing TFs)

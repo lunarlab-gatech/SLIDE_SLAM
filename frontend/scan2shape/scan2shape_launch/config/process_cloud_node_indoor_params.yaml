@@ -11,8 +11,8 @@ expected_segmentation_frequency: 2.0
 time_to_initialize_cuboid: 0.75
 # Lower and upper percentile of depth values to consider for object detection
 # When using the open-vocab object detector, use more conservative values to avoid faulty depth since the model cannot do instance segmentation
-depth_percentile_lower: 0 # Changed so we can use the full range of depth values
-depth_percentile_upper: 100 # Changed so we can use the full range of depth values
+depth_percentile_lower: 35 
+depth_percentile_upper: 75 # Increased to 75 so that we can have the entire tree pointed cloud for fitting.
 # input point cloud parameters
 pc_width: 1024
 pc_heigh: 64

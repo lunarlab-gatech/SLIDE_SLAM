@@ -104,7 +104,7 @@ class SLOAMNode : public sloam {
   Cloud::Ptr trellisCloud(
       const std::vector<std::vector<TreeVertex>> &landmarks);
   void publishMap_(const ros::Time stamp);
-  void publishCubeMaps_(const ros::Time stamp);
+  void publishCubeMaps_(const ros::Time stamp, const int &robotID);
 
   bool prepareInputs_(const SE3 relativeMotion, const SE3 prevKeyPose,
                       CloudT::Ptr tree_cloud, CloudT::Ptr ground_cloud,

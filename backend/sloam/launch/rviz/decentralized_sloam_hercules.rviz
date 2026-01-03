@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Husky11
         - /Drone11
-      Splitter Ratio: 0.4602648913860321
+      Splitter Ratio: 0.4595775604248047
     Tree Height: 1786
   - Class: rviz/Selection
     Name: Selection
@@ -26,7 +26,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Filtered Semantic Points
   - Class: rviz/Displays
     Help Height: 138
     Name: Displays
@@ -189,7 +189,7 @@ Visualization Manager:
           Value: false
         - Class: rviz/MarkerArray
           Enabled: false
-          Marker Topic: /Husky1/chair_cuboids
+          Marker Topic: /Drone1/car_cuboids
           Name: DetectedCuboids
           Namespaces:
             {}
@@ -208,7 +208,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -259,7 +259,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/robot0/trajectory
           Name: "SLOAM: Robot0 Traj"
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -392,7 +392,7 @@ Visualization Manager:
           Value: false
         - Class: rviz/MarkerArray
           Enabled: false
-          Marker Topic: /Drone1/chair_cuboids
+          Marker Topic: /Drone1/car_cuboids
           Name: DetectedCuboids
           Namespaces:
             {}
@@ -411,7 +411,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -470,7 +470,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/robot1/trajectory
           Name: "SLOAM: Robot1 Traj"
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
       Enabled: true
@@ -503,7 +503,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 86.62014770507812
+      Distance: 86.94145202636719
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -511,17 +511,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -22.249042510986328
-        Y: 9.282933235168457
-        Z: -1.0402344742033165e-05
+        X: -24.15972137451172
+        Y: -3.750988483428955
+        Z: 3.5123523502988974e-06
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6052045226097107
+      Pitch: 0.7052047848701477
       Target Frame: body
-      Yaw: 0.4626646935939789
+      Yaw: 5.435850143432617
     Saved: ~
 Window Geometry:
   Displays:
@@ -539,5 +539,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 3700
-  X: 140
-  Y: 54
+  X: 7020
+  Y: 473

@@ -184,7 +184,7 @@ void SLOAMNode::publishMap_(const ros::Time stamp) {
   }
 }
 
-void SLOAMNode::publishCubeMaps_(const ros::Time stamp) {
+void SLOAMNode::publishCubeMaps_(const ros::Time stamp, const int &robotID) {
   sloam_msgs::ROSObservation obs;
   obs.header.stamp = stamp;
   obs.header.frame_id = map_frame_id_;
@@ -193,11 +193,11 @@ void SLOAMNode::publishCubeMaps_(const ros::Time stamp) {
   visualization_msgs::MarkerArray cubeMapTMarkerArray;
   size_t cube_id = 0;
   // publish all cubes that have been observed more than once
-  vizCubeModels(semantic_map, cubeMapTMarkerArray, cube_id, true);
+  vizCubeModels(semantic_map, cubeMapTMarkerArray, cube_id, true, map_frame_id_, robotID);
   pubMapCubeModel_.publish(cubeMapTMarkerArray);
   visualization_msgs::MarkerArray cubeSubMapTMarkerArray;
   // publish current scan cube map
-  vizCubeModels(scan_cubes_world_, cubeSubMapTMarkerArray, cube_id, false);
+  vizCubeModels(scan_cubes_world_, cubeSubMapTMarkerArray, cube_id, false, map_frame_id_, robotID);
   pubSubmapCubeModel_.publish(cubeSubMapTMarkerArray);
 }
 
@@ -205,7 +205,7 @@ void SLOAMNode::publishResults_(const SloamInput &sloamIn,
                                 const SloamOutput &sloamOut, ros::Time stamp,
                                 const int &robotID) {
   publishMap_(stamp);
-  publishCubeMaps_(stamp);
+  publishCubeMaps_(stamp, robotID);
 
   std::vector<SE3> allLandmarks;
   std::vector<int> allLabels;
