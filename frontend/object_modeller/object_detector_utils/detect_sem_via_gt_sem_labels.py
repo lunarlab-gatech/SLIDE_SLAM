@@ -15,9 +15,6 @@ import yaml
 
 bridge = CvBridge()
 
-# observation 1: in the bag file, color and depth images can go out of sync
-# observation 2: might be able to use aligned depth?
-
 class Semantic_Detector_From_Sem_Labels:
     def __init__(self) -> None:
 
@@ -124,17 +121,11 @@ class Semantic_Detector_From_Sem_Labels:
                 seg_label = self.rgb_to_seg_label.get(rgb_tuple, "None")
                 seg_id = self.rgb_to_seg_id.get(rgb_tuple, -1)
 
-                # Convert segmentation label to class str by removing numbers
-                # cls_str = ''.join([i for i in seg_label if not i.isdigit()])
-                # cls_str_without_SM = cls_str.replace("SM_", "")
-                # cls_str_without_Underscore = cls_str_without_SM.replace("_", "")
-
                 # Convert class str to class id
                 def cls_str_to_cls_id(cls_str):
                     desired_cls_strs: list[str] = self.cls_str_to_cls_id.keys()
                     for desired_cls_str in desired_cls_strs:
                         if desired_cls_str in cls_str:
-                            #print(f"Found cls_str {cls_str} in cls_str_to_cls_id as [{self.cls_str_to_cls_id[desired_cls_str]}]")
                             return self.cls_str_to_cls_id[desired_cls_str]
                     else:
                         return 0

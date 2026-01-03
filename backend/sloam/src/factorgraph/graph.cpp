@@ -308,7 +308,7 @@ void SemanticFactorGraph::addCubeFactor(
                         cube_local_meas, noise_model_cube));
 
   if (cube_local_meas.pose.translation().norm() > 50) {
-    ROS_WARN_THROTTLE(1, "cube_local_meas.pose.translation().norm() is larger than 50 meters: "
+    ROS_WARN_STREAM_THROTTLE(1, "cube_local_meas.pose.translation().norm() is larger than 50 meters: "
     << cube_local_meas.pose.translation().norm()
     << ", maybe due to the front end tracking observations over a long time");
   }
@@ -338,19 +338,6 @@ void SemanticFactorGraph::solve() {
   isam->update(fgraph, fvalues);
   // Only for active SLAM:
   // isam_loop->update(fgraph_loop, fvalues_loop);
-
-  // gtsam::NonlinearFactorGraph fullGraph = isam->getFactorsUnsafe(); 
-  // // Iterate over all keys in the current estimate 
-  // for (const auto& key : currEstimate.keys()) {  
-  //   size_t count = 0; 
-  //   for (const auto& f : fullGraph) { 
-  //     auto keys = f->keys();
-  //     if (std::find(keys.begin(), keys.end(), key) != keys.end()) { 
-  //        count++; 
-  //     }  p
-  //   } 
-  //   ROS_INFO_STREAM("Variable " << DefaultKeyFormatter(key) << " has " << count << " factors");
-  // }
 
   // Extract the result/current estimates
   currEstimate = isam->calculateEstimate();
