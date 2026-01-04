@@ -15,7 +15,7 @@ docker run -it \
     --volume="$REPO_DIR:/home/$USER/slideslam_original_ws" \
     --volume="$DATA_DIR:/home/$USER/data" \
     --volume="/home/$USER/.bash_aliases:/home/$USER/.bash_aliases" \
-    --volume="/home/$USER/.ssh:/home/$USER/.ssh:ro" \
+    --volume="/home/$USER/.ssh:/home/$USER/.ssh" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
     --volume="/home/$USER/repos:/home/$USER/repos" \
     --volume="$XAUTHORITY:/tmp/.Xauthority:ro" \
