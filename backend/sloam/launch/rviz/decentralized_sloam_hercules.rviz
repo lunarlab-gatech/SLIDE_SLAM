@@ -6,7 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Husky11
-        - /Drone11
+        - /Husky11/DetectedCuboids1
+        - /Husky21/Path1
       Splitter Ratio: 0.4595775604248047
     Tree Height: 1786
   - Class: rviz/Selection
@@ -188,13 +189,14 @@ Visualization Manager:
           Use rainbow: true
           Value: false
         - Class: rviz/MarkerArray
-          Enabled: false
-          Marker Topic: /Drone1/car_cuboids
+          Enabled: true
+          Marker Topic: /Husky1/car_cuboids
           Name: DetectedCuboids
           Namespaces:
-            {}
+            Tree: true
+            text: true
           Queue Size: 100
-          Value: false
+          Value: true
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky1/sloam/optimized_point_landmarks
@@ -204,13 +206,13 @@ Visualization Manager:
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
-          Enabled: true
+          Enabled: false
           Marker Topic: /Husky1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
-          Value: true
+          Value: false
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky1/sloam/cylinders_map
@@ -411,7 +413,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -470,11 +472,214 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/robot1/trajectory
           Name: "SLOAM: Robot1 Traj"
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
-      Enabled: true
+      Enabled: false
       Name: Drone1
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 25; 255; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Billboards
+          Line Width: 0.10000000149011612
+          Name: Path
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Queue Size: 10
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /Husky2/odom_gt/path
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10971.56640625
+            Min Value: -1.8166707754135132
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: Raw Semantic Points
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Husky2/sem_detection/pointcloud
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: Filtered Semantic Points
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Husky2/filtered_semantic_segmentation
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /Husky2/cuboid_centers
+          Name: ObjectTrackMarkers
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: PC Accumlated Obj Tracks
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.10000000149011612
+          Style: Flat Squares
+          Topic: /Husky2/pc_instance_segmentation_accumulated
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /Husky2/car_cuboids
+          Name: DetectedCuboids
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky2/sloam/optimized_point_landmarks
+          Name: "SLOAM: Opt Pt Landmarks"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /Husky2/sloam/cubes_map
+          Name: "SLOAM: CubeMap"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky2/sloam/cylinders_map
+          Name: "SLOAM: CylinderMap"
+          Namespaces:
+            {}
+          Queue Size: 1
+          Value: true
+        - Angle Tolerance: 1
+          Class: rviz/Odometry
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: false
+          Enabled: true
+          Keep: 10
+          Name: "SLOAM: High Freq Odom"
+          Position Tolerance: 0.10000000149011612
+          Queue Size: 10
+          Shape:
+            Alpha: 1
+            Axes Length: 1
+            Axes Radius: 0.10000000149011612
+            Color: 255; 25; 0
+            Head Length: 0.30000001192092896
+            Head Radius: 0.10000000149011612
+            Shaft Length: 1
+            Shaft Radius: 0.05000000074505806
+            Value: Axes
+          Topic: /Husky2/sloam/sloam_odom_high_freq
+          Unreliable: false
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky2/sloam/robot0/trajectory
+          Name: "SLOAM: Robot0 Traj"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+        - Class: rviz/MarkerArray
+          Enabled: true
+          Marker Topic: /Husky2/sloam/robot1/trajectory
+          Name: "SLOAM: Robot1 Traj"
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: true
+      Enabled: false
+      Name: Husky2
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -503,7 +708,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 86.94145202636719
+      Distance: 100.62036895751953
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -511,17 +716,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -24.15972137451172
-        Y: -3.750988483428955
+        X: 3.6477243900299072
+        Y: -11.282997131347656
         Z: 3.5123523502988974e-06
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7052047848701477
+      Pitch: 0.7852048277854919
       Target Frame: body
-      Yaw: 5.435850143432617
+      Yaw: 2.590850353240967
     Saved: ~
 Window Geometry:
   Displays:
@@ -539,5 +744,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 3700
-  X: 7020
-  Y: 473
+  X: 140
+  Y: 54

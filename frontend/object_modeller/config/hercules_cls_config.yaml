@@ -11,7 +11,7 @@ Tree:
   height_cutoff: [10.0, 30.0]
   mesh_model_path: null
   mesh_model_scale: null
-  class_assignment_thresh: 0.75
+  class_assignment_thresh: 1.5
 # Boulder:
 #   id: 2
 #   color: [0.58, 0.271, 0.165] # Brown
