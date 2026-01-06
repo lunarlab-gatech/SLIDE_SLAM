@@ -1,6 +1,7 @@
 session_name: slide_slam_nodes
 environment:
   BAG_PLAY_RATE: "1.0"
+  DATASET_NUM: "V2.1.0"
   DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0'
   BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0/extract/bags_for_slideslam'
   RESULT_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0/results/slideslam/'
@@ -26,7 +27,7 @@ windows:
       - shell_command:
           - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_0} odom_topic:=/${ROBOT_NAME_0}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
       - shell_command:
-          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME_0}/odom robot_name:=${ROBOT_NAME_0} hostRobot_ID:=0 save_results_dir:=${RESULT_DIR}${ROBOT_NAME_0}
+          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=true odom_topic:=/${ROBOT_NAME_0}/odom robot_name:=${ROBOT_NAME_0} hostRobot_ID:=0 save_results_dir:=${RESULT_DIR}/${ROBOT_NAME_0}_${ROBOT_NAME_1}/${ROBOT_NAME_0}
 
   - window_name: ROBOT_1
     layout: tiled
@@ -42,7 +43,7 @@ windows:
       - shell_command:
           - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_1} odom_topic:=/${ROBOT_NAME_1}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/hercules_cls_config.yaml
       - shell_command:
-          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=false odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} hostRobot_ID:=1 save_results_dir:=${RESULT_DIR}${ROBOT_NAME_1}
+          - roslaunch sloam single_robot_sloam_test_hercules.launch enable_rviz:=false odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} hostRobot_ID:=1 save_results_dir:=${RESULT_DIR}/${ROBOT_NAME_0}_${ROBOT_NAME_1}/${ROBOT_NAME_1}
 
   - window_name: roscore
     layout: tiled

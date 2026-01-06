@@ -89,6 +89,7 @@ class ProcessCloudNode:
 
         # Calculate other useful thresholds
         self.tracker_age_thresh_lower = self.expected_segmentation_rate * time_to_initialize_cuboid
+        rospy.loginfo(f"Cuboid initialization age threshold (in number of frames): {self.tracker_age_thresh_lower}")
         self.num_lost_track_times_thresh = self.expected_segmentation_rate * time_to_delete_lost_track_cuboid
 
         # Object tracking variables

@@ -95,7 +95,7 @@ namespace semantic_clipper{
             diff += std::pow(sorted_dist_model[i] - sorted_dist_data[i], 2);
         }
         diff = std::sqrt(diff);
-        std::cout << "Triangle difference: " << diff << std::endl;
+        // std::cout << "Triangle difference: " << diff << std::endl;
 
         // if the difference is less than the threshold, add the matched points to the matched_points_model and matched_points_data
         if (diff < threshold) {

@@ -9,7 +9,7 @@
     </node>
     <node pkg="object_modeller" type="sync_cylinder_odom.py" name="sync_cylinder_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic)">
     </node>
-    <node pkg="object_modeller" type="sync_cuboid_odom.py" name="sync_cuboid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic)">
+    <node pkg="object_modeller" type="sync_cuboid_odom.py" name="sync_cuboid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic) --cls_config_path $(arg cls_config_path)">
     </node>
     <node pkg="object_modeller" type="sync_centroid_odom.py" name="sync_centroid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic) --cls_config_path $(arg cls_config_path)">
     </node>

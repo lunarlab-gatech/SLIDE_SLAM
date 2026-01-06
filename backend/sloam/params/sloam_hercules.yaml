@@ -5,7 +5,7 @@ sloam:
   communication_wait_time: 5.0 # when running multi-robot bags, intermittent communication is replicated by allowing them to share information every communication_wait_time seconds
   inter_robot_place_recognition_frequency: 0.05 # frequency at which place recognition is run between robots
   cylinder_match_thresh: 3.0 # Deafult-1.0 cylinder data association threshold
-  cuboid_match_thresh: 2.0 # Default-2.0 # cuboid data association threshold
+  cuboid_match_thresh: 3.0 # Default-2.0 # cuboid data association threshold
   ellipsoid_match_thresh: 0.75 # Ellipsoid data association threshold
   min_robot_altitude: -100 # minimum height for adding factors, should be set to negative if you want factors to be added always
   min_odom_distance: 0.5 # minimum distance between two odometry messages to be considered for processing
@@ -51,7 +51,7 @@ sloam:
   place_recognition_slidegraph:
     # ------- MOST IMPORTANT PARAMS TO TUNE: -------
     num_inliners_threshold: 4 # Changed to match lc_association_thresh in ROMAN baseline.
-    descriptor_matching_threshold: 1.0 # INCREASED 10x due to variance in cuboid fitting and increased distance between objects in Hercules dataset.
+    descriptor_matching_threshold: 0.2
     min_num_map_objects_to_start: 30 # 30 for outdoor parking lot # 100 for forests # minimum number of objects in a map to start SlideGraph place recognition attempt
     #-----------------------------------------------
     sigma: 2.0 # CLIPPER params, set to match value used by ROMAN baseline. Spread / "variance" of exponential kernel

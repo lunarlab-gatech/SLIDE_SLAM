@@ -189,14 +189,13 @@ Visualization Manager:
           Use rainbow: true
           Value: false
         - Class: rviz/MarkerArray
-          Enabled: true
+          Enabled: false
           Marker Topic: /Husky1/car_cuboids
           Name: DetectedCuboids
           Namespaces:
-            Tree: true
-            text: true
+            {}
           Queue Size: 100
-          Value: true
+          Value: false
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky1/sloam/optimized_point_landmarks
@@ -206,13 +205,13 @@ Visualization Manager:
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
-          Enabled: false
+          Enabled: true
           Marker Topic: /Husky1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
-          Value: false
+          Value: true
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky1/sloam/cylinders_map
@@ -413,7 +412,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -472,10 +471,10 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/robot1/trajectory
           Name: "SLOAM: Robot1 Traj"
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
-      Enabled: false
+      Enabled: true
       Name: Drone1
     - Class: rviz/Group
       Displays:
@@ -708,7 +707,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 100.62036895751953
+      Distance: 120.0803451538086
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -724,9 +723,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7852048277854919
+      Pitch: 0.7252048254013062
       Target Frame: body
-      Yaw: 2.590850353240967
+      Yaw: 2.9558498859405518
     Saved: ~
 Window Geometry:
   Displays:
