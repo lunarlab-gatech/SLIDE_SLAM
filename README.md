@@ -81,5 +81,5 @@ source ~/slideslam_original_ws/devel/setup.bash
 Run the following commands:
 ```
 source ~/slideslam_original_ws/devel/setup.bash
-tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/hercules.yaml
+tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/hercules_<dataset_version>.yaml
 ```

@@ -3,6 +3,7 @@
     <arg name="odom_topic" default="/odom"/>
     <arg name="robot_name" default="robot0"/>
     <arg name="label_color_map_path" default="label_color_map.csv"/>
+    <arg name="dataset_num" default="Missing"/>
 
     <node name="semantic_detector_from_sem_labels" pkg="object_modeller" type="detect_sem_via_gt_sem_labels.py" output="screen" ns="$(arg robot_name)">
 
@@ -10,7 +11,7 @@
         <param name="~robot_name" value="$(arg robot_name)"/>
         <param name="~seg_topic" value="/$(arg robot_name)/cam0/seg"/>
         <param name="~label_color_map_path" value="$(arg label_color_map_path)"/>
-        <param name="~cls_config_path" value="$(find object_modeller)/config/hercules_cls_config.yaml"/>
+        <param name="~cls_config_path" value="$(find object_modeller)/config/Hercules/$(arg dataset_num)/hercules_cls_config.yaml"/>
         <param name="~aligned_depth_topic" value="/$(arg robot_name)/cam0/depth"/>
         <param name="~odom_topic" value="$(arg odom_topic)"/>
         <param name="~sync_odom_measurements" value="true"/>
