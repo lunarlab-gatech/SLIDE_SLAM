@@ -8,6 +8,7 @@
     <arg name="turn_off_intra_loop_closure" default="false"/>
     <arg name="turn_off_inter_loop_closure" default="false"/>
     <arg name="save_results_dir" default="/home/robot/sloam_results"/>
+    <arg name="dataset_num" default="Missing"/>
 
     <arg name="map_frame_id" default="world"/>
     <arg name="odom_frame_id" default="$(arg robot_name)/odom"/>
@@ -18,7 +19,7 @@
         <node pkg="rviz" type="rviz" name="sloam_rviz" output="screen" args="-d $(find sloam)/launch/rviz/decentralized_sloam_hercules.rviz" />
     </group>
 
-    <rosparam file="$(find sloam)/params/sloam_hercules.yaml" command="load" />
+    <rosparam file="$(find sloam)/params/Hercules/$(arg dataset_num).yaml" command="load" />
 
     <!-- Set frame parameters from arguments -->
     <param name="/sloam/map_frame_id"   value="$(arg map_frame_id)"/>
