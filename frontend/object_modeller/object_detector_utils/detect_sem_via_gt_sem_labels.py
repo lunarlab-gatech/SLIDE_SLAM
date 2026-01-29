@@ -80,7 +80,7 @@ class Semantic_Detector_From_Sem_Labels:
             self.cls_data_all: dict = yaml.load(file, Loader=yaml.FullLoader)
         self.cls_str_to_cls_id: dict[str, int] = {}
         for key, value in self.cls_data_all.items():
-            self.cls_str_to_cls_id[key] = value["id"]
+            self.cls_str_to_cls_id[key.lower()] = value["id"]
         self.not_desired_cls = []        
 
     def run(self):
@@ -126,7 +126,7 @@ class Semantic_Detector_From_Sem_Labels:
                 def cls_str_to_cls_id(cls_str):
                     desired_cls_strs: list[str] = self.cls_str_to_cls_id.keys()
                     for desired_cls_str in desired_cls_strs:
-                        if desired_cls_str in cls_str:
+                        if desired_cls_str in cls_str.lower():
                             return self.cls_str_to_cls_id[desired_cls_str]
                     else:
                         if cls_str not in self.not_desired_cls:

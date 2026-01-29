@@ -3,6 +3,7 @@ DATA_DIR="/media/dbutterfield3/T73/"
 
 docker run -it \
     --name="slideslam_baseline" \
+    --shm-size=2gb \
     --net="host" \
     --privileged \
     --gpus="all" \

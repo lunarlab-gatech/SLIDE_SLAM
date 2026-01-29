@@ -1,16 +1,15 @@
 session_name: slide_slam_nodes
 environment:
   BAG_PLAY_RATE: "1.0"
-  DATASET_NUM: "V2.1.0"
-  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0'
-  BAG_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0/extract/bags_for_slideslam'
-  RESULT_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.1.0/results/slideslam/'
+  DATASET_NUM: "V2.3.C"
+  DATA_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.3.C'
+  RESULT_DIR: '/home/dbutterfield3/data/Hercules_datasets/V2.3.C/results/slideslam/'
   ROBOT_NAME_0: 'Husky1'
   ROBOT_0_T: "[0.0,0.055,0.35]"
   ROBOT_0_R: "[0.5,-0.5,0.5,-0.5]"      
-  ROBOT_NAME_1: 'Husky2'
-  ROBOT_1_T: "[0.0,0.055,0.35]"
-  ROBOT_1_R: "[0.5,-0.5,0.5,-0.5]"      
+  ROBOT_NAME_1: 'Drone2'
+  ROBOT_1_T: "[0.35,0.055,-0.2]"
+  ROBOT_1_R: "[0.45451948,-0.45451948,0.54167522,-0.54167522]"
 start_directory: "~/slideslam_original_ws"
 windows:
   - window_name: ROBOT_0
@@ -41,7 +40,7 @@ windows:
       - shell_command:
           - roslaunch scan2shape_launch process_cloud_node_hercules.launch odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} camera_frame_wrt_odom_frame_T:=${ROBOT_1_T} camera_frame_wrt_odom_frame_R_quat:=${ROBOT_1_R} dataset_num:=${DATASET_NUM}
       - shell_command:
-          - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_1} odom_topic:=/${ROBOT_NAME_1}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/Hercules/V2.1.0/hercules_cls_config.yaml
+          - roslaunch object_modeller sync_semantic_measurements.launch robot_name:=${ROBOT_NAME_1} odom_topic:=/${ROBOT_NAME_1}/odom cls_config_path:=/home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/frontend/object_modeller/config/Hercules/${DATASET_NUM}/hercules_cls_config.yaml
       - shell_command:
           - roslaunch sloam sloam_hercules.launch enable_rviz:=false odom_topic:=/${ROBOT_NAME_1}/odom robot_name:=${ROBOT_NAME_1} hostRobot_ID:=1 save_results_dir:=${RESULT_DIR}/${ROBOT_NAME_0}_${ROBOT_NAME_1}/${ROBOT_NAME_1} dataset_num:=${DATASET_NUM}
 
@@ -55,21 +54,17 @@ windows:
           - roscore
       - shell_command:
           - sleep 1
-          - rosparam set /use_sim_time true
       - shell_command:
           - sleep 2
-          - cd ${BAG_DIR}
-          - rosbag play ${ROBOT_NAME_0}.bag --clock -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME_0}/cam0/seg /odom_gt:=/${ROBOT_NAME_0}/odom /cam0/depth:=/${ROBOT_NAME_0}/cam0/depth /odom_gt/path:=/${ROBOT_NAME_0}/odom_gt/path
+          - python src/SLIDE_SLAM/dependencies/robotdataprocess/examples/Hercules/publish/publish_data_SlideSLAM.py --dataset_num ${DATASET_NUM} --robot_name ${ROBOT_NAME_0}
       - shell_command:
           - sleep 2
-          - cd ${BAG_DIR}
-          - rosbag play ${ROBOT_NAME_1}.bag -r ${BAG_PLAY_RATE} -s 0 /cam0/seg:=/${ROBOT_NAME_1}/cam0/seg /odom_gt:=/${ROBOT_NAME_1}/odom /cam0/depth:=/${ROBOT_NAME_1}/cam0/depth /odom_gt/path:=/${ROBOT_NAME_1}/odom_gt/path
+          - python src/SLIDE_SLAM/dependencies/robotdataprocess/examples/Hercules/publish/publish_data_SlideSLAM.py --dataset_num ${DATASET_NUM} --robot_name ${ROBOT_NAME_1}
   
   - window_name: kill
     panes:
       - shell_command:
           - tmux kill-session -t slide_slam_nodes_
-
 
   # 'Husky1'
   # "[0.0,0.055,0.35]"

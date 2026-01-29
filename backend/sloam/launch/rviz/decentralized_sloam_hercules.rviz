@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Husky11
         - /Husky11/DetectedCuboids1
+        - /Husky21
         - /Husky21/Path1
       Splitter Ratio: 0.4595775604248047
     Tree Height: 1786
@@ -209,7 +210,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -260,7 +261,7 @@ Visualization Manager:
           Marker Topic: /Husky1/sloam/robot0/trajectory
           Name: "SLOAM: Robot0 Traj"
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -271,7 +272,7 @@ Visualization Manager:
             {}
           Queue Size: 100
           Value: true
-      Enabled: true
+      Enabled: false
       Name: Husky1
     - Class: rviz/Group
       Displays:
@@ -412,7 +413,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            "": true
+            {}
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
@@ -471,7 +472,7 @@ Visualization Manager:
           Marker Topic: /Drone1/sloam/robot1/trajectory
           Name: "SLOAM: Robot1 Traj"
           Namespaces:
-            points_and_lines: true
+            {}
           Queue Size: 100
           Value: true
       Enabled: true
@@ -611,13 +612,13 @@ Visualization Manager:
           Queue Size: 100
           Value: true
         - Class: rviz/MarkerArray
-          Enabled: false
+          Enabled: true
           Marker Topic: /Husky2/sloam/cubes_map
           Name: "SLOAM: CubeMap"
           Namespaces:
-            {}
+            "": true
           Queue Size: 100
-          Value: false
+          Value: true
         - Class: rviz/MarkerArray
           Enabled: true
           Marker Topic: /Husky2/sloam/cylinders_map
@@ -674,10 +675,10 @@ Visualization Manager:
           Marker Topic: /Husky2/sloam/robot1/trajectory
           Name: "SLOAM: Robot1 Traj"
           Namespaces:
-            {}
+            points_and_lines: true
           Queue Size: 100
           Value: true
-      Enabled: false
+      Enabled: true
       Name: Husky2
   Enabled: true
   Global Options:
@@ -707,7 +708,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 120.0803451538086
+      Distance: 170.38536071777344
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -715,17 +716,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 3.6477243900299072
-        Y: -11.282997131347656
+        X: 5.16292667388916
+        Y: -9.324048042297363
         Z: 3.5123523502988974e-06
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7252048254013062
+      Pitch: 0.6652048230171204
       Target Frame: body
-      Yaw: 2.9558498859405518
+      Yaw: 3.4108498096466064
     Saved: ~
 Window Geometry:
   Displays:

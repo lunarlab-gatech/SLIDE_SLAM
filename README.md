@@ -60,6 +60,13 @@ The rest of this README **assumes that you are inside the Docker container**. Fo
 ./docker/enter_container.sh
 ```
 
+**Install Python Dependencies**:
+Navigate to  `~/slideslam_original_ws` and then run the following commands:
+```
+cd src/SLIDE_SLAM/dependencies/robotdataprocess
+pip install .
+```
+
 **Build the workspace**: 
 Navigate to `~/slideslam_original_ws` and then run the following commands:
 ```
