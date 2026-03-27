@@ -1,0 +1,314 @@
+Van:
+  id: 2
+  color: [1.0, 1.0, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Lamp:
+  id: 4
+  color: [1.0, 0.5, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Pickup:
+  id: 5
+  color: [0.5, 1.0, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Hero:
+  id: 6
+  color: [0.5, 1.0, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Sandbag:
+  id: 7
+  color: [0.5, 0.5, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Truck:
+  id: 8
+  color: [1.0, 0.75, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Scaffolding:
+  id: 9
+  color: [1.0, 0.75, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Cop:
+  id: 10
+  color: [0.5, 0.75, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Bus:
+  id: 11
+  color: [0.5, 0.75, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Barrier:
+  id: 12
+  color: [0.75, 1.0, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Umbella:
+  id: 13
+  color: [0.75, 1.0, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Container:
+  id: 15
+  color: [0.75, 0.75, 0.75]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+White:
+  id: 17
+  color: [0.5, 0.5, 0.37]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Lumber:
+  id: 18
+  color: [0.75, 1.0, 0.37]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Chain:
+  id: 19
+  color: [0.75, 0.5, 0.37]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Sedan:
+  id: 20
+  color: [1.0, 0.37, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Cone:
+  id: 21
+  color: [1.0, 0.37, 0.75]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Roof:
+  id: 22
+  color: [0.75, 0.37, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Milk:
+  id: 25
+  color: [0.37, 0.75, 0.75]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Dispenser:
+  id: 27
+  color: [1.0, 1.0, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Trash:
+  id: 29
+  color: [0.5, 0.37, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Garbage:
+  id: 31
+  color: [0.5, 0.62, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Antenna:
+  id: 34
+  color: [0.62, 1.0, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Storage:
+  id: 36
+  color: [0.5, 0.75, 0.87]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Pole:
+  id: 38
+  color: [0.37, 0.87, 0.5]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Taxi:
+  id: 40
+  color: [0.87, 0.5, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Booth:
+  id: 41
+  color: [0.87, 0.75, 0.37]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Network:
+  id: 42
+  color: [0.87, 0.62, 0.87]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Billboard:
+  id: 43
+  color: [0.62, 0.37, 0.31]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Wooden:
+  id: 44
+  color: [0.5, 0.31, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Birch:
+  id: 46
+  color: [0.31, 0.5, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Ladder:
+  id: 48
+  color: [0.87, 0.43, 0.62]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Fence:
+  id: 49
+  color: [0.43, 0.75, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Manhole:
+  id: 50
+  color: [0.43, 0.87, 1.0]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+
+Vehicle:
+  id: 52
+  color: [0.5, 0.62, 0.56]
+  length_cutoff: [1.0, 10.0]
+  height_cutoff: [1.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0

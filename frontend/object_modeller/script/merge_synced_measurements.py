@@ -23,7 +23,7 @@ def rviz2cubelist(rviz_cube):
     for cube in rviz_cube.markers:
         dims = [cube.scale.x, cube.scale.y, cube.scale.z]
         # default cuboid label is -2
-        semantic_label = -2
+        semantic_label = -2 # NOTE: THIS NEEDS TO BE UPDATED
         # assemble Pose
         # convert into geometry_msgs/Pose
         pose = Pose()

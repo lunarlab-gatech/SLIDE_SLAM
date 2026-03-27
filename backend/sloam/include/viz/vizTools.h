@@ -56,7 +56,8 @@ void vizTreeModels(const std::vector<Cylinder> &scanTm,
                    size_t &cylinderId);
 void vizCubeModels(const std::vector<Cube> &cubeModels,
                    visualization_msgs::MarkerArray &tMarkerArray,
-                   size_t &cubeId, const bool &is_global_map);
+                   size_t &cubeId, const bool &is_global_map,
+                   const std::string &frame_id, const int &robotID);
 visualization_msgs::Marker vizGroundModel(const Plane &gplane,
                                           const std::string &frame_id,
                                           const int idx);

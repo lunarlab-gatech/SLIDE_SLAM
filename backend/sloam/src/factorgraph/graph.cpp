@@ -308,10 +308,9 @@ void SemanticFactorGraph::addCubeFactor(
                         cube_local_meas, noise_model_cube));
 
   if (cube_local_meas.pose.translation().norm() > 50) {
-    ROS_WARN_THROTTLE(1, "cube_local_meas.pose.translation().norm() is larger "
-                         "than 25 meters, maybe it is due to the front end keeping "
-                         "track of observations over a long time or maybe it is because "
-                         " the robot is moving fast!!");
+    ROS_WARN_STREAM_THROTTLE(1, "cube_local_meas.pose.translation().norm() is larger than 50 meters: "
+    << cube_local_meas.pose.translation().norm()
+    << ", maybe due to the front end tracking observations over a long time");
   }
 
   if (!alreadyExists) {

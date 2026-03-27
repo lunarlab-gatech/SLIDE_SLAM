@@ -1,0 +1,1 @@
+docker start slideslam_baseline && docker exec -it slideslam_baseline /bin/bash

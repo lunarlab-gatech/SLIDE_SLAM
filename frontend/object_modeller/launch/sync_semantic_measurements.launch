@@ -2,17 +2,16 @@
 <launch>
   <arg name="odom_topic" default="/Odometry"/>
   <arg name="robot_name" default="robot0"/>
-
+  <arg name="cls_config_path" default="/YourPathHere/cls_config.yaml"/>
   
-
     <node pkg="object_modeller" type="cylinder_plane_modeller.py" name="cylinder_plane_modeller" output="screen" ns="$(arg robot_name)" args="--point_cloud_ns /$(arg robot_name)/">
       <rosparam command="load" file="$(find object_modeller)/config/cylinder_plane_modeller_params.yaml"/>
     </node>
     <node pkg="object_modeller" type="sync_cylinder_odom.py" name="sync_cylinder_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic)">
     </node>
-    <node pkg="object_modeller" type="sync_cuboid_odom.py" name="sync_cuboid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic)">
+    <node pkg="object_modeller" type="sync_cuboid_odom.py" name="sync_cuboid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic) --cls_config_path $(arg cls_config_path)">
     </node>
-    <node pkg="object_modeller" type="sync_centroid_odom.py" name="sync_centroid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic)">
+    <node pkg="object_modeller" type="sync_centroid_odom.py" name="sync_centroid_odom" output="screen" ns="$(arg robot_name)" args="--odom_topic $(arg odom_topic) --cls_config_path $(arg cls_config_path)">
     </node>
     <node pkg="object_modeller" type="merge_synced_measurements.py" name="sync_all" output="screen" ns="$(arg robot_name)">
     </node>

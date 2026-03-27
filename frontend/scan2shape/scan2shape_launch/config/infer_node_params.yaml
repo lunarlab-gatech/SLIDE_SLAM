@@ -16,9 +16,14 @@
 # pc_point_step: length of a point in bytes in the point cloud.
 #-------------------------------------------------
 namespace: /os_node
-model_dir: /opt/bags/vems-slam-bags/penn_smallest/
+model_dir: /home/dbutterfield3/slideslam_original_ws/src/SLIDE_SLAM/data/rangenet++/penn_smallest/
 desired_frequency: 2
 num_cpu_threads: 10
-pc_range_threshold: 40
+
+# Increased from 40 as the Australian environment is very large
+pc_range_threshold: 100
+
+# DON'T CHANGE THIS, this is only used for the output cloud of infer_node_params, whose fields we cannot change in this parameter file.
 pc_point_step: 16
+
 out_of_range_default_position: [0, 0, 0]

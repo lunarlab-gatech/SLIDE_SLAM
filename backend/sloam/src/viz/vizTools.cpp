@@ -90,8 +90,6 @@ vizAllCentroidLandmarks(const std::vector<SE3> &allLandmarks,
   // TODO(ankit): Add a flag to read yaml file from open_vocab or closed_vocab
   YAML::Node cls_yaml_data = YAML::LoadFile(ros::package::getPath("object_modeller") + "/config/open_vocab_cls_all.yaml");
 
-  
-
   std::map<int, std::string> label_to_cls_name;
   std::map<int, std::vector<double>> label_to_cls_color;
   std::map<int, std::string> label_to_cls_mesh_path;
@@ -501,23 +499,25 @@ void vizTreeModels(const std::vector<Cylinder> &scanTm,
 
 void vizCubeModels(const std::vector<Cube> &cubeModels,
                    visualization_msgs::MarkerArray &tMarkerArray,
-                   size_t &cubeId, const bool &is_global_map) {
-  float scan_map_alpha = 0.6;
-  float global_map_alpha = 0.6;
-  float alpha;
+                   size_t &cubeId, const bool &is_global_map, 
+                   const std::string &frame_id, const int &robotID) {
+
+  float alpha = 0.6;
   float red, blue, green;
-  ros::Time stamp;
-  // To differentiate from local map, global map will (1) be transparent, (2)
-  // display permanently and (3) use different color
-  if (is_global_map) {
-    alpha = global_map_alpha;
-    stamp = ros::Time::now();
+  ros::Time stamp = ros::Time::now();
+  if (robotID == 0) {
+    red = 1.0;
+    blue = 0.0;
+    green = 0.0;
+  } else if (robotID == 1) {
     red = 0.0;
     blue = 1.0;
     green = 0.0;
+  } else if (robotID == 2) {
+    red = 0.0;
+    blue = 0.0;
+    green = 1.0;
   } else {
-    alpha = scan_map_alpha;
-    stamp = ros::Time::now();
     red = 0.5;
     blue = 0.5;
     green = 0.5;
@@ -525,7 +525,7 @@ void vizCubeModels(const std::vector<Cube> &cubeModels,
 
   for (const auto &cur_cube : cubeModels) {
     visualization_msgs::Marker marker;
-    marker.header.frame_id = "quadrotor/map";
+    marker.header.frame_id = frame_id;
     marker.header.stamp = stamp;
     marker.id = cubeId;
     marker.type = visualization_msgs::Marker::CUBE;
@@ -559,7 +559,7 @@ void vizCubeModels(const std::vector<Cube> &cubeModels,
 
   for (auto i = cubeId; i < cubeId + 100; ++i) {
     visualization_msgs::Marker marker;
-    marker.header.frame_id = "quadrotor/map";
+    marker.header.frame_id = frame_id;
     marker.header.stamp = ros::Time();
     marker.id = i;
     marker.type = visualization_msgs::Marker::CUBE;

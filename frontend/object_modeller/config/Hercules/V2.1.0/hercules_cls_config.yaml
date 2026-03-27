@@ -1,0 +1,86 @@
+# Each class has the following attributes and new classes must be added in the same format:
+# length_cutoff: Min and max length of the object to consider it as valid detection and fit model
+# height_cutoff: Min and max height of the object to consider it as valid detection and fit model
+# mesh_model_scale: Scale of the mesh model. This value will be multiplied by a fixed dimension which is 0.6m for all dimensions. Can be left blank if mesh model doesn't exist.
+# class_assignment_thresh: Distance threshold in meters for Hungarian Assignment to consider two object tracks as the same object. If two object model centroids are closer than this value, they will be considered as the same object.
+
+Tree:
+  id: 1
+  color: [0.0, 1.0, 0.0] # Green
+  length_cutoff: [10.0, 30.0]
+  height_cutoff: [10.0, 30.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 6.0
+Log:
+  id: 2
+  color: [0.545, 0.271, 0.075] # Brown
+  length_cutoff: [0.0, 15.0]
+  height_cutoff: [0.0, 15.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+GrassTree:
+  id: 3
+  color: [0.49411764705882355, 0.7333333333333333, 0.6784313725490196] # Muted Teal
+  length_cutoff: [10.0, 30.0]
+  height_cutoff: [10.0, 30.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 6.0  
+KangarooSign:
+  id: 4
+  color: [0.8549019607843137, 0.6588235294117647, 0.20392156862745098] # Goldenrod
+  length_cutoff: [0.0, 10.0]
+  height_cutoff: [0.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 2.0
+# Road:
+#   id: 5
+#   color: [0.0, 0.0, 0.0] # Black
+#   length_cutoff: [0.0, 500.0]
+#   height_cutoff: [0.0, 2.0]
+#   mesh_model_path: null
+#   mesh_model_scale: null
+#   class_assignment_thresh: 50.0
+Roots:
+  id: 6
+  color: [0.396078431372549, 0.2627450980392157, 0.12941176470588237] # Dark Brown
+  length_cutoff: [0.0, 15.0]
+  height_cutoff: [0.0, 15.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
+Concrete_Block:
+  id: 7
+  color: [0.5019607843137255, 0.5019607843137255, 0.5019607843137255] # Gray
+  length_cutoff: [0.0, 10.0]
+  height_cutoff: [0.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 2.0
+Fence:
+  id: 8
+  color: [0.7529411764705882, 0.7529411764705882, 0.7529411764705882] # Light Gray
+  length_cutoff: [0.0, 15.0]
+  height_cutoff: [0.0, 3.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 2.0
+Helicopter:
+  id: 9
+  color: [1.0, 0.0, 0.0] # Red
+  length_cutoff: [0.0, 20.0]
+  height_cutoff: [0.0, 10.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 4.0
+Drum_Metal:
+  id: 10
+  color: [0.0, 0.0, 1.0] # Blue
+  length_cutoff: [0.0, 5.0]
+  height_cutoff: [0.0, 5.0]
+  mesh_model_path: null
+  mesh_model_scale: null
+  class_assignment_thresh: 3.0
