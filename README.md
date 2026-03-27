@@ -90,3 +90,8 @@ Run the following commands:
 source ~/slideslam_original_ws/devel/setup.bash
 tmuxp load src/SLIDE_SLAM/backend/multi_robot_utils_launch/tmux/hercules_<dataset_version>.yaml
 ```
+
+Note on why it currently fails on HERCULES:
+- ROMAN aligns via submaps but SlideSLAM uses the whole map, suffers ALOT more from odometry drift of VINS-Mono. Less accurate distances and extra objects generated from this drift.
+- When maximum points reached, oldest points are thrown away, which continues to alter cuboid shape in unexpected ways.
+- Suffers from partial segmentations in a similar way to ROMAN.
