@@ -1,42 +1,6 @@
 #include "semantic_clipper.h"
-#include <ros/ros.h>
 
 namespace semantic_clipper{
-
-    Eigen::Matrix2Xd read_2d_points(std::string txt_file) {
-        // each line of the txt file is seperrated by a comma
-        // the first column is the x coordinate and the second column is the y coordinate
-        // std::cout << "Reading data from " << txt_file << std::endl;
-        std::ifstream file(txt_file);
-        std::string line;
-        std::vector<std::vector<double>> points;
-        while (std::getline(file, line)) {
-            std::vector<double> point;
-            std::stringstream ss(line);
-            std::string token;
-            while (std::getline(ss, token, ',')) {
-            point.push_back(std::stod(token));
-            }
-            points.push_back(point);
-        }
-        file.close();
-        Eigen::Matrix2Xd points_matrix(2, points.size());
-        for (int i = 0; i < points.size(); i++) {
-            points_matrix(0, i) = points[i][0];
-            points_matrix(1, i) = points[i][1];
-        }
-        // std::cout << "Read " << points.size() << " points" << std::endl;
-        return points_matrix;
-    }
-
-    Eigen::Matrix2Xd transform_2d_points(Eigen::Matrix2Xd points, Eigen::Matrix2d rotation, Eigen::Vector2d translation) {
-        Eigen::Matrix2Xd transformed_points(2, points.cols());
-        for (int i = 0; i < points.cols(); i++) {
-            Eigen::Vector2d point = points.col(i);
-            transformed_points.col(i) = rotation * point + translation;
-        }
-        return transformed_points;
-    }
 
     std::vector<int> argsort(const std::vector<double>& v) {
         std::vector<int> idx(v.size());
@@ -250,10 +214,10 @@ namespace semantic_clipper{
         // check if the number of matched points is greater than the minimum number of pairs
         if (clipper_matched_points_model.cols() < min_num_pairs) {
             // std::cout << "Number of matched points is less than the minimum number of pairs" << std::endl;
-            ROS_INFO_STREAM("Number of matched points is less than the minimum number of pairs, number of matched points: " << clipper_matched_points_model.cols());
+            std::cout << "Number of matched points is less than the minimum number of pairs, number of matched points: " << clipper_matched_points_model.cols() << std::endl;
             return false;
         } else {
-            ROS_INFO_STREAM("Number of matched points: " << clipper_matched_points_model.cols());
+            std::cout << "Number of matched points: " << clipper_matched_points_model.cols() << std::endl;
         }
 
         // estimate transformation

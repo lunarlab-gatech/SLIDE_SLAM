@@ -8,17 +8,15 @@
  */
 
 #pragma once
-#include <definitions.h>
 #include <math.h>
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-#include <boost/bind.hpp>
 #include <cmath>
-#include <unsupported/Eigen/NonLinearOptimization>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #if USE_CLIPPER
 #include "semantic_clipper.h"
@@ -28,22 +26,38 @@ namespace Eigen {
 typedef Matrix<double, 7, 1> Vector7d;
 }
 
+// Replaces the ROS "place_recognition" namespace; names and defaults match the old ParamInit
+struct SlideMatchParams {
+  double compute_budget_sec = 5.0;
+  double dilation_factor = 1.2;
+  double search_xy_step_size = 0.5;
+  double match_yaw_half_range = 180.;
+  bool disable_yaw_search = false;
+  double search_yaw_step_size_degrees = 2.0;
+  double match_threshold_position = 0.5;
+  double match_threshold_dimension = 1.0;
+  bool ignore_dimension = false;
+  int min_num_inliers = 5;
+  bool use_nonlinear_least_squares = true;
+  int min_num_map_objects_to_start = true;
+};
+
+// Replaces the ROS "place_recognition_slidegraph" namespace; names and defaults match the old ParamInit
+struct SlideGraphParams {
+  int num_inliners_threshold = 10.;
+  double descriptor_matching_threshold = 0.1;
+  double sigma = 0.1;
+  double epsilon = 0.1;
+  int min_num_map_objects_to_start = 20;
+};
+
 class PlaceRecognition {
  public:
-  // flag to visualize the matching results
-  bool visualize_matching_results;
-
-  // min overlap percentage to determine if a loop closure is valid
-  double min_loop_closure_overlap_percentage_;
-
   // flag to use least square optimization
   bool use_lsq;
 
-  // specify if this is inter-loop closure or intra-loop closure
-  bool inter_loop_closure = true;
-
-  // constructor takes in ros node handle
-  PlaceRecognition(const ros::NodeHandle &nh);
+  PlaceRecognition(const SlideMatchParams &slidematch_params,
+                   const SlideGraphParams &slidegraph_params);
 
   /**
    * @brief MatchMaps, match two maps (set of objects) and output the
@@ -72,23 +86,6 @@ class PlaceRecognition {
                  Eigen::Matrix3d &R_t_out, int &best_num_inliers_out,
                  std::vector<Eigen::Vector4d> &map_objects_matched_out,
                  std::vector<Eigen::Vector4d> &detection_objects_matched_out);
-
-  /**
-   * @brief findIntraLoopClosure, wrapper function for finding intra robot
-   * closure
-   *
-   * @param reference_objects
-   * @param query_objects
-   * @param query_pose
-   * @param reference_pose
-   * @param tfFromQueryToCandidate
-   * @return true
-   * @return false
-   */
-  bool findIntraLoopClosure(
-      const std::vector<Eigen::Vector7d> &reference_objects,
-      const std::vector<Eigen::Vector7d> &query_objects, const SE3 &query_pose,
-      const SE3 &reference_pose, Eigen::Matrix4d &tfFromQueryToCandidate);
 
   /**
    * @brief findInterLoopClosure, wrapper function for finding inter robot
@@ -155,18 +152,10 @@ class PlaceRecognition {
   void printParams();
 
  private:
-  void ParamInit();
-  ros::NodeHandle nh_;
-  void VisualizeMatchingResults(
-      const std::vector<Eigen::Vector4d> &map_objects_matched,
-      const std::vector<Eigen::Vector4d> &detection_objects_matched,
-      const std::vector<Eigen::Vector4d> &all_detection_objects,
-      Eigen::Matrix3d &R_t);
+  void ParamInit(const SlideMatchParams &slidematch_params,
+                 const SlideGraphParams &slidegraph_params);
 
   Eigen::Vector2d getCentroid(const std::vector<Eigen::Vector7d> &objects);
-
-  ros::Publisher viz_pub_;
-  std::string ns_prefix_;
 
   // parameters
   
@@ -187,15 +176,6 @@ class PlaceRecognition {
                                // range is 2 * half range)
   double match_y_half_range_;  // search range for y position (half range, total
                                // range is 2 * half range)
-  double match_x_half_range_intra_;  // only for intra-robot loop closure:
-                                     // search range for x position (half range,
-                                     // total range is 2 * half range)
-  double match_y_half_range_intra_;  // only for intra-robot loop closure:
-                                     // search range for y position (half range,
-                                     // total range is 2 * half range)
-  double match_yaw_half_range_intra_;  // only for intra-robot loop closure:
-                                       // search range for yaw angle (half
-                                       // range, total range is 2 * half range)
   double dilation_factor_;  // place recognition search region along XY will be
                             // dilation_factor_ * max(map_1, map_2)
   double
@@ -208,9 +188,6 @@ class PlaceRecognition {
   double compute_budget_sec_;         // compute budget in seconds for place
                                // recognition algorithm, it will return the best
                                // estimate within this time
-
-  std::string vis_ref_frame_ =
-      "quadrotor/map";  // reference frame for visualization
 
   /**
    * @brief revertCentroidShift, this function convert the transformation matrix

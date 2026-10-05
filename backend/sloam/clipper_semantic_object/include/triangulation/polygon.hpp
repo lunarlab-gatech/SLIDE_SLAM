@@ -1,5 +1,4 @@
 #pragma once
-#include <triangulation/descriptor.hpp>
 #include <triangulation/distance.hpp>
 
 namespace DelaunayTriangulation {
@@ -10,7 +9,6 @@ namespace DelaunayTriangulation {
                 neighbors = {};
                 edges = {};
                 edgeLengths = {};
-                descriptor = {};
             }
 
             explicit Polygon(PointVector pp, std::vector<int> nn,
@@ -19,7 +17,6 @@ namespace DelaunayTriangulation {
                 neighbors = nn;
                 edges = ee;
                 edgeLengths = el;
-                descriptor = descriptor::compute(pp);
                 // std::cout << "Creating new polygon\n Neighbors:" << std::endl;
                 // for(auto n : neighbors){
                 //     std::cout << n << ", ";
@@ -43,6 +40,5 @@ namespace DelaunayTriangulation {
             // edges (x,y), undirected and their respective lengths
             std::vector<EdgeT> edges;
             std::vector<double> edgeLengths;
-            std::vector<double> descriptor;
     };
 }

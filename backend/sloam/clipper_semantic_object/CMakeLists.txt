@@ -24,8 +24,8 @@ option(CLIPPER_BUILD_TESTS "Build testsuite" OFF)
 option(CLIPPER_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(CLIPPER_ENABLE_MKL "Use MKL with Eigen" OFF)
 option(CLIPPER_ENABLE_BLAS "Use BLAS with Eigen" OFF) # apt install libopenblas-dev
-option(CLIPPER_ENABLE_MAXCLIQUE "Use PMC lib for solveAsMaximumClique" ON)
-option(CLIPPER_ENABLE_SCS_SDR "Use SCS lib for solveAsMSRCSDR" ON)
+option(CLIPPER_ENABLE_MAXCLIQUE "Use PMC lib for solveAsMaximumClique" OFF)
+option(CLIPPER_ENABLE_SCS_SDR "Use SCS lib for solveAsMSRCSDR" OFF)
 
 if(CLIPPER_ENABLE_MKL AND CLIPPER_ENABLE_BLAS)
   message(FATAL_ERROR "Cannot enable both MKL and BLAS (prefer MKL)")
@@ -36,12 +36,9 @@ endif()
 ###############################################################################
 
 ##########Triangulaton library##############
-find_package(OpenCV REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp)
 find_package(Boost REQUIRED)
 INCLUDE_DIRECTORIES(/usr/local/include/libqhullcpp)
 INCLUDE_DIRECTORIES(/usr/local/include/libqhull_r)
-include_directories(${OpenCV_INCLUDE_DIRS})
 SET(qhullLibs qhullcpp qhull_r)
 LINK_DIRECTORIES(/usr/local/lib)
 
@@ -103,26 +100,7 @@ endif()
 # Targets
 ###############################################################################
 
-add_library(clipper SHARED)
-target_sources(clipper PRIVATE
-  src/clipper.cpp
-  src/utils.cpp
-  src/dsd.cpp
-  src/sdp.cpp
-  src/maxclique.cpp
-  src/invariants/euclidean_distance.cpp
-  src/invariants/pointnormal_distance.cpp
-  src/semantic_clipper.cpp)
-target_link_libraries(clipper PUBLIC Eigen3::Eigen ${catkin_LIBRARIES})
-target_link_libraries(clipper PRIVATE OpenMP::OpenMP_CXX)
-target_include_directories(clipper PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    ${catkin_INCLUDE_DIRS})
-target_compile_options(clipper PUBLIC -march=native -mavx -mfma)
-set_target_properties(clipper PROPERTIES
-  VERSION ${PROJECT_VERSION})
-target_compile_definitions(clipper PUBLIC CLIPPER_VERSION="${PROJECT_VERSION}")
+find_package(clipper REQUIRED)
 
 if(MKL_FOUND)
     target_include_directories(clipper PRIVATE ${MKL_INCLUDE_DIR})
@@ -146,14 +124,9 @@ endif()
 ##########Triangulaton target##############
 add_library(triangulation SHARED)
 target_sources(triangulation PRIVATE
-  src/triangulation/descriptor.cpp
   src/triangulation/observation.cpp)
-target_include_directories(triangulation PRIVATE include ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
-target_link_libraries(triangulation ${OpenCV_LIBS} ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${qhullLibs})
-
-add_executable(tripper examples/c++/example.cpp)
-target_link_libraries(tripper triangulation clipper ${EIGEN3_LIBRARIES} ${Boost_LIBRARIES} ${qhullLibs})
-target_include_directories(tripper PRIVATE include/clipper include/triangulation ${EIGEN3_INCLUDE_DIR})
+target_include_directories(triangulation PRIVATE include ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+target_link_libraries(triangulation ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${qhullLibs})
 
 ##########Semantic Clipper target##############
 add_library(semantic_clipper SHARED)
@@ -161,11 +134,6 @@ target_sources(semantic_clipper PRIVATE
   src/semantic_clipper.cpp)
 target_link_libraries(semantic_clipper PRIVATE clipper triangulation ${EIGEN3_LIBRARIES} ${Boost_LIBRARIES})
 target_include_directories(semantic_clipper PRIVATE include ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
-
-#########Test semantic clipper target##############
-add_executable(test_semantic_clipper test/test_semantic_clipper.cpp)
-target_link_libraries(test_semantic_clipper semantic_clipper ${EIGEN3_LIBRARIES} ${Boost_LIBRARIES})
-target_include_directories(test_semantic_clipper PRIVATE include ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
 ###############################################################################
 # Extras
@@ -189,37 +157,3 @@ endif()
 if(CLIPPER_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
-
-###############################################################################
-# Install
-###############################################################################
-
-include(GNUInstallDirs)
-message(STATUS "CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/clipper)
-
-install(TARGETS clipper
-    EXPORT clipper-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-install(EXPORT clipper-targets
-  FILE clipper-targets.cmake
-  DESTINATION ${INSTALL_CONFIGDIR})
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/clipper-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion)
-
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/clipper-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/clipper-config.cmake
-  INSTALL_DESTINATION ${INSTALL_CONFIGDIR})
-
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/clipper-config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/clipper-config-version.cmake
-  DESTINATION ${INSTALL_CONFIGDIR})
