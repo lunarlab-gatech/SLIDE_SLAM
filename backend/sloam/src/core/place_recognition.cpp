@@ -10,6 +10,7 @@
 #include <place_recognition.h>
 
 #include <chrono>
+#include <stdexcept>
 
 // define the constructor of the class GraphMatchNode
 PlaceRecognition::PlaceRecognition(const SlideMatchParams &slidematch_params,
@@ -67,7 +68,8 @@ void PlaceRecognition::printParams() {
 // define the match_maps function
 void PlaceRecognition::MatchMaps(
     const std::vector<Eigen::Vector7d> &reference_objects,
-    const std::vector<Eigen::Vector7d> &query_objects, Eigen::Matrix3d &R_t_out,
+    const std::vector<Eigen::Vector7d> &query_objects,
+    const CompatibilityMatrix &compatibility, Eigen::Matrix3d &R_t_out,
     int &best_num_inliers_out,
     std::vector<Eigen::Vector4d> &map_objects_matched_out,
     std::vector<Eigen::Vector4d> &detection_objects_matched_out,
@@ -279,7 +281,9 @@ void PlaceRecognition::MatchMaps(
                   map_objects_label_xy.block<1, 7>(cur_map_idx, 0);
                   
               // first check if the label is the same to be most efficient
-              if (cur_map_object_label_xy[0] != cur_detection_object_label) {
+              // Replaced by the precomputed compatibility matrix (CLIP cosine gate):
+              // if (cur_map_object_label_xy[0] != cur_detection_object_label) {
+              if (!compatibility(cur_map_idx, cur_idx)) {
                 continue;
               } else {
                 // check if the distance is within self.match_threshold_
@@ -370,8 +374,16 @@ void PlaceRecognition::MatchMaps(
 bool PlaceRecognition::findInterLoopClosure(
     const std::vector<Eigen::Vector7d> &reference_objects,
     const std::vector<Eigen::Vector7d> &query_objects,
+    const CompatibilityMatrix &compatibility,
     Eigen::Matrix4d &tfFromQueryToRef,
     std::vector<std::pair<int, int>> &matched_pairs_out) {
+  if (compatibility.rows() != reference_objects.size() ||
+      compatibility.cols() != query_objects.size()) {
+    throw std::invalid_argument(
+        "compatibility must be reference x query (" + std::to_string(reference_objects.size()) +
+        " x " + std::to_string(query_objects.size()) + "), got " +
+        std::to_string(compatibility.rows()) + " x " + std::to_string(compatibility.cols()));
+  }
   // IMPORTANT: each object in reference_objects and query_objects is in the [label, x, y, z, dim1, dim2, dim3] format
   // call the match_maps function
   std::vector<double> xyzYaw_out;
@@ -383,8 +395,8 @@ bool PlaceRecognition::findInterLoopClosure(
     std::cerr << "[PlaceRecognition]: number of objects in reference_objects or query_objects is less than slidematch_min_num_map_objects_to_start_" << std::endl;
   } else {
     closure_found = findTransformation(reference_objects, query_objects,
-                                            xyzYaw_out, transform_out,
-                                            matched_pairs_out);
+                                            compatibility, xyzYaw_out,
+                                            transform_out, matched_pairs_out);
   }
   if (!closure_found) {
     std::cerr <<
@@ -621,6 +633,7 @@ Eigen::Vector2d PlaceRecognition::getMapBoundaries(
 bool PlaceRecognition::findTransformation(
     const std::vector<Eigen::Vector7d> &reference_objects_input,
     const std::vector<Eigen::Vector7d> &query_objects_input,
+    const CompatibilityMatrix &compatibility,
     std::vector<double> &xyz_yaw_out, Eigen::Matrix4d &transform_out,
     std::vector<std::pair<int, int>> &matched_pairs_out) {
   // initialize the two to be zeros
@@ -689,7 +702,7 @@ bool PlaceRecognition::findTransformation(
 
   // the input of matchmaps is vector7d label x y z dim1 dim2 dim3
   // the output map_objects_matched_out from matchmaps is vector 3d label x y
-  MatchMaps(reference_objects, query_objects, R_t_out, best_num_inliers_out,
+  MatchMaps(reference_objects, query_objects, compatibility, R_t_out, best_num_inliers_out,
             map_objects_matched_out, detection_objects_matched_out,
             matched_pairs_out);
 

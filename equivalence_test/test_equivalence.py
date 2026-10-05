@@ -73,7 +73,9 @@ class TestSlideSLAMEquivalence(unittest.TestCase):
             with self.subTest(case=name):
                 if golden is None:
                     self.skipTest(f"{name}: no golden output yet")
-                result = build_place_recognition(params).slidematch(reference, query)
+                # Compatibility equal to the original's label equality, so the original's goldens still apply
+                compatibility = reference[:, 0][:, None] == query[:, 0][None, :]
+                result = build_place_recognition(params).slidematch(reference, query, compatibility)
                 pairs = [list(p) for p in result['matched_pairs']]
 
                 self.assertEqual(result['accepted'], golden['accepted'])

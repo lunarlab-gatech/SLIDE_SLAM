@@ -28,6 +28,10 @@ namespace Eigen {
 typedef Matrix<double, 7, 1> Vector7d;
 }
 
+// compatibility(r, q): may reference object r match query object q (replaces SlideMatch's label equality);
+// column-major, so MatchMaps' inner loop over reference objects reads consecutive memory
+using CompatibilityMatrix = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
+
 // Replaces the ROS "place_recognition" namespace; names and defaults match the old ParamInit
 struct SlideMatchParams {
   double compute_budget_sec = 5.0;
@@ -71,6 +75,8 @@ class PlaceRecognition {
    * @param query_objects: a vector of Eigen::Vector7d, where each element is a
    * 7D vector, where the first element is the label, the next three elements
    * are the XYZ coordinates, and the last three elements are the dimensions
+   * @param compatibility: reference x query, whether each pair may match
+   * (replaces label equality)
    * @param R_t_out: a 3x3 matrix, where the upper left 2x2 is the rotation
    * matrix, and the last column is the translation vector
    * @param best_num_inliers_out: the best number of inliers
@@ -86,6 +92,7 @@ class PlaceRecognition {
    */
   void MatchMaps(const std::vector<Eigen::Vector7d> &reference_objects,
                  const std::vector<Eigen::Vector7d> &query_objects,
+                 const CompatibilityMatrix &compatibility,
                  Eigen::Matrix3d &R_t_out, int &best_num_inliers_out,
                  std::vector<Eigen::Vector4d> &map_objects_matched_out,
                  std::vector<Eigen::Vector4d> &detection_objects_matched_out,
@@ -97,6 +104,8 @@ class PlaceRecognition {
    *
    * @param reference_objects
    * @param query_objects
+   * @param compatibility: reference x query, whether each pair may match;
+   * throws std::invalid_argument if its shape doesn't match the maps
    * @param tfFromQueryToCandidate
    * @param matched_pairs_out: (reference index, query index) of the best hypothesis's matches (set whenever the search runs)
    * @return true
@@ -105,6 +114,7 @@ class PlaceRecognition {
   bool findInterLoopClosure(
       const std::vector<Eigen::Vector7d> &reference_objects,
       const std::vector<Eigen::Vector7d> &query_objects,
+      const CompatibilityMatrix &compatibility,
       Eigen::Matrix4d &tfFromQueryToCandidate,
       std::vector<std::pair<int, int>> &matched_pairs_out);
 
@@ -160,6 +170,7 @@ class PlaceRecognition {
    *
    * @param reference_objects
    * @param query_objects
+   * @param compatibility: reference x query, passed to MatchMaps
    * @param xyzYaw
    * @param transform_out
    * @param matched_pairs_out: (reference index, query index) of the best
@@ -169,6 +180,7 @@ class PlaceRecognition {
    */
   bool findTransformation(const std::vector<Eigen::Vector7d> &reference_objects,
                           const std::vector<Eigen::Vector7d> &query_objects,
+                          const CompatibilityMatrix &compatibility,
                           std::vector<double> &xyzYaw,
                           Eigen::Matrix4d &transform_out,
                           std::vector<std::pair<int, int>> &matched_pairs_out);
