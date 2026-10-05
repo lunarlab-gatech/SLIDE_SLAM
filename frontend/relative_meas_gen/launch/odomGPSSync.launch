@@ -1,0 +1,17 @@
+<launch>
+    <!-- Setup arguments for node name -->
+    <arg name="odom_gps_sync_node_name" default="odom_gps_sync"/>
+    <arg name="odom_topic" default="/Odometry"/>
+    <arg name="gps_topic" default="/gps"/>
+    <arg name="slop" default="0.1"/>
+    <arg name="pub_topic" default="/odom_gps_sync"/>
+
+    <!-- Setup parameters -->
+    <param name="odom_gps_sync_node_name" value="$(arg odom_gps_sync_node_name)"/>
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="gps_topic" value="$(arg gps_topic)"/>
+    <param name="slop" value="$(arg slop)"/>
+
+    <!-- Launch the node -->
+    <node pkg="relative_meas_gen" type="odomGPSSync.py" name="$(arg odom_gps_sync_node_name)" output="screen"/>
+</launch>

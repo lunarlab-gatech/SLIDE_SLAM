@@ -1,0 +1,10 @@
+<launch>
+    <!-- Setup arguments for node name -->
+    <arg name="odom_relative_meas_sync_node_name" default="odom_relative_meas_sync"/>
+
+    <!-- Setup parameters -->
+    <param name="odom_relative_meas_sync_node_name" value="$(arg odom_relative_meas_sync_node_name)"/>
+    
+    <!-- Launch the node -->
+    <node pkg="relative_meas_gen" type="odomRelativeMeasSync.py" name="$(arg odom_relative_meas_sync_node_name)" output="screen"/>
+</launch>

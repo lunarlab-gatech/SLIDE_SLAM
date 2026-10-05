@@ -1,0 +1,1 @@
+docker start slideslam_ros && docker exec -it slideslam_ros /bin/bash

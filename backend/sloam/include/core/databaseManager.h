@@ -46,6 +46,8 @@ struct PoseMstPair {
   SE3 keyPose;               // the current pose of the robot
   SE3 relativeRawOdomMotion; // relative motion from last keyPose to current as
                              // measured using odometry
+  ros::Time stamp;           // the timestamp associated with the keyPose
+
   // measurement in robot frame
   std::vector<Cylinder> cylinderMsts;
   std::vector<Cube> cubeMsts;
@@ -60,6 +62,8 @@ public:
                      // find a loop closure
   std::deque<PoseMstPair>
       poseMstPacket; // all received data about robot i so far
+  std::deque<RelativeMeas> 
+      relativeMeasPacket; // all received relative inter-robot measurements
 
   robotData() {
     bookmarkFG = 0;
@@ -77,7 +81,7 @@ public:
    */
   explicit databaseManager(const ros::NodeHandle &nh);
 
-  void publishPoseMsts(int robotID);
+  // void publishPoseMsts(int robotID);
 
   std::unordered_map<int, SE3> loopClosureTf; // the transformation from other robots to the host robot
   std::unordered_map<int, Cylinder> cylinderMap;
@@ -100,6 +104,8 @@ public:
   int getHostRobotID() { return hostRobotID_; }
 
   robotData &getHostRobotData() { return robotDataDict_[hostRobotID_]; }
+
+  robotData &getRobotDataByID(const int robotID) { return robotDataDict_[robotID]; }
 
   void updateFGBookmark(int newBookmark, int robotID) {
     robotDataDict_[robotID].bookmarkFG = newBookmark;
@@ -176,24 +182,21 @@ public:
     }
   }
 
-  static void
-  Measurement2Cube(const std::vector<gtsam_cube::CubeMeasurement> &cms,
+  static void Measurement2Cube(const std::vector<gtsam_cube::CubeMeasurement> &cms,
                    std::vector<Cube> &objs) {
     for (const auto &cm : cms) {
       objs.emplace_back(cm.pose, cm.scale);
     }
   }
 
-  static void
-  object2Measurement(const std::vector<Cube> &objs,
+  static void object2Measurement(const std::vector<Cube> &objs,
                      std::vector<gtsam_cube::CubeMeasurement> &msts) {
     for (const auto &obj : objs) {
       msts.emplace_back(obj);
     }
   }
 
-  static void
-  object2Measurement(const std::vector<Cylinder> &objs,
+  static void object2Measurement(const std::vector<Cylinder> &objs,
                      std::vector<gtsam_cylinder::CylinderMeasurement> &msts) {
     for (const auto &obj : objs) {
       msts.emplace_back(obj);
@@ -252,9 +255,10 @@ private:
   SE3 priorTF2World_;
   bool priorTFKnown_;
   ros::Timer timer_;
+
   // communication must happen at least every comm_waittime_ seconds, in other words, how long does the robot wait between two communication attempts
   double commWaitTime_;
-  ros::Time startTime_;
+  ros::Time lastCommTime_;
   
   std::vector<ros::Subscriber> poseMstVectorSub_;
 

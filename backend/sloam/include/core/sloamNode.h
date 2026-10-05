@@ -14,6 +14,7 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/geometry/Rot3.h>
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <tf/transform_broadcaster.h>
 #include <visualization_msgs/Marker.h>
@@ -23,7 +24,6 @@
 #include <cube.h>
 #include <cubeMapManager.h>
 #include <cylinderMapManager.h>
-#include <databaseManager.h>
 #include <definitions.h>
 #include <ellipsoid.h>
 #include <ellipsoidMapManager.h>
@@ -61,17 +61,20 @@ class SLOAMNode : public sloam {
   using ConstPtr = boost::shared_ptr<const SLOAMNode>;
 
   // timestamp is used for visualization
-  bool runSLOAMNode(const SE3 &relativeRawOdomMotion, const SE3 &prevKeyPose,
+  bool runSLOAMNode(const SE3 &relativeRawOdomMotion, 
+                    const SE3 &prevKeyPose,
                     const std::vector<Cylinder> &cylindersBody,
                     const std::vector<Cube> &cubesBody,
                     const std::vector<Ellipsoid> &ellipsoidBody,
                     ros::Time stamp, SE3 &outPose, const int &robotID);
+  void addRelativeMeasurement(RelativeMeas relativeMeas);
   bool isInLoopClosureRegion_ = false;
   SemanticFactorGraphWrapper factorGraph_;
   databaseManager dbManager;
   std::mutex dbMutex;
   int hostRobotID;
   CylinderMapManager semanticMap_;
+
   // results analysis related variables
   std::vector<double> fg_optimization_time;
   int total_number_of_landmarks = 0;
@@ -83,19 +86,21 @@ class SLOAMNode : public sloam {
   std::vector<double> inter_loop_closure_time;
   int num_attempts_inter_loop_closure = 0;
   int num_successful_inter_loop_closure = 0;
+  int num_successful_rel_inter_robot_factor = 0;
   bool save_runtime_analysis = false;
   std::string runtime_analysis_file;
 
  private:
   // TODO(xu): load the following four params from rosparam
   bool save_inter_robot_closure_results_ = true;
-  string save_results_dir_ = "/home/sam";
-  bool save_robot_trajectory_as_csv_ = false;
-  string save_runtime_analysis_dir_ = "/home/sam";
+  string save_results_dir_;
+  bool save_robot_trajectory_as_csv_ = true;
+  string save_runtime_analysis_dir_;
 
 
   double inter_robot_place_recognition_frequency_;
   double intra_robot_place_recognition_frequency_;
+  double rel_inter_robot_factor_frequency_;
 
   std::vector<ros::Time> KeyPoseTimeStamps;
   ros::Publisher groundPub_;
@@ -105,6 +110,7 @@ class SLOAMNode : public sloam {
       const std::vector<std::vector<TreeVertex>> &landmarks);
   void publishMap_(const ros::Time stamp);
   void publishCubeMaps_(const ros::Time stamp);
+  void publishInterRobotFactors();
 
   bool prepareInputs_(const SE3 relativeMotion, const SE3 prevKeyPose,
                       CloudT::Ptr tree_cloud, CloudT::Ptr ground_cloud,
@@ -113,7 +119,8 @@ class SLOAMNode : public sloam {
                        ros::Time stamp, const int &robotID);
   void intraLoopClosureThread_();
   void interLoopClosureThread_();
-
+  void relInterRobotFactorThread_();
+  
   std::vector<Eigen::Vector3d> extractPosition(
       const std::vector<Cylinder> &candidateCylinderObs,
       const std::vector<Cube> &candidateCubeObs,
@@ -152,6 +159,8 @@ class SLOAMNode : public sloam {
   ros::Publisher pubMapCubeModel_;
   ros::Publisher pubSubmapCubeModel_;
 
+  ros::Publisher pubRelInterRobotFactors_;
+
   // Transform
   tf2_ros::Buffer tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -174,6 +183,12 @@ class SLOAMNode : public sloam {
   std::mutex cubeSemanticMapMtx_;
   std::mutex ellipsoidSemanticMapMtx_;
   std::mutex factorGraphMtx_;
+
+  // Relative Measurement Factor Generation
+  ros::Time last_rel_inter_robot_factor_stamp_;
+  std::thread relInterRobotFactorthread_;
+  std::vector<RelativeInterRobotFactor> relative_inter_robot_factors; // All measurements that have been used to generate a factor
+  std::mutex relInterRobotFactorsMtx_;
 
   // For cuboid semantic landmarks
   CubeMapManager cube_semantic_map_;
