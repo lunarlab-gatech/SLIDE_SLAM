@@ -1,0 +1,21 @@
+method slidematch
+reference synth_dims_ref.txt
+query synth_dims_query.txt
+param double place_recognition/compute_budget_sec 1000000000.0
+param double place_recognition/dilation_factor 1.2
+param double place_recognition/search_xy_step_size 0.25
+param double place_recognition/match_yaw_half_range 180.0
+param bool place_recognition/disable_yaw_search false
+param double place_recognition/search_yaw_step_size_degrees 15.0
+param double place_recognition/match_threshold_position 0.75
+param double place_recognition/match_threshold_dimension 1.0
+param bool place_recognition/ignore_dimension true
+param int place_recognition/min_num_inliers 1000
+param bool place_recognition/use_nonlinear_least_squares true
+param int place_recognition/min_num_map_objects_to_start 5
+param bool place_recognition/visualize_matching_results false
+param int place_recognition_slidegraph/num_inliners_threshold 5
+param double place_recognition_slidegraph/descriptor_matching_threshold 0.1
+param double place_recognition_slidegraph/sigma 0.1
+param double place_recognition_slidegraph/epsilon 0.3
+param int place_recognition_slidegraph/min_num_map_objects_to_start 30

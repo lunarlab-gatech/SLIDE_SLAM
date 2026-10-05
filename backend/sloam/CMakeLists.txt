@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(sloam)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(BUILD_TESTING "Build tests" Off)
@@ -30,6 +31,8 @@ cc_library(
 if (USE_CLIPPER)
   target_link_libraries(${CC_TARGET_PREFIX}_core PRIVATE semantic_clipper)
 endif()
+
+add_subdirectory(bindings/python)
 
 # TESTS
 # if(BUILD_TESTING)

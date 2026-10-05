@@ -70,7 +70,8 @@ void PlaceRecognition::MatchMaps(
     const std::vector<Eigen::Vector7d> &query_objects, Eigen::Matrix3d &R_t_out,
     int &best_num_inliers_out,
     std::vector<Eigen::Vector4d> &map_objects_matched_out,
-    std::vector<Eigen::Vector4d> &detection_objects_matched_out) {
+    std::vector<Eigen::Vector4d> &detection_objects_matched_out,
+    std::vector<std::pair<int, int>> &matched_indices_out) {
   // Apply the sampled transformations on detection_objects
   Eigen::MatrixXd detection_object_xy_homogeneous =
       Eigen::MatrixXd::Ones(query_objects.size(), 3);
@@ -101,6 +102,9 @@ void PlaceRecognition::MatchMaps(
   // initialize the best matched detection objects
   std::vector<Eigen::Vector4d> best_matched_detection_objects =
       std::vector<Eigen::Vector4d>();
+  // initialize the best matched (reference index, query index) pairs
+  std::vector<std::pair<int, int>> best_matched_indices =
+      std::vector<std::pair<int, int>>();
 
   // TODO: break this down to small functions
   std::vector<double> yaw_candidates;
@@ -245,6 +249,8 @@ void PlaceRecognition::MatchMaps(
               std::vector<Eigen::Vector4d>();
           std::vector<Eigen::Vector4d> cur_matched_detection_objects =
               std::vector<Eigen::Vector4d>();
+          std::vector<std::pair<int, int>> cur_matched_indices =
+              std::vector<std::pair<int, int>>();
 
           // iterate through all the detection objects, find the best match in
           // the map objects
@@ -318,6 +324,7 @@ void PlaceRecognition::MatchMaps(
                   cur_matched_detection_objects.push_back(Eigen::Vector4d(
                       cur_detection_object_label, query_objects[cur_idx][1],
                       query_objects[cur_idx][2], query_objects[cur_idx][3]));
+                  cur_matched_indices.push_back({cur_map_idx, cur_idx});
                   // once inlier is found, break the loop since we only need one
                   // inlier for each detection object
                   break;
@@ -337,6 +344,8 @@ void PlaceRecognition::MatchMaps(
             best_matched_map_objects = cur_matched_map_objects;
             // update the best matched detection objects
             best_matched_detection_objects = cur_matched_detection_objects;
+            // update the best matched (reference index, query index) pairs
+            best_matched_indices = cur_matched_indices;
           }
         }
       }
@@ -354,12 +363,15 @@ void PlaceRecognition::MatchMaps(
   map_objects_matched_out = best_matched_map_objects;
   // assign the best matched detection objects to detection_objects_matched_out
   detection_objects_matched_out = best_matched_detection_objects;
+  // assign the best matched (reference index, query index) pairs to matched_indices_out
+  matched_indices_out = best_matched_indices;
 }
 
 bool PlaceRecognition::findInterLoopClosure(
     const std::vector<Eigen::Vector7d> &reference_objects,
     const std::vector<Eigen::Vector7d> &query_objects,
-    Eigen::Matrix4d &tfFromQueryToRef) {
+    Eigen::Matrix4d &tfFromQueryToRef,
+    std::vector<std::pair<int, int>> &matched_pairs_out) {
   // IMPORTANT: each object in reference_objects and query_objects is in the [label, x, y, z, dim1, dim2, dim3] format
   // call the match_maps function
   std::vector<double> xyzYaw_out;
@@ -371,7 +383,8 @@ bool PlaceRecognition::findInterLoopClosure(
     std::cerr << "[PlaceRecognition]: number of objects in reference_objects or query_objects is less than slidematch_min_num_map_objects_to_start_" << std::endl;
   } else {
     closure_found = findTransformation(reference_objects, query_objects,
-                                            xyzYaw_out, transform_out);
+                                            xyzYaw_out, transform_out,
+                                            matched_pairs_out);
   }
   if (!closure_found) {
     std::cerr <<
@@ -402,7 +415,9 @@ bool PlaceRecognition::findInterLoopClosure(
 bool PlaceRecognition::findInterLoopClosureWithClipper(
     const std::vector<Eigen::Vector7d> &reference_objects,
     const std::vector<Eigen::Vector7d> &query_objects,
-    Eigen::Matrix4d &tfFromQueryToRef) {
+    Eigen::Matrix4d &tfFromQueryToRef,
+    const std::function<Eigen::VectorXd(int)> &u0_generator,
+    std::vector<std::pair<int, int>> &selected_pairs_out) {
 
     // // save the input in a file for debugging
     // std::ofstream reference_objects_file;
@@ -439,6 +454,9 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
     // argument format
     std::vector<std::vector<double>> reference_objects_vector;
     std::vector<std::vector<double>> query_objects_vector;
+    // input index of each object kept in reference_objects_vector / query_objects_vector
+    std::vector<int> reference_objects_kept;
+    std::vector<int> query_objects_kept;
     for (int i = 0; i < reference_objects.size(); i++) {
       // check if the object has 0 in its coordinates, if so skip it since it is
       // not valid
@@ -456,6 +474,7 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
       object.push_back(reference_objects[i][5]);
       object.push_back(reference_objects[i][6]);
       reference_objects_vector.push_back(object);
+      reference_objects_kept.push_back(i);
   }
   for (int i = 0; i < query_objects.size(); i++) {
     // check if the object has 0 in its coordinates, if so skip it since it is not valid
@@ -472,6 +491,7 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
     object.push_back(query_objects[i][5]);
     object.push_back(query_objects[i][6]);
     query_objects_vector.push_back(object);
+    query_objects_kept.push_back(i);
   }
   
   bool found = false;
@@ -479,7 +499,12 @@ bool PlaceRecognition::findInterLoopClosureWithClipper(
   if (reference_objects_vector.size() >= slidegraph_min_num_map_objects_to_start_ && query_objects_vector.size() >= slidegraph_min_num_map_objects_to_start_) {
     // ROS_WARN_STREAM("[PlaceRecognition]: reference_objects_vector size is: " << reference_objects_vector.size() << " and query_objects_vector size is: " << query_objects_vector.size());
     std::cerr << "Calling CLIPPER for inter loop closure, if anything bad happens, look into that piece of code..." << std::endl;
-    found = semantic_clipper::run_semantic_clipper(reference_objects_vector, query_objects_vector, tfFromQueryToRef, sigma, epsilon, min_num_pairs, matching_threshold);
+    std::vector<std::pair<int, int>> selected_pairs;
+    found = semantic_clipper::run_semantic_clipper(reference_objects_vector, query_objects_vector, tfFromQueryToRef, sigma, epsilon, min_num_pairs, matching_threshold, u0_generator, selected_pairs);
+    // map the selected pairs from the filtered vectors back to input indices
+    for (const auto &pair : selected_pairs) {
+      selected_pairs_out.push_back({reference_objects_kept[pair.first], query_objects_kept[pair.second]});
+    }
     // get the inverse of the transformation matrix
     tfFromQueryToRef = tfFromQueryToRef.inverse();
   } else {
@@ -596,7 +621,8 @@ Eigen::Vector2d PlaceRecognition::getMapBoundaries(
 bool PlaceRecognition::findTransformation(
     const std::vector<Eigen::Vector7d> &reference_objects_input,
     const std::vector<Eigen::Vector7d> &query_objects_input,
-    std::vector<double> &xyz_yaw_out, Eigen::Matrix4d &transform_out) {
+    std::vector<double> &xyz_yaw_out, Eigen::Matrix4d &transform_out,
+    std::vector<std::pair<int, int>> &matched_pairs_out) {
   // initialize the two to be zeros
   Eigen::Vector2d centroid_reference = Eigen::Vector2d::Zero();
   Eigen::Vector2d centroid_query = Eigen::Vector2d::Zero();
@@ -664,7 +690,8 @@ bool PlaceRecognition::findTransformation(
   // the input of matchmaps is vector7d label x y z dim1 dim2 dim3
   // the output map_objects_matched_out from matchmaps is vector 3d label x y
   MatchMaps(reference_objects, query_objects, R_t_out, best_num_inliers_out,
-            map_objects_matched_out, detection_objects_matched_out);
+            map_objects_matched_out, detection_objects_matched_out,
+            matched_pairs_out);
 
   // check if the best_num_inliers_out is less than
   // min_num_inliers_for_valid_closure_

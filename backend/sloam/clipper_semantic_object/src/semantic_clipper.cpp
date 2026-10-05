@@ -10,7 +10,7 @@ namespace semantic_clipper{
     }
 
     // function to compute triangle difference
-    void compute_triangle_diff(const DelaunayTriangulation::Polygon& triangle_model, const DelaunayTriangulation::Polygon& triangle_data, std::vector<double>& diffs, std::vector<std::vector<double>>& matched_points_model, std::vector<std::vector<double>>& matched_points_data, double threshold) {
+    void compute_triangle_diff(const DelaunayTriangulation::Polygon& triangle_model, const DelaunayTriangulation::Polygon& triangle_data, std::vector<double>& diffs, std::vector<std::vector<double>>& matched_points_model, std::vector<std::vector<double>>& matched_points_data, std::vector<int>& matched_indices_model, std::vector<int>& matched_indices_data, double threshold) {
         // get the vertices of the triangles
         PointVector vertices_model = triangle_model.points; // 3 by 2 vector
         PointVector vertices_data = triangle_data.points;
@@ -67,16 +67,19 @@ namespace semantic_clipper{
             for (int i = 0; i < num_vertices; i++) {
             matched_points_model.push_back(vertices_model[arg_sort_model[i]]);
             matched_points_data.push_back(vertices_data[arg_sort_data[i]]);
+            // edges[k].first is the input point index of points[k] (see Observation::delaunayTriangulation)
+            matched_indices_model.push_back(triangle_model.edges[arg_sort_model[i]].first);
+            matched_indices_data.push_back(triangle_data.edges[arg_sort_data[i]].first);
             }
         }
     }
 
     // function to find matched triangles and points
-    void match_triangles(const std::vector<DelaunayTriangulation::Polygon>& triangles_model, const std::vector<DelaunayTriangulation::Polygon>& triangles_data, std::vector<double>& diffs, std::vector<std::vector<double>>& matched_points_model, std::vector<std::vector<double>>& matched_points_data, double threshold = 0.1) {
+    void match_triangles(const std::vector<DelaunayTriangulation::Polygon>& triangles_model, const std::vector<DelaunayTriangulation::Polygon>& triangles_data, std::vector<double>& diffs, std::vector<std::vector<double>>& matched_points_model, std::vector<std::vector<double>>& matched_points_data, std::vector<int>& matched_indices_model, std::vector<int>& matched_indices_data, double threshold = 0.1) {
         for (int i = 0; i < triangles_model.size(); i++) {
             for (int j = 0; j < triangles_data.size(); j++) {
             // TODO: add semantic label check here
-            compute_triangle_diff(triangles_model[i], triangles_data[j], diffs, matched_points_model, matched_points_data, threshold);
+            compute_triangle_diff(triangles_model[i], triangles_data[j], diffs, matched_points_model, matched_points_data, matched_indices_model, matched_indices_data, threshold);
             }
         }
     }
@@ -101,7 +104,7 @@ namespace semantic_clipper{
         return tf;
     }
 
-    bool run_semantic_clipper(const std::vector<std::vector<double>>& reference_map, const std::vector<std::vector<double>>& query_map, Eigen::Matrix4d& tfFromQuery2Ref, double sigma, double epsilon, int min_num_pairs, double matching_threshold) {
+    bool run_semantic_clipper(const std::vector<std::vector<double>>& reference_map, const std::vector<std::vector<double>>& query_map, Eigen::Matrix4d& tfFromQuery2Ref, double sigma, double epsilon, int min_num_pairs, double matching_threshold, const std::function<Eigen::VectorXd(int)>& u0_generator, std::vector<std::pair<int, int>>& selected_pairs) {
         /*
         Data preparation
         */
@@ -146,9 +149,11 @@ namespace semantic_clipper{
         std::vector<double> diffs;
         std::vector<std::vector<double>> matched_points_model;
         std::vector<std::vector<double>> matched_points_data;
+        std::vector<int> matched_indices_model;
+        std::vector<int> matched_indices_data;
         auto start = std::chrono::high_resolution_clock::now();
         // TODO(slidegraph): add semantic label check in this function
-        match_triangles(triangles_model, triangles_data, diffs, matched_points_model, matched_points_data, matching_threshold);
+        match_triangles(triangles_model, triangles_data, diffs, matched_points_model, matched_points_data, matched_indices_model, matched_indices_data, matching_threshold);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
         // std::cout << "Elapsed time for matching: " << elapsed_seconds.count() << "s" << std::endl;
@@ -191,7 +196,7 @@ namespace semantic_clipper{
         clipper.scorePairwiseConsistency(matched_points_model_matrix, matched_points_data_matrix, A);
         // find the densest clique of the previously constructed consistency graph
         // std::cout << "Solving as maximum clique" << std::endl;
-        clipper.solve();
+        clipper.solve(u0_generator(number_of_initial_matched_points));
         // check that the select clique was correct
         // std::cout << "Getting Results" << std::endl;
         clipper::Association Ainliers = clipper.getSelectedAssociations();
@@ -209,6 +214,7 @@ namespace semantic_clipper{
             clipper_matched_points_model(1, i) = matched_points_model[idx_model][1];
             clipper_matched_points_data(0, i) = matched_points_data[idx_data][0];
             clipper_matched_points_data(1, i) = matched_points_data[idx_data][1];
+            selected_pairs.emplace_back(matched_indices_model[idx_model], matched_indices_data[idx_data]);
         }
 
         // check if the number of matched points is greater than the minimum number of pairs

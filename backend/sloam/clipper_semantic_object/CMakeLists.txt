@@ -122,14 +122,14 @@ if(CLIPPER_ENABLE_SCS_SDR)
 endif()
 
 ##########Triangulaton target##############
-add_library(triangulation SHARED)
+add_library(triangulation STATIC)
 target_sources(triangulation PRIVATE
   src/triangulation/observation.cpp)
 target_include_directories(triangulation PRIVATE include ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 target_link_libraries(triangulation ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${qhullLibs})
 
 ##########Semantic Clipper target##############
-add_library(semantic_clipper SHARED)
+add_library(semantic_clipper STATIC)
 target_sources(semantic_clipper PRIVATE
   src/semantic_clipper.cpp)
 target_link_libraries(semantic_clipper PRIVATE clipper triangulation ${EIGEN3_LIBRARIES} ${Boost_LIBRARIES})

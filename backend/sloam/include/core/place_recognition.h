@@ -14,8 +14,10 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #if USE_CLIPPER
@@ -78,6 +80,7 @@ class PlaceRecognition {
    * @param detection_objects_matched_out: a vector of Eigen::Vector4d, where
    * each element is a 4D vector, where the first element is the label, and the
    * next three elements are the XYZ coordinates
+   * @param matched_indices_out: (reference index, query index) of each matched pair
    * @return void
    *
    */
@@ -85,7 +88,8 @@ class PlaceRecognition {
                  const std::vector<Eigen::Vector7d> &query_objects,
                  Eigen::Matrix3d &R_t_out, int &best_num_inliers_out,
                  std::vector<Eigen::Vector4d> &map_objects_matched_out,
-                 std::vector<Eigen::Vector4d> &detection_objects_matched_out);
+                 std::vector<Eigen::Vector4d> &detection_objects_matched_out,
+                 std::vector<std::pair<int, int>> &matched_indices_out);
 
   /**
    * @brief findInterLoopClosure, wrapper function for finding inter robot
@@ -94,19 +98,36 @@ class PlaceRecognition {
    * @param reference_objects
    * @param query_objects
    * @param tfFromQueryToCandidate
+   * @param matched_pairs_out: (reference index, query index) of the best hypothesis's matches (set whenever the search runs)
    * @return true
    * @return false
    */
   bool findInterLoopClosure(
       const std::vector<Eigen::Vector7d> &reference_objects,
       const std::vector<Eigen::Vector7d> &query_objects,
-      Eigen::Matrix4d &tfFromQueryToCandidate);
+      Eigen::Matrix4d &tfFromQueryToCandidate,
+      std::vector<std::pair<int, int>> &matched_pairs_out);
 
 #if USE_CLIPPER
+  /**
+   * @brief findInterLoopClosureWithClipper, wrapper function for finding inter
+   * robot closure with SlideGraph
+   *
+   * @param reference_objects
+   * @param query_objects
+   * @param tfFromQueryToRef
+   * @param u0_generator: returns CLIPPER's initial vector, given its length
+   * @param selected_pairs_out: (reference index, query index) of CLIPPER's
+   * selection, duplicates included (set whenever CLIPPER runs)
+   * @return true
+   * @return false
+   */
   bool findInterLoopClosureWithClipper(
       const std::vector<Eigen::Vector7d> &reference_objects,
       const std::vector<Eigen::Vector7d> &query_objects,
-      Eigen::Matrix4d &tfFromQueryToRef);
+      Eigen::Matrix4d &tfFromQueryToRef,
+      const std::function<Eigen::VectorXd(int)> &u0_generator,
+      std::vector<std::pair<int, int>> &selected_pairs_out);
 
 #endif
 
@@ -141,13 +162,16 @@ class PlaceRecognition {
    * @param query_objects
    * @param xyzYaw
    * @param transform_out
+   * @param matched_pairs_out: (reference index, query index) of the best
+   * hypothesis's matches, from MatchMaps
    * @return true
    * @return false
    */
   bool findTransformation(const std::vector<Eigen::Vector7d> &reference_objects,
                           const std::vector<Eigen::Vector7d> &query_objects,
                           std::vector<double> &xyzYaw,
-                          Eigen::Matrix4d &transform_out);
+                          Eigen::Matrix4d &transform_out,
+                          std::vector<std::pair<int, int>> &matched_pairs_out);
 
   void printParams();
 

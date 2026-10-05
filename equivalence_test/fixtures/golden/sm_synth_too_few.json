@@ -1,0 +1,8 @@
+{
+  "method": "slidematch",
+  "num_reference": 25,
+  "num_query": 18,
+  "accepted": false,
+  "searched": false,
+  "transform": null
+}

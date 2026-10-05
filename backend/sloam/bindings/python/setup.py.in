@@ -1,0 +1,10 @@
+from setuptools import setup
+
+setup(
+    name='slideslampy',
+    version='0.1.0',
+    description="Python bindings for SlideSLAM's SlideMatch and SlideGraph place recognition",
+    package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
+    packages=['slideslampy'],
+    package_data={'': ['*.so']}
+)
