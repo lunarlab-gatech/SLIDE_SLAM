@@ -73,7 +73,8 @@ void PlaceRecognition::MatchMaps(
     int &best_num_inliers_out,
     std::vector<Eigen::Vector4d> &map_objects_matched_out,
     std::vector<Eigen::Vector4d> &detection_objects_matched_out,
-    std::vector<std::pair<int, int>> &matched_indices_out) {
+    std::vector<std::pair<int, int>> &matched_indices_out,
+    int &positions_searched_out) {
   // Apply the sampled transformations on detection_objects
   Eigen::MatrixXd detection_object_xy_homogeneous =
       Eigen::MatrixXd::Ones(query_objects.size(), 3);
@@ -125,6 +126,8 @@ void PlaceRecognition::MatchMaps(
   // start with the center (0, 0), gradually expand the search range
   // until reaching either the max time budget or the max search range
   auto start_cpu = std::chrono::high_resolution_clock::now();
+  // number of (x, y) positions evaluated
+  int positions_searched = 0;
   // outer loop step size around 10 x match_xy_step_size_ to make sure we have
   // significant number of samples each time
   double outer_loop_step_size = 10 * match_xy_step_size_;
@@ -156,9 +159,11 @@ void PlaceRecognition::MatchMaps(
     // get the current time
     auto cur_cpu = std::chrono::high_resolution_clock::now();
     // get the duration in seconds
+    // double duration =
+    //     std::chrono::duration_cast<std::chrono::seconds>(cur_cpu - start_cpu)
+    //         .count();
     double duration =
-        std::chrono::duration_cast<std::chrono::seconds>(cur_cpu - start_cpu)
-            .count();
+        std::chrono::duration<double>(cur_cpu - start_cpu).count();
     // check if we have exceeded the time budget
     if (duration > compute_budget_sec_) {
       std::cerr <<
@@ -205,6 +210,12 @@ void PlaceRecognition::MatchMaps(
     // considered before since we need to get the "ring" region
     for (double x = x_negative_start; x <= x_positive_end;
          x += match_xy_step_size_) {
+      // check the budget before every column, so the x loop also stops once it is exceeded
+      double column_duration = std::chrono::duration<double>(
+          std::chrono::high_resolution_clock::now() - start_cpu).count();
+      if (column_duration > compute_budget_sec_) {
+        break;
+      }
       for (double y = y_negative_start; y <= y_positive_end;
            y += match_xy_step_size_) {
 
@@ -215,6 +226,14 @@ void PlaceRecognition::MatchMaps(
             (y >= y_left_boundary_prev && y <= y_right_boundary_prev)) {
           continue;
         }
+
+        // check the budget before every position, so the search stops within one position's cost of it
+        double position_duration = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - start_cpu).count();
+        if (position_duration > compute_budget_sec_) {
+          break;
+        }
+        positions_searched++;
 
         // iterate through all the yaw candidates
         Eigen::Matrix3d cur_R_t = Eigen::Matrix3d::Identity();
@@ -369,6 +388,8 @@ void PlaceRecognition::MatchMaps(
   detection_objects_matched_out = best_matched_detection_objects;
   // assign the best matched (reference index, query index) pairs to matched_indices_out
   matched_indices_out = best_matched_indices;
+  // assign the number of evaluated (x, y) positions to positions_searched_out
+  positions_searched_out = positions_searched;
 }
 
 bool PlaceRecognition::findInterLoopClosure(
@@ -376,7 +397,9 @@ bool PlaceRecognition::findInterLoopClosure(
     const std::vector<Eigen::Vector7d> &query_objects,
     const CompatibilityMatrix &compatibility,
     Eigen::Matrix4d &tfFromQueryToRef,
-    std::vector<std::pair<int, int>> &matched_pairs_out) {
+    std::vector<std::pair<int, int>> &matched_pairs_out,
+    int &positions_searched_out) {
+  positions_searched_out = 0;  // stays 0 if the search doesn't run
   if (compatibility.rows() != reference_objects.size() ||
       compatibility.cols() != query_objects.size()) {
     throw std::invalid_argument(
@@ -396,7 +419,8 @@ bool PlaceRecognition::findInterLoopClosure(
   } else {
     closure_found = findTransformation(reference_objects, query_objects,
                                             compatibility, xyzYaw_out,
-                                            transform_out, matched_pairs_out);
+                                            transform_out, matched_pairs_out,
+                                            positions_searched_out);
   }
   if (!closure_found) {
     std::cerr <<
@@ -635,7 +659,8 @@ bool PlaceRecognition::findTransformation(
     const std::vector<Eigen::Vector7d> &query_objects_input,
     const CompatibilityMatrix &compatibility,
     std::vector<double> &xyz_yaw_out, Eigen::Matrix4d &transform_out,
-    std::vector<std::pair<int, int>> &matched_pairs_out) {
+    std::vector<std::pair<int, int>> &matched_pairs_out,
+    int &positions_searched_out) {
   // initialize the two to be zeros
   Eigen::Vector2d centroid_reference = Eigen::Vector2d::Zero();
   Eigen::Vector2d centroid_query = Eigen::Vector2d::Zero();
@@ -704,7 +729,7 @@ bool PlaceRecognition::findTransformation(
   // the output map_objects_matched_out from matchmaps is vector 3d label x y
   MatchMaps(reference_objects, query_objects, compatibility, R_t_out, best_num_inliers_out,
             map_objects_matched_out, detection_objects_matched_out,
-            matched_pairs_out);
+            matched_pairs_out, positions_searched_out);
 
   // check if the best_num_inliers_out is less than
   // min_num_inliers_for_valid_closure_

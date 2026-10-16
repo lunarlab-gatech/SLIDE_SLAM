@@ -57,13 +57,18 @@ PYBIND11_MODULE(slideslampy, m)
          const CompatibilityMatrix& compatibility) {
         Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
         std::vector<std::pair<int, int>> matched_pairs;
-        bool accepted = pr.findInterLoopClosure(reference, query, compatibility, transform, matched_pairs);
-        return py::dict("accepted"_a = accepted, "transform"_a = transform, "matched_pairs"_a = matched_pairs);
+        int positions_searched = 0;
+        bool accepted = pr.findInterLoopClosure(reference, query, compatibility, transform, matched_pairs,
+                                                positions_searched);
+        return py::dict("accepted"_a = accepted, "transform"_a = transform, "matched_pairs"_a = matched_pairs,
+                        "positions_searched"_a = positions_searched);
       },
       "reference"_a, "query"_a, "compatibility"_a,
       "Run SlideMatch. compatibility is a reference x query bool array: whether each pair may match\n"
       "(replaces label equality). transform (query to reference) is only set when accepted; matched_pairs\n"
-      "are (reference index, query index) of the best hypothesis, set whenever the search runs.")
+      "are (reference index, query index) of the best hypothesis, set whenever the search runs;\n"
+      "positions_searched is the number of (x, y) search positions evaluated before the budget or the\n"
+      "search region ran out (0 if the search doesn't run).")
     .def("slidegraph",
       [](PlaceRecognition& pr, const Objects& reference, const Objects& query,
          const std::function<Eigen::VectorXd(int)>& u0_generator) {
